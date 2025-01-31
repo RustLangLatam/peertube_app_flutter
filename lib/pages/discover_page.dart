@@ -1,8 +1,6 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:system_theme/system_theme.dart';
 
 import '../widgets/peertube_logo_widget.dart';
 import 'category_page.dart';
@@ -38,9 +36,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               .asMap()
               .entries
               .map((entry) => {
-                    'name': entry.value.asString,
-                    'icon': _getIconForCategory(entry.key)
-                  })
+            'name': entry.value.asString,
+            'icon': _getIconForCategory(entry.key)
+          })
               .toList();
         });
       }
@@ -97,41 +95,41 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = SystemTheme.accentColor.accent;
+    final Color primaryColor = Colors.grey[700]!;
 
     return Scaffold(
       backgroundColor: const Color(0xFF13100E),
       appBar: _buildAppBar(),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmerEffect() // Show shimmer while loading
           : categoriesWithIcons.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No categories found',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: GridView.builder(
-                    itemCount: categoriesWithIcons.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Two categories per row
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 2.8, // Adjusted aspect ratio
-                    ),
-                    itemBuilder: (context, index) {
-                      return _buildCategoryCard(
-                        categoriesWithIcons[index]['name'],
-                        index + 1,
-                        categoriesWithIcons[index]['icon'],
-                        primaryColor,
-                      );
-                    },
-                  ),
-                ),
+          ? const Center(
+        child: Text(
+          'No categories found',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+      )
+          : Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: GridView.builder(
+          itemCount: categoriesWithIcons.length,
+          gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // Three categories per row
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.9, // Adjusted aspect ratio
+          ),
+          itemBuilder: (context, index) {
+            return _buildCategoryCard(
+              categoriesWithIcons[index]['name'],
+              index + 1,
+              categoriesWithIcons[index]['icon'],
+              primaryColor,
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -172,36 +170,154 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF1F1B18), // Slightly lighter than background
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.1),
+              color.withOpacity(0.2),
+              Colors.transparent,
+            ],
+          ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.6), width: 1),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.5),
               blurRadius: 8,
               offset: const Offset(2, 2),
             )
           ],
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(iconData, color: color, size: 28),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                category,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+            // Circle with icon and logo
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Circle background
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color.withOpacity(0.9), width: 1),
+                  ),
+                ),
+                // Icon on top of the logo
+                Icon(iconData, color: color.withOpacity(0.9), size: 28),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Category name with shadow
+            Text(
+              category,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 4,
+                    offset: const Offset(2, 2),
+                  )
+                ],
               ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Builds the shimmer effect for loading state
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: GridView.builder(
+          itemCount: 16, // Number of shimmer placeholders
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // Three placeholders per row
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.9, // Adjusted aspect ratio
+          ),
+          itemBuilder: (context, index) {
+            return _buildShimmerCategoryCard();
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Builds a shimmering category card placeholder
+  Widget _buildShimmerCategoryCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey[800]!.withOpacity(0.2),
+            Colors.grey[800]!.withOpacity(0.1),
+            Colors.transparent,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[800]!.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 8,
+            offset: const Offset(2, 2),
+          )
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Shimmering circle placeholder
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[800]!.withOpacity(0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey[800]!.withOpacity(0.3), width: 2),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Shimmering text placeholder
+          Container(
+            width: double.infinity,
+            height: 14,
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            width: 80,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
       ),
     );
   }

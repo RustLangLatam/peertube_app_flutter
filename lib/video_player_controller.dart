@@ -55,6 +55,7 @@ class VideoPlayerControllerService {
 /// Configuration for the video player controls
 const BetterPlayerControlsConfiguration _peerTubeControls =
 BetterPlayerControlsConfiguration(
+  showControlsOnInitialize: false,
   controlBarColor: Colors.black54, // Semi-transparent black
   textColor: Colors.white, // White text
   iconsColor: Colors.white, // White icons

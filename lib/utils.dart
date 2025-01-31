@@ -70,7 +70,6 @@ class CustomButtons {
   }
 }
 
-
 class Utils {
 
   static String formatViews(int? views) {
@@ -187,20 +186,25 @@ class Utils {
                   onButtonPressed(label); // Execute the action with the label
                 }
               },
-              hoverColor: hoverColor ?? Colors.blue.withOpacity(0.1), // Hover effect color
-              splashColor: splashColor ?? Colors.blue.withOpacity(0.2), // Splash effect color
+              hoverColor: hoverColor ?? Colors.blue.withOpacity(0.1),
+              // Hover effect color
+              splashColor: splashColor ?? Colors.blue.withOpacity(0.2),
+              // Splash effect color
               child: Text(
                 label,
-                style: textStyle ?? const TextStyle(color: Colors.blue, fontSize: 12), // Text style
+                style: textStyle ?? const TextStyle(
+                    color: Colors.blue, fontSize: 12), // Text style
               ),
             ),
             // Add a comma separator after each label (except the last one)
             if (label != buttonLabels.last)
               Padding(
-                padding: padding ?? const EdgeInsets.only(right: 4), // Spacing after the comma
+                padding: padding ?? const EdgeInsets.only(right: 4),
+                // Spacing after the comma
                 child: Text(
                   ', ',
-                  style: textStyle ?? const TextStyle(color: Colors.blue, fontSize: 12), // Comma style
+                  style: textStyle ?? const TextStyle(
+                      color: Colors.blue, fontSize: 12), // Comma style
                 ),
               ),
           ],
@@ -211,8 +215,8 @@ class Utils {
 
   /// Creates a filter button styled like PeerTube's UI.
   /// It allows toggling between options like "Recently Added" and "Trending".
-  static Widget filterToggleButton(
-      String label, IconData icon, bool isSelected, [VoidCallback? onPressed]) {
+  static Widget filterToggleButton(String label, IconData icon, bool isSelected,
+      [VoidCallback? onPressed]) {
     return ElevatedButton.icon(
       onPressed: () {
         if (onPressed != null) {
@@ -220,7 +224,8 @@ class Utils {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917), // Active/Inactive color
+        backgroundColor: isSelected ? const Color(0xFF3A2E2A) : const Color(
+            0xFF1F1917), // Active/Inactive color
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
@@ -230,7 +235,8 @@ class Utils {
       icon: Icon(icon, size: 10, color: Colors.white70),
       label: Text(
         label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
       ),
     );
   }
@@ -268,6 +274,29 @@ class Utils {
           Text(value,
               style: const TextStyle(color: Colors.white, fontSize: 12)),
         ],
+      ),
+    );
+  }
+
+  /// 📌 Builds a text widget that always remains in a **single line**.
+  /// - If the text is too long, it truncates with `"..."`.
+  /// - If the text is short, it displays normally.
+  /// - The box always has a **consistent height**.
+  static Widget buildSingleLineText(String text, {TextStyle? style}) {
+    final textStyle = style ??
+        const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        );
+
+    return SizedBox(
+      height: textStyle.fontSize! * 1.4, // Ensure consistent height (1.4x font size)
+      child: Text(
+        text,
+        style: textStyle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis, // Truncates if too long
       ),
     );
   }
@@ -341,137 +370,5 @@ class AvatarUtils {
     String? channelName = videoDetails?.channel?.name ?? "U";
 
     return buildChannelAvatar(avatarUrl: avatarUrl, channelName: channelName);
-  }
-}
-
-Widget buildExpandableText({
-  required String text,
-  int maxLines = 1,
-  TextStyle? textStyle,
-  TextStyle? seeMoreStyle,
-  String seeMoreText = 'See More',
-  String seeLessText = 'See Less',
-}) {
-  return _ExpandableText(
-    text: text,
-    maxLines: maxLines,
-    textStyle: textStyle,
-    seeMoreStyle: seeMoreStyle,
-    seeMoreText: seeMoreText,
-    seeLessText: seeLessText,
-  );
-}
-
-class _ExpandableText extends StatefulWidget {
-  final String text;
-  final int maxLines;
-  final TextStyle? textStyle;
-  final TextStyle? seeMoreStyle;
-  final String seeMoreText;
-  final String seeLessText;
-
-  const _ExpandableText({
-    required this.text,
-    required this.maxLines,
-    this.textStyle,
-    this.seeMoreStyle,
-    required this.seeMoreText,
-    required this.seeLessText,
-  });
-
-  @override
-  _ExpandableTextState createState() => _ExpandableTextState();
-}
-
-class _ExpandableTextState extends State<_ExpandableText> {
-  bool isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final textSpans = _buildTextSpans(widget.text);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            children: isExpanded
-                ? textSpans
-                : textSpans.take(widget.maxLines * 3).toList(),
-          ),
-          maxLines: isExpanded ? null : widget.maxLines,
-          overflow: isExpanded ? TextOverflow.clip : TextOverflow.ellipsis,
-        ),
-        if (!isExpanded || widget.text.length > widget.maxLines * 50)
-          InkWell(
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: Text(
-              isExpanded ? widget.seeLessText : widget.seeMoreText,
-              style: widget.seeMoreStyle ??
-                  const TextStyle(
-                    color: Colors.blue,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  List<TextSpan> _buildTextSpans(String text) {
-    final RegExp urlRegExp = RegExp(
-      r'((https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?)',
-      caseSensitive: false,
-    );
-
-    final List<TextSpan> spans = [];
-    final matches = urlRegExp.allMatches(text);
-    int currentIndex = 0;
-
-    for (final match in matches) {
-      if (match.start > currentIndex) {
-        spans.add(TextSpan(
-          text: text.substring(currentIndex, match.start),
-          style: widget.textStyle ??
-              const TextStyle(color: Colors.white, fontSize: 12),
-        ));
-      }
-
-      final url = text.substring(match.start, match.end);
-      final fullUrl = url.startsWith('http') ? url : 'https://$url';
-
-      spans.add(TextSpan(
-        text: url,
-        style: const TextStyle(
-          color: Colors.blue,
-          fontSize: 12,
-          decoration: TextDecoration.underline,
-        ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () async {
-            if (await canLaunchUrl(Uri.parse(fullUrl))) {
-              await launchUrl(Uri.parse(fullUrl),
-                  mode: LaunchMode.externalApplication);
-            }
-          },
-      ));
-
-      currentIndex = match.end;
-    }
-
-    if (currentIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(currentIndex),
-        style: widget.textStyle ??
-            const TextStyle(color: Colors.white, fontSize: 12),
-      ));
-    }
-
-    return spans;
   }
 }

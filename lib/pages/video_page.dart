@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
@@ -6,6 +5,7 @@ import 'package:peertube_app_flutter/utils.dart';
 import 'package:river_player/river_player.dart';
 import 'package:shimmer/shimmer.dart';
 import '../video_player_controller.dart';
+import '../widgets/expandable_text_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class HlsVideoPlayerPage extends StatefulWidget {
@@ -104,14 +104,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
             child: ListView(
               children: [
                 // Video Title
-                Text(
-                  _videoDetails!.name ?? "Unknown Title",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Utils.buildSingleLineText( _videoDetails!.name ?? "Unknown Title"),
                 const SizedBox(height: 3),
 
                 // Video Metadata
@@ -160,16 +153,50 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                 const SizedBox(height: 10),
 
                 // Video Details
+                Utils.buildDetailRow("Privacy",
+                    _videoDetails?.privacy?.label ?? "Public"),
                 Utils.buildDetailRow(
-                    "Privacy", _videoDetails?.privacy?.label ?? "Public"),
-                Utils.buildDetailRow("Originally Published",
-                    Utils.formatDateAsMMDDYYYY(_videoDetails?.publishedAt)),
+                    "Origin",
+                    _videoDetails?.originallyPublishedAt
+                        ?.toIso8601String() ??
+                        "Unknown"),
                 Utils.buildDetailRow(
-                    "License", _videoDetails?.licence?.label ?? "Unknown"),
+                    "Originally Published",
+                    Utils.formatDateAsMMDDYYYY(
+                        _videoDetails?.publishedAt)),
+                Utils.buildLabelWidgetRow(
+                    label: "Category",
+                    child: Utils.buildDynamicButtonRow(
+                      buttonLabels:
+                      _videoDetails?.category != null
+                          ? [_videoDetails!.category!.label!]
+                          : ["Unknown"],
+                      onButtonPressed: (label) {
+                        // TODO: redirect to tag page
+                        print("label: $label");
+                      },
+                      // Custom splash color
+                    )),
+                Utils.buildDetailRow("License",
+                    _videoDetails?.licence?.label ?? "Unknown"),
+                Utils.buildDetailRow("Language",
+                    _videoDetails?.language?.label ?? "English"),
+                Utils.buildLabelWidgetRow(
+                    label: "Tags",
+                    child: Utils.buildDynamicButtonRow(
+                      buttonLabels:
+                      _videoDetails?.tags?.asList() ??
+                          ["Unknown"],
+                      onButtonPressed: (label) {
+                        // TODO: redirect to tag page
+                        print("label: $label");
+                      },
+                      // Custom splash color
+                    )),
                 Utils.buildDetailRow(
-                    "Language", _videoDetails?.language?.label ?? "English"),
-                Utils.buildDetailRow("Duration",
-                    Utils.formatSecondsToMinSec(_videoDetails?.duration)),
+                    "Duration",
+                    Utils.formatSecondsToMinSec(
+                        _videoDetails?.duration)),
 
                 const SizedBox(height: 12),
 
@@ -198,26 +225,14 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
         // Fake Video Thumbnail
         AspectRatio(
           aspectRatio: 16 / 9,
-          child: Stack(
-            children: [
-              // Background - Pure black
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.black,
-              ),
-
-              // Shimmer effect for loading state
-              Shimmer.fromColors(
-                baseColor: Colors.grey[900]!,
-                highlightColor: Colors.grey[800]!,
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black,
-                ),
-              ),
-            ],
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[900]!,
+            highlightColor: Colors.grey[800]!,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.black,
+            ),
           ),
         ),
 
@@ -225,66 +240,113 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
         Expanded(
           child: Container(
             color: const Color(0xFF1A1A1A),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Shimmer.fromColors(
               baseColor: Colors.grey[800]!,
               highlightColor: Colors.grey[600]!,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
                 children: [
-                  // Fake Title
+                  // Fake Video Title
                   Container(
                     width: double.infinity,
-                    height: 20,
+                    height: 14,
                     color: Colors.white,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
-                  // Fake Metadata
+                  // Fake Video Metadata
                   Row(
                     children: [
-                      Container(width: 100, height: 14, color: Colors.white),
+                      Container(width: 100, height: 12, color: Colors.white),
                       const SizedBox(width: 10),
-                      Container(width: 50, height: 14, color: Colors.white),
+                      Container(width: 80, height: 12, color: Colors.white),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 19),
 
-                  // Fake Avatar & Channel Name
+                  // Fake Uploader Info
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 16,
+                      // Fake Avatar
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                       ),
                       const SizedBox(width: 8),
+
+                      // Fake Channel Name and Display Name
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                              width: 120, height: 14, color: Colors.white),
+                          Container(width: 120, height: 14, color: Colors.white),
                           const SizedBox(height: 4),
                           Container(width: 80, height: 12, color: Colors.white),
                         ],
                       ),
+                      const Spacer(),
+
+                      // Fake Subscribe Button
+                      Container(
+                          // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                        width: 107,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
-                  // Fake Description
-                  Container(
-                      width: double.infinity, height: 12, color: Colors.white),
-                  const SizedBox(height: 6),
-                  Container(
-                      width: double.infinity, height: 12, color: Colors.white),
-                  const SizedBox(height: 6),
-                  Container(width: 150, height: 12, color: Colors.white),
+                  // Fake Video Description
+                  Container(width: double.infinity, height: 12, color: Colors.white),
+                  const SizedBox(height: 30),
+
+                  // Fake Video Details
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  _buildShimmerDetailRow(),
+                  const SizedBox(height: 13),
+
+                  // Fake Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomButtons.likeButton(),
+                      CustomButtons.dislikeButton(),
+                      CustomButtons.shareButton(),
+                      CustomButtons.downloadButton(),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  /// Helper to build a shimmering detail row
+  Widget _buildShimmerDetailRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.5),
+      child: Row(
+        children: [
+          Container(width: 80, height: 12, color: Colors.white),
+          const SizedBox(width: 8),
+          Container(width: 120, height: 12, color: Colors.white),
+        ],
+      ),
     );
   }
 }
