@@ -123,14 +123,20 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => HlsVideoPlayerPage(
-              videoId: video.id!,
-              api: widget.api,
-            ),
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 300),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                HlsVideoPlayerPage(videoId: video.id!, api: widget.api),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return ScaleTransition(
+                scale: animation,
+                child: child,
+              );
+            },
           ),
         );
       },
+
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         padding: const EdgeInsets.only(bottom: 10),
