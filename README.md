@@ -24,11 +24,6 @@ This is a **modern, fully-featured Flutter application** for browsing and playin
 ## **Why This App?** 🤔
 This project is **for educational purposes only**, showcasing how **Flutter can seamlessly integrate with PeerTube**. It serves as a proof-of-concept to demonstrate the potential of a **PeerTube + Flutter** stack, highlighting its efficiency and ease of implementation.
 ## **How to Run the App?** 🚀
-1️⃣ Clone the repository:
-```bash
-git clone https://github.com/RustLangLatam/peertube_app_flutter.git
-cd peertube-flutter-app
-```  
 2️⃣ Install dependencies:
 ```bash
 flutter pub get
