@@ -301,6 +301,68 @@ class Utils {
     );
   }
 
+  /// Extracts the display name from a [Video] object based on specific criteria.
+  ///
+  /// The function follows these rules:
+  /// 1. If [prioritizeChannel] is `true`, it first looks for the `displayName` in the `channel` object.
+  ///    Otherwise, it first looks in the `account` object.
+  /// 2. If the `displayName` is not found or is empty, it looks in the other object (account or channel).
+  /// 3. If the `displayName` starts with the word "Default", the prefix is removed.
+  /// 4. If no valid `displayName` is found, it looks for the `name` in the prioritized object.
+  /// 5. If the `name` is not found in the prioritized object, it looks in the other object.
+  /// 6. If no valid name is found, it returns "Unknown".
+  ///
+  /// [video]: A [Video] object containing `channel` and `account` fields.
+  /// [prioritizeChannel]: A boolean indicating whether to prioritize the `channel` name over the `account` name.
+  /// Returns: A string representing the extracted display name.
+  static String extractDisplayName(Video video, {bool prioritizeChannel = true}) {
+    /// Removes the "Default" prefix from a string if it exists.
+    String removeDefaultPrefix(String text) {
+      const prefix = "Default";
+      if (text.startsWith(prefix)) {
+        return text.substring(prefix.length).trim();
+      }
+      return text;
+    }
+
+    // Step 1: Look for displayName in the prioritized object
+    if (prioritizeChannel) {
+      if (video.channel?.displayName != null && video.channel!.displayName!.isNotEmpty) {
+        return removeDefaultPrefix(video.channel!.displayName!);
+      }
+      if (video.account?.displayName != null && video.account!.displayName!.isNotEmpty) {
+        return removeDefaultPrefix(video.account!.displayName!);
+      }
+    } else {
+      if (video.account?.displayName != null && video.account!.displayName!.isNotEmpty) {
+        return removeDefaultPrefix(video.account!.displayName!);
+      }
+      if (video.channel?.displayName != null && video.channel!.displayName!.isNotEmpty) {
+        return removeDefaultPrefix(video.channel!.displayName!);
+      }
+    }
+
+    // Step 2: Look for name in the prioritized object
+    if (prioritizeChannel) {
+      if (video.channel?.name != null && video.channel!.name!.isNotEmpty) {
+        return video.channel!.name!;
+      }
+      if (video.account?.name != null && video.account!.name!.isNotEmpty) {
+        return video.account!.name!;
+      }
+    } else {
+      if (video.account?.name != null && video.account!.name!.isNotEmpty) {
+        return video.account!.name!;
+      }
+      if (video.channel?.name != null && video.channel!.name!.isNotEmpty) {
+        return video.channel!.name!;
+      }
+    }
+
+    // Step 3: If no valid name is found, return "Unknown"
+    return "Unknown";
+  }
+
 }
 
 class AvatarUtils {

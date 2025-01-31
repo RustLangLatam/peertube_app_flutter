@@ -177,9 +177,6 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
         ? '${widget.api.getHost}${video.previewPath}'
         : '';
 
-    final channelData = video.channel;
-    final channelName = channelData?.name ?? "Unknown Channel";
-
     return InkWell(
       highlightColor: const Color(0xFF1A1A1A).withOpacity(0.7),
       splashColor: const Color(0xFF1A1A1A).withOpacity(0.5),
@@ -259,7 +256,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    channelName,
+                    Utils.extractDisplayName(video),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,

@@ -13,7 +13,7 @@ class PeerTubeLogoWidget extends StatelessWidget {
             // PeerTube Logo from assets
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFE8DED8), // Light beige background
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(5), // Rounded corners
               ),
               padding: const EdgeInsets.all(2), // Inner padding

@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import '../video_player_controller.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
+import '../widgets/unsupported_format_widget.dart';
 
 class HlsVideoPlayerPage extends StatefulWidget {
   final int videoId;
@@ -27,6 +28,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
       VideoPlayerControllerService();
   VideoDetails? _videoDetails;
   bool _isInitialized = false;
+  bool _hasError = false; // Track error state
 
   @override
   void initState() {
@@ -39,7 +41,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
 
     try {
       final id = ApiV1VideosOwnershipIdAcceptPostIdParameter(
-          (p) => p..oneOf = OneOf.fromValue1(value: '${widget.videoId}'));
+              (p) => p..oneOf = OneOf.fromValue1(value: '${widget.videoId}'));
 
       var response = await apiVideos.getVideo(id: id);
       if (response.statusCode == 200) {
@@ -51,14 +53,20 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
         // Initialize the video player
         await _videoService.initializePlayer(uri, _videoDetails!.isLive!);
 
-        setState(() => _isInitialized = true);
+        setState(() {
+          _isInitialized = true;
+          _hasError = false; // Reset error state
+        });
       } else {
-        throw 'Failed to load video';
+        throw 'Failed to load video: ${response.statusCode}';
       }
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing video: $e');
       }
+      setState(() {
+        _hasError = true; // Set error state
+      });
     }
   }
 
@@ -80,9 +88,11 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: _isInitialized
-          ? _buildVideoContent()
-          : _buildShimmerLoading(), // Show shimmer while loading
+      body: _hasError
+          ? const UnsupportedFormatWidget() // Show error widget
+          : _isInitialized
+              ? _buildVideoContent()
+              : _buildShimmerLoading(), // Show shimmer while loading
     );
   }
 
@@ -104,7 +114,8 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
             child: ListView(
               children: [
                 // Video Title
-                Utils.buildSingleLineText( _videoDetails!.name ?? "Unknown Title"),
+                Utils.buildSingleLineText(
+                    _videoDetails!.name ?? "Unknown Title"),
                 const SizedBox(height: 3),
 
                 // Video Metadata
@@ -126,7 +137,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.4,
                           child: Text(
-                            _videoDetails!.channel?.name ?? "Unknown Channel",
+                            Utils.extractDisplayName(_videoDetails!),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 14),
                             overflow: TextOverflow.ellipsis,
@@ -134,7 +145,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                           ),
                         ),
                         Text(
-                          "By ${_videoDetails!.channel?.displayName ?? "Unknown"}",
+                          "By ${Utils.extractDisplayName(_videoDetails!, prioritizeChannel: false)}",
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
@@ -153,22 +164,18 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                 const SizedBox(height: 10),
 
                 // Video Details
-                Utils.buildDetailRow("Privacy",
-                    _videoDetails?.privacy?.label ?? "Public"),
+                Utils.buildDetailRow(
+                    "Privacy", _videoDetails?.privacy?.label ?? "Public"),
                 Utils.buildDetailRow(
                     "Origin",
-                    _videoDetails?.originallyPublishedAt
-                        ?.toIso8601String() ??
+                    _videoDetails?.originallyPublishedAt?.toIso8601String() ??
                         "Unknown"),
-                Utils.buildDetailRow(
-                    "Originally Published",
-                    Utils.formatDateAsMMDDYYYY(
-                        _videoDetails?.publishedAt)),
+                Utils.buildDetailRow("Originally Published",
+                    Utils.formatDateAsMMDDYYYY(_videoDetails?.publishedAt)),
                 Utils.buildLabelWidgetRow(
                     label: "Category",
                     child: Utils.buildDynamicButtonRow(
-                      buttonLabels:
-                      _videoDetails?.category != null
+                      buttonLabels: _videoDetails?.category != null
                           ? [_videoDetails!.category!.label!]
                           : ["Unknown"],
                       onButtonPressed: (label) {
@@ -177,26 +184,23 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                       },
                       // Custom splash color
                     )),
-                Utils.buildDetailRow("License",
-                    _videoDetails?.licence?.label ?? "Unknown"),
-                Utils.buildDetailRow("Language",
-                    _videoDetails?.language?.label ?? "English"),
+                Utils.buildDetailRow(
+                    "License", _videoDetails?.licence?.label ?? "Unknown"),
+                Utils.buildDetailRow(
+                    "Language", _videoDetails?.language?.label ?? "English"),
                 Utils.buildLabelWidgetRow(
                     label: "Tags",
                     child: Utils.buildDynamicButtonRow(
                       buttonLabels:
-                      _videoDetails?.tags?.asList() ??
-                          ["Unknown"],
+                          _videoDetails?.tags?.asList() ?? ["Unknown"],
                       onButtonPressed: (label) {
                         // TODO: redirect to tag page
                         print("label: $label");
                       },
                       // Custom splash color
                     )),
-                Utils.buildDetailRow(
-                    "Duration",
-                    Utils.formatSecondsToMinSec(
-                        _videoDetails?.duration)),
+                Utils.buildDetailRow("Duration",
+                    Utils.formatSecondsToMinSec(_videoDetails?.duration)),
 
                 const SizedBox(height: 12),
 
@@ -282,7 +286,8 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(width: 120, height: 14, color: Colors.white),
+                          Container(
+                              width: 120, height: 14, color: Colors.white),
                           const SizedBox(height: 4),
                           Container(width: 80, height: 12, color: Colors.white),
                         ],
@@ -291,7 +296,7 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
 
                       // Fake Subscribe Button
                       Container(
-                          // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                        // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                         width: 107,
                         height: 36,
                         decoration: BoxDecoration(
@@ -304,7 +309,8 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                   const SizedBox(height: 16),
 
                   // Fake Video Description
-                  Container(width: double.infinity, height: 12, color: Colors.white),
+                  Container(
+                      width: double.infinity, height: 12, color: Colors.white),
                   const SizedBox(height: 30),
 
                   // Fake Video Details
