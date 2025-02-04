@@ -15,7 +15,7 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
-  List<Map<String, dynamic>> categoriesWithIcons = [];
+  List<VideoConstantNumberCategory> categoriesWithIcons = [];
   bool isLoading = true;
 
   @override
@@ -32,14 +32,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
       if (response.statusCode == 200 && response.data != null) {
         setState(() {
-          categoriesWithIcons = response.data!
-              .asMap()
-              .entries
-              .map((entry) => {
-            'name': entry.value.asString,
-            'icon': _getIconForCategory(entry.key)
-          })
-              .toList();
+          categoriesWithIcons = response.data!.asMap().entries.map((entry) {
+            return VideoConstantNumberCategory((b) => b
+              ..id = int.parse(entry.key)
+              ..label = entry.value.asString);
+          }).toList();
         });
       }
     } catch (error) {
@@ -50,43 +47,43 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   /// Returns the corresponding icon for each category.
-  IconData _getIconForCategory(String categoryId) {
+  IconData _getIconForCategory(int categoryId) {
     switch (categoryId) {
-      case '1':
+      case 1:
         return Icons.music_note_outlined;
-      case '2':
+      case 2:
         return Icons.movie_outlined;
-      case '3':
+      case 3:
         return Icons.bike_scooter_outlined;
-      case '4':
+      case 4:
         return Icons.brush_outlined;
-      case '5':
+      case 5:
         return Icons.sports;
-      case '6':
+      case 6:
         return Icons.airplane_ticket_outlined;
-      case '7':
+      case 7:
         return Icons.games_outlined;
-      case '8':
+      case 8:
         return Icons.emoji_people_rounded;
-      case '9':
+      case 9:
         return Icons.theater_comedy_outlined;
-      case '10':
+      case 10:
         return Icons.tv_outlined;
-      case '11':
+      case 11:
         return Icons.newspaper_outlined;
-      case '12':
+      case 12:
         return Icons.settings_applications;
-      case '13':
+      case 13:
         return Icons.school_outlined;
-      case '14':
+      case 14:
         return Icons.volunteer_activism_outlined;
-      case '15':
+      case 15:
         return Icons.science_outlined;
-      case '16':
+      case 16:
         return Icons.forest_outlined;
-      case '17':
+      case 17:
         return Icons.child_friendly_outlined;
-      case '18':
+      case 18:
         return Icons.fastfood_rounded;
       default:
         return Icons.category;
@@ -103,33 +100,32 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       body: isLoading
           ? _buildShimmerEffect() // Show shimmer while loading
           : categoriesWithIcons.isEmpty
-          ? const Center(
-        child: Text(
-          'No categories found',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
-        ),
-      )
-          : Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          itemCount: categoriesWithIcons.length,
-          gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // Three categories per row
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.9, // Adjusted aspect ratio
-          ),
-          itemBuilder: (context, index) {
-            return _buildCategoryCard(
-              categoriesWithIcons[index]['name'],
-              index + 1,
-              categoriesWithIcons[index]['icon'],
-              primaryColor,
-            );
-          },
-        ),
-      ),
+              ? const Center(
+                  child: Text(
+                    'No categories found',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: GridView.builder(
+                    itemCount: categoriesWithIcons.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // Three categories per row
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.9, // Adjusted aspect ratio
+                    ),
+                    itemBuilder: (context, index) {
+                      return _buildCategoryCard(
+                        categoriesWithIcons[index],
+                        _getIconForCategory(categoriesWithIcons[index].id!),
+                        primaryColor,
+                      );
+                    },
+                  ),
+                ),
     );
   }
 
@@ -154,7 +150,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   /// Builds an elegant category card
   Widget _buildCategoryCard(
-      String category, int categoryId, IconData iconData, Color color) {
+      VideoConstantNumberCategory category, IconData iconData, Color color) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -162,8 +158,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           MaterialPageRoute(
             builder: (context) => CategoryVideosScreen(
               api: widget.api,
-              categoryName: category,
-              categoryId: categoryId,
+              category: category,
             ),
           ),
         );
@@ -215,7 +210,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             const SizedBox(height: 8),
             // Category name with shadow
             Text(
-              category,
+              category.label!,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 14,
@@ -295,7 +290,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             decoration: BoxDecoration(
               color: Colors.grey[800]!.withOpacity(0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey[800]!.withOpacity(0.3), width: 2),
+              border: Border.all(
+                  color: Colors.grey[800]!.withOpacity(0.3), width: 2),
             ),
           ),
           const SizedBox(height: 8),

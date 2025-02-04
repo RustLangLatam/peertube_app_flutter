@@ -184,7 +184,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HlsVideoPlayerPage(
+            builder: (context) => VideoPlayerScreen(
               videoId: video.id!,
               api: widget.api,
             ),
@@ -312,6 +312,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       padding: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -330,30 +331,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                 ),
               ),
 
-              // **Video Duration Placeholder (Bottom Right)**
-              Positioned(
-                right: 0,
-                bottom: -1,
-                child: Container(
-                  padding: const EdgeInsets.only(left: 50, right: 10, top: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(4),
-                      bottomRight: Radius.circular(6),
-                    ),
-                  ),
-                  child: Container(
-                    width: 40,
-                    height: 12,
-                    color: Colors.grey[900],
-                  ),
-                ),
-              ),
-
               // **Channel Avatar Placeholder (Overlapping Bottom Left)**
               Positioned(
-                bottom: -20,
+                bottom: -19,
                 left: 12,
                 child: Container(
                   width: 36,
@@ -367,11 +347,11 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
 
           // **Row for Avatar and Video Info**
           Padding(
-            padding: const EdgeInsets.only(left: 50, right: 10, top: 6),
+            padding: const EdgeInsets.only(left: 50, right: 10, top: 1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -381,12 +361,12 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                   height: 12,
                   color: Colors.grey[900],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
 
                 // **Video Title Placeholder**
                 Container(
                   width: double.infinity,
-                  height: 14,
+                  height: 10,
                   color: Colors.grey[900],
                 ),
               ],
@@ -395,10 +375,10 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
 
           // **Video Metadata Placeholder (Upload Time & Views)**
           Padding(
-            padding: const EdgeInsets.only(left: 50, right: 10, top: 3),
+            padding: const EdgeInsets.only(left: 50, right: 10, top: 13, bottom: 1),
             child: Container(
               width: 150,
-              height: 10,
+              height: 12,
               color: Colors.grey[900],
             ),
           ),

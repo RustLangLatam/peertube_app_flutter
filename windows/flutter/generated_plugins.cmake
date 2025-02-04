@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  share_plus
   system_theme
   url_launcher_windows
 )

@@ -10,7 +10,7 @@ class AvatarUtils {
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A), // Match background color
+        color: Colors.white, // Match background color
         borderRadius: BorderRadius.circular(6), // Rounded corners
         border: Border.all(color: Colors.grey, width: 1), // Dark border
       ),
@@ -35,8 +35,7 @@ class AvatarUtils {
       height: 32,
       decoration: BoxDecoration(
         color: Colors.cyan, // Default background color
-        borderRadius: BorderRadius.circular(6), // Keep square shape
-        border: Border.all(color: Colors.black, width: 2), // Dark border
+        borderRadius: BorderRadius.circular(5), // Keep square shape
       ),
       alignment: Alignment.center,
       child: Text(

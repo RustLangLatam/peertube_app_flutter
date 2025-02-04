@@ -8,13 +8,20 @@ import '../widgets/peertube_logo_widget.dart';
 class BrowserScreen extends StatefulWidget {
   final PeerTubeApiSdk api;
 
-  const BrowserScreen({super.key, required this.api});
+
+
+  const BrowserScreen(
+      {super.key,
+      required this.api});
 
   @override
   _BrowserScreenState createState() => _BrowserScreenState();
 }
 
 class _BrowserScreenState extends State<BrowserScreen> {
+  bool isTrending = false;
+  bool recentlyAdded = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,9 +44,23 @@ class _BrowserScreenState extends State<BrowserScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         children: [
-          UIUtils.filterToggleButton("Recently Added", Icons.add, true),
+          UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded, () {
+            setState(() {
+              recentlyAdded = true;
+              isTrending = false;
+            });
+            // TODO: Implement recently added videos
+            UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+          }),
           const SizedBox(width: 5),
-          UIUtils.filterToggleButton("Trending", Icons.trending_up, false),
+          UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending, () {
+            setState(() {
+              recentlyAdded = false;
+              isTrending = true;
+            });
+            // TODO: Implement trending videos
+            UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+          }),
         ],
       ),
     );
@@ -54,15 +75,24 @@ class _BrowserScreenState extends State<BrowserScreen> {
       actions: [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.white),
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Implement search
+            UIUtils.showTemporaryBottomDialog(context, "Search coming soon!");
+          },
         ),
         IconButton(
           icon: const Icon(Icons.settings_outlined, color: Colors.white),
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Implement settings
+            UIUtils.showTemporaryBottomDialog(context, "Settings coming soon!");
+          },
         ),
         IconButton(
           icon: const Icon(Icons.account_circle_outlined, color: Colors.white),
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Implement account
+            UIUtils.showTemporaryBottomDialog(context, "Account coming soon!");
+          },
         ),
       ],
     );

@@ -7,7 +7,8 @@ class UIUtils {
     return ElevatedButton.icon(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917),
+        backgroundColor:
+            isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         elevation: 0,
@@ -15,7 +16,8 @@ class UIUtils {
       icon: Icon(icon, size: 10, color: Colors.white70),
       label: Text(
         label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
       ),
     );
   }
@@ -34,7 +36,8 @@ class UIUtils {
         children: [
           Text(
             "$label:",
-            style: labelStyle ?? const TextStyle(color: Colors.grey, fontSize: 12),
+            style:
+                labelStyle ?? const TextStyle(color: Colors.grey, fontSize: 12),
           ),
           const SizedBox(width: 4),
           Expanded(
@@ -48,16 +51,16 @@ class UIUtils {
     );
   }
 
-
   /// 📌 Creates a simple row for metadata display.
   static Widget buildDetailRow(String title, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 3),
-
       child: Row(
         children: [
-          Text("$title: ", style: const TextStyle(color: Colors.grey, fontSize: 12)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          Text("$title: ",
+              style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(value,
+              style: const TextStyle(color: Colors.white, fontSize: 12)),
         ],
       ),
     );
@@ -96,14 +99,16 @@ class UIUtils {
                     splashColor: splashColor ?? Colors.blue.withOpacity(0.2),
                     child: Text(
                       label,
-                      style: textStyle ?? const TextStyle(color: Colors.blue, fontSize: 12),
+                      style: textStyle ??
+                          const TextStyle(color: Colors.blue, fontSize: 12),
                     ),
                   ),
                   if (index < buttonLabels.length - 1)
                     Text(
-                        ',',
-                        style: textStyle ?? const TextStyle(color: Colors.blue, fontSize: 12),
-                      ),
+                      ',',
+                      style: textStyle ??
+                          const TextStyle(color: Colors.blue, fontSize: 12),
+                    ),
                 ],
               ),
             );
@@ -113,5 +118,53 @@ class UIUtils {
     );
   }
 
+  static void showTemporaryBottomDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
 
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF221F1E),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.info_outline,
+                      color: Colors.orangeAccent, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    message,
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -9,22 +9,23 @@ import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
 import '../widgets/peertube_logo_widget.dart';
 import '../widgets/unsupported_format_widget.dart';
+import 'category_page.dart';
 
-class HlsVideoPlayerPage extends StatefulWidget {
+class VideoPlayerScreen extends StatefulWidget {
   final int videoId;
   final PeerTubeApiSdk api;
 
-  const HlsVideoPlayerPage({
+  const VideoPlayerScreen({
     super.key,
     required this.videoId,
     required this.api,
   });
 
   @override
-  _HlsVideoPlayerPageState createState() => _HlsVideoPlayerPageState();
+  _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
 }
 
-class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   final PeerTubePlayer _videoPlayer = PeerTubePlayer();
   VideoDetails? _videoDetails;
   bool _isInitialized = false;
@@ -33,7 +34,6 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-
     _initializeVideo();
   }
 
@@ -83,7 +83,8 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
         leading: Padding(
             padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, size: 20, color: Colors.white),
+              icon:
+                  const Icon(Icons.arrow_back, size: 20, color: Colors.orange),
               onPressed: () => Navigator.of(context).pop(),
             )),
       ),
@@ -120,7 +121,6 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                 stops: [0.0, 0.3, 0.8],
               ),
             ),
-
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListView(
               children: [
@@ -146,11 +146,11 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                     const SizedBox(width: 4),
 
                     if (_videoDetails!.licence != null)
-                    // License Badge with overflow ellipsis
-                    Flexible(
-                      child:
-                          LicenseBadge(licenseLabel: _videoDetails!.licence!),
-                    ),
+                      // License Badge with overflow ellipsis
+                      Flexible(
+                        child:
+                            LicenseBadge(licenseLabel: _videoDetails!.licence!),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -163,8 +163,16 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                     ButtonsUtils.likeButton(likes: _videoDetails?.likes),
                     ButtonsUtils.dislikeButton(
                         dislikes: _videoDetails?.dislikes),
-                    ButtonsUtils.shareButton(),
-                    ButtonsUtils.downloadButton(),
+                    ButtonsUtils.shareButton(onPressed: () {
+                      // TODO: Share video
+                      UIUtils.showTemporaryBottomDialog(
+                          context, "Share video no implemented yet...");
+                    }),
+                    ButtonsUtils.downloadButton(onPressed: () {
+                      // TODO: Download video
+                      UIUtils.showTemporaryBottomDialog(
+                          context, "Download video no implemented yet...");
+                    }),
                   ],
                 ),
                 const Divider(height: 20, color: Colors.grey),
@@ -202,7 +210,11 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                     ),
 
                     // 📌 Subscribe Button
-                    ButtonsUtils.subscribeButton(),
+                    ButtonsUtils.subscribeButton(onPressed: () {
+                      // TODO: Subscribe to channel
+                      UIUtils.showTemporaryBottomDialog(context,
+                          "Subscribe to channel no implemented yet...");
+                    }),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -243,8 +255,15 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
                   ? [_videoDetails!.category!.label!]
                   : ["Unknown"],
               onButtonPressed: (label) {
-                // TODO: Redirect to category
-                print("Category clicked: $label");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryVideosScreen(
+                      api: widget.api,
+                      category: _videoDetails!.category!,
+                    ),
+                  ),
+                );
               },
             )),
         UIUtils.buildDetailRow(
@@ -255,7 +274,8 @@ class _HlsVideoPlayerPageState extends State<HlsVideoPlayerPage> {
               buttonLabels: _videoDetails?.tags?.asList() ?? ["Unknown"],
               onButtonPressed: (label) {
                 // TODO: Redirect to tag page
-                print("Tag clicked: $label");
+                UIUtils.showTemporaryBottomDialog(
+                    context, "Tag page no implemented yet...");
               },
             )),
         UIUtils.buildDetailRow("Duration",
