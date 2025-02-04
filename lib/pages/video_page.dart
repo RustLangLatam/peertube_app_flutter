@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
@@ -12,13 +13,13 @@ import '../widgets/unsupported_format_widget.dart';
 import 'category_page.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
-  final int videoId;
   final PeerTubeApiSdk api;
+  final Video video;
 
   const VideoPlayerScreen({
     super.key,
-    required this.videoId,
     required this.api,
+    required this.video,
   });
 
   @override
@@ -42,18 +43,33 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
     try {
       final id = ApiV1VideosOwnershipIdAcceptPostIdParameter(
-          (p) => p..oneOf = OneOf.fromValue1(value: '${widget.videoId}'));
+          (p) => p..oneOf = OneOf.fromValue1(value: '${widget.video.id}'));
 
       var response = await apiVideos.getVideo(id: id);
       if (response.statusCode == 200) {
         _videoDetails = response.data;
 
+        // Run video initialization in the background
+        Future.microtask(() async {
+          await _videoPlayer.initializePlayer(_videoDetails);
+        });
+
+        int elapsedTime = 0;
+        // Monitor initialization state without blocking
+        while (!_videoPlayer.isVideoInitialized) {
+          if (elapsedTime == 500) {
+            break;
+          }
+          await Future.delayed(const Duration(milliseconds: 100));
+          elapsedTime += 100;
+        }
+
+        // If initialized or timeout reached, update state
+        //   if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-
-        // Initialize the video player
-        await _videoPlayer.initializePlayer(_videoDetails);
+        // }
       } else {
         throw 'Failed to load video: ${response.statusCode}';
       }
@@ -61,9 +77,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       if (kDebugMode) {
         print('Error initializing video: $e');
       }
-      setState(() {
-        _hasError = true; // Set error state
-      });
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+        });
+      }
     }
   }
 
@@ -90,21 +108,33 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
       body: _hasError
           ? const UnsupportedFormatWidget() // Error widget
-          : _isInitialized
-              ? _buildVideoContent()
-              : _buildShimmerLoading(), // Show shimmer while loading
+          : _buildVideoContent(), // Show shimmer while loading
     );
   }
 
   /// 📌 Builds the actual video UI when loaded
   Widget _buildVideoContent() {
+    final video = widget.video;
+
+    final thumbnailURL = video.previewPath != null
+        ? '${widget.api.getHost}${video.previewPath}'
+        : '';
+
     return Column(
       children: [
         // 🎬 Video Player
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: BetterPlayer(controller: _videoPlayer.controller),
-        ),
+        _isInitialized
+            ? AspectRatio(
+                aspectRatio: 16 / 9,
+                child: BetterPlayer(controller: _videoPlayer.controller!),
+              )
+            : AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImage(
+                  imageUrl: thumbnailURL,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                )),
 
         // 📌 Video Details Section
         Expanded(
@@ -125,31 +155,30 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: ListView(
               children: [
                 // 🎥 Video Title
-                TextUtils.buildVideoTitle(_videoDetails!.name),
+                TextUtils.buildVideoTitle(video.name),
                 const SizedBox(height: 4),
 
                 // 📅 Video Metadata (Published Date & Views)
                 Row(
                   children: [
                     Text(
-                      "Published ${VideoDateUtils.formatRelativeDate(_videoDetails?.publishedAt)}",
+                      "Published ${VideoDateUtils.formatRelativeDate(video.publishedAt)}",
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(width: 6),
                     const Icon(Icons.circle,
                         size: 4, color: Colors.grey), // Bullet
                     const SizedBox(width: 6),
-                    VideoUtils.buildViewCount(_videoDetails?.views),
+                    VideoUtils.buildViewCount(video.views),
                     const SizedBox(width: 4),
                     const Icon(Icons.circle,
                         size: 4, color: Colors.grey), // Bullet
                     const SizedBox(width: 4),
 
-                    if (_videoDetails!.licence != null)
+                    if (video.licence != null)
                       // License Badge with overflow ellipsis
                       Flexible(
-                        child:
-                            LicenseBadge(licenseLabel: _videoDetails!.licence!),
+                        child: LicenseBadge(licenseLabel: video.licence!),
                       ),
                   ],
                 ),
@@ -160,9 +189,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const Spacer(),
-                    ButtonsUtils.likeButton(likes: _videoDetails?.likes),
-                    ButtonsUtils.dislikeButton(
-                        dislikes: _videoDetails?.dislikes),
+                    ButtonsUtils.likeButton(likes: video.likes),
+                    ButtonsUtils.dislikeButton(dislikes: video.dislikes),
                     ButtonsUtils.shareButton(onPressed: () {
                       // TODO: Share video
                       UIUtils.showTemporaryBottomDialog(
@@ -182,7 +210,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   children: [
                     // Channel Avatar
                     AvatarUtils.buildAvatarFromVideoDetails(
-                        _videoDetails, widget.api.getHost),
+                        video, widget.api.getHost),
                     const SizedBox(width: 8),
 
                     // Channel Name & "By" Section
@@ -191,7 +219,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            VideoUtils.extractDisplayName(_videoDetails!),
+                            VideoUtils.extractDisplayName(video),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -201,7 +229,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             maxLines: 1,
                           ),
                           Text(
-                            "By ${VideoUtils.extractDisplayName(_videoDetails!, prioritizeChannel: false)}",
+                            "By ${VideoUtils.extractDisplayName(video, prioritizeChannel: false)}",
                             style: const TextStyle(
                                 color: Colors.grey, fontSize: 12),
                           ),
@@ -221,7 +249,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
                 // 📜 Video Description (Expandable)
                 buildExpandableText(
-                  text: _videoDetails!.description ?? "No description",
+                  text: video.truncatedDescription ?? "No description",
                 ),
                 const SizedBox(height: 15),
 
@@ -237,22 +265,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   /// 📌 Builds extra video details (Category, License, Language, Tags, Duration)
   Widget _buildVideoDetailsSection() {
+    final video = widget.video;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        UIUtils.buildDetailRow(
-            "Privacy", _videoDetails?.privacy?.label ?? "Public"),
-        UIUtils.buildDetailRow(
-            "Origin",
-            _videoDetails?.originallyPublishedAt?.toIso8601String() ??
-                "Unknown"),
+        UIUtils.buildDetailRow("Privacy", video.privacy?.label ?? "Public"),
+        UIUtils.buildDetailRow("Origin", "Unknown"),
         UIUtils.buildDetailRow("Originally Published",
-            VideoDateUtils.formatDateAsMMDDYYYY(_videoDetails?.publishedAt)),
+            VideoDateUtils.formatDateAsMMDDYYYY(video.publishedAt)),
         UIUtils.buildLabelWidgetRow(
             label: "Category",
             child: UIUtils.buildDynamicButtonRow(
-              buttonLabels: _videoDetails?.category != null
-                  ? [_videoDetails!.category!.label!]
+              buttonLabels: video.category != null
+                  ? [video.category!.label!]
                   : ["Unknown"],
               onButtonPressed: (label) {
                 Navigator.push(
@@ -260,14 +286,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   MaterialPageRoute(
                     builder: (context) => CategoryVideosScreen(
                       api: widget.api,
-                      category: _videoDetails!.category!,
+                      category: video.category!,
                     ),
                   ),
                 );
               },
             )),
-        UIUtils.buildDetailRow(
-            "Language", _videoDetails?.language?.label ?? "English"),
+        UIUtils.buildDetailRow("Language", video.language?.label ?? "English"),
         UIUtils.buildLabelWidgetRow(
             label: "Tags",
             child: UIUtils.buildDynamicButtonRow(
@@ -278,8 +303,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     context, "Tag page no implemented yet...");
               },
             )),
-        UIUtils.buildDetailRow("Duration",
-            VideoDateUtils.formatSecondsToMinSec(_videoDetails?.duration)),
+        UIUtils.buildDetailRow(
+            "Duration", VideoDateUtils.formatSecondsToMinSec(video.duration)),
       ],
     );
   }

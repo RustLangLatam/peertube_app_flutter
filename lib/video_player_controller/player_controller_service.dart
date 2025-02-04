@@ -8,7 +8,7 @@ import 'video_source_info.dart';
 /// A service class for managing the video player controller.
 class PeerTubePlayer {
   /// The internal video player controller instance.
-  late BetterPlayerController _controller;
+  BetterPlayerController? _controller;
 
   /// Initialize the video player with the given URL and settings.
   ///
@@ -60,22 +60,24 @@ class PeerTubePlayer {
     );
 
     // Set up the data source for the video player
-    await _controller.setupDataSource(dataSource);
+    await _controller!.setupDataSource(dataSource);
 
     // Pre-cache the video data
-    Future.microtask(() => _controller.preCache(dataSource));
+    Future.microtask(() => _controller!.preCache(dataSource));
   }
 
   /// Get the player controller instance.
   ///
   /// Returns the internal video player controller instance.
-  BetterPlayerController get controller => _controller;
+  BetterPlayerController? get controller => _controller;
+
+  bool get isVideoInitialized => _controller?.isVideoInitialized() ?? false;
 
   /// Dispose of the player when no longer needed.
   ///
   /// Releases system resources used by the video player.
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
   }
 }
 

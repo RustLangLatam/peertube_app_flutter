@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:peertube_app_flutter/pages/browser_page.dart';
 import 'package:peertube_app_flutter/pages/channels_page.dart';
 import 'package:peertube_app_flutter/pages/discover_page.dart';
@@ -7,10 +9,11 @@ import 'package:peertube_app_flutter/pages/lives_page.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:system_theme/system_theme.dart';
 
-PeerTubeApiSdk node =
-    PeerTubeApiSdk(basePathOverride: 'https://peertube.cpy.re', debugMode: kDebugMode);
+PeerTubeApiSdk node = PeerTubeApiSdk(
+    basePathOverride: 'https://peertube.cpy.re', debugMode: kDebugMode);
 
 void main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await SystemTheme.accentColor.load();
   runApp(MyApp());
@@ -101,7 +104,8 @@ class _MyAppState extends State<MyApp> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.video_library_outlined, size: 24), // Browse icon
-              activeIcon: Icon(Icons.video_library, size: 26), // Active Browse icon
+              activeIcon:
+                  Icon(Icons.video_library, size: 26), // Active Browse icon
               label: "Browse", // Updated label
             ),
             BottomNavigationBarItem(
@@ -129,5 +133,14 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate certificate, String hostName, int hostPort) => true;
   }
 }

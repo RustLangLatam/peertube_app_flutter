@@ -5,8 +5,8 @@ import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peertube_app_flutter/widgets/peertube_loading_indicator.dart';
 import 'package:shimmer/shimmer.dart';
-import '../pages/video_page.dart';
-import '../utils/export.dart';
+import 'package:peertube_app_flutter/pages/video_page.dart';
+import 'package:peertube_app_flutter/utils/export.dart';
 
 const int pageSize = 10;
 
@@ -183,14 +183,39 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => VideoPlayerScreen(
-              videoId: video.id!,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
+              video: video,
               api: widget.api,
             ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              // Entry animation
+              if (animation.status == AnimationStatus.forward) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.1), // Start slightly below
+                    end: Offset.zero, // End at the normal position
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut, // Smooth out the animation
+                  )),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              }
+              // Immediate exit without animation
+              else {
+                return child;
+              }
+            },
+            transitionDuration: const Duration(milliseconds: 200), // Duration of the entry animation
+            reverseTransitionDuration: Duration.zero, // Duration of the exit animation (zero for immediate)
           ),
         );
       },
+
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         padding: const EdgeInsets.only(bottom: 10),
@@ -375,7 +400,8 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
 
           // **Video Metadata Placeholder (Upload Time & Views)**
           Padding(
-            padding: const EdgeInsets.only(left: 50, right: 10, top: 13, bottom: 1),
+            padding:
+                const EdgeInsets.only(left: 50, right: 10, top: 13, bottom: 1),
             child: Container(
               width: 150,
               height: 12,

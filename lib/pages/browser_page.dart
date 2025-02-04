@@ -8,8 +8,6 @@ import '../widgets/peertube_logo_widget.dart';
 class BrowserScreen extends StatefulWidget {
   final PeerTubeApiSdk api;
 
-
-
   const BrowserScreen(
       {super.key,
       required this.api});
