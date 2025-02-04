@@ -1,6 +1,7 @@
-import 'package:peertube_app_flutter/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+
+import '../utils/video_date_utils.dart';
 
 class CommentsPage extends StatefulWidget {
   final int videoId;
@@ -84,7 +85,7 @@ class _CommentsPageState extends State<CommentsPage> {
   Widget _buildCommentTile(VideoComment comment) {
     String formattedDate = "Unknown Date";
     if (comment.createdAt != null) {
-      formattedDate = Utils.formatDateAsMMDDYYYY(comment.createdAt);
+      formattedDate = VideoDateUtils.formatDateAsMMDDYYYY(comment.createdAt);
     }
 
     return Container(

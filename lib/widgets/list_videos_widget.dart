@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:peertube_app_flutter/utils.dart';
 import 'package:peertube_app_flutter/widgets/peertube_loading_indicator.dart';
 import 'package:shimmer/shimmer.dart';
 import '../pages/video_page.dart';
+import '../utils/export.dart';
 
 const int pageSize = 10;
 
@@ -229,7 +229,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                           bottomRight: Radius.circular(6)),
                     ),
                     child: Text(
-                      Utils.formatSecondsToTime(video.duration),
+                      VideoDateUtils.formatSecondsToTime(video.duration),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -256,7 +256,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    Utils.extractDisplayName(video),
+                    VideoUtils.extractDisplayName(video),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -281,7 +281,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
             Padding(
               padding: const EdgeInsets.only(left: 50, right: 10, top: 3),
               child: Text(
-                "${Utils.formatRelativeDate(video.publishedAt)} • ${Utils.formatViews(video.views)}",
+                "${VideoDateUtils.formatRelativeDate(video.publishedAt)} • ${VideoUtils.formatViews(video.views)}",
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 12,

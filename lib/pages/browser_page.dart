@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/widgets/list_videos_widget.dart';
 
-import '../utils.dart';
+import '../utils/export.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class BrowserScreen extends StatefulWidget {
@@ -37,9 +37,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         children: [
-          Utils.filterToggleButton("Recently Added", Icons.add, true),
+          UIUtils.filterToggleButton("Recently Added", Icons.add, true),
           const SizedBox(width: 5),
-          Utils.filterToggleButton("Trending", Icons.trending_up, false),
+          UIUtils.filterToggleButton("Trending", Icons.trending_up, false),
         ],
       ),
     );
