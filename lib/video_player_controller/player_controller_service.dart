@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:river_player/river_player.dart';
 
+import '../utils/video_utils.dart';
 import 'buffer_optimizer.dart';
 import 'video_source_info.dart';
 
@@ -73,8 +74,9 @@ class PeerTubePlayer {
           ? BetterPlayerNotificationConfiguration(
               showNotification: true,
               title: videoDetails.name,
-              author: videoDetails.channel?.name,
+              author: VideoUtils.extractDisplayName(videoDetails),
               imageUrl: thumbnailURL,
+              activityName: 'PeerTubeVDev',
             )
           : const BetterPlayerNotificationConfiguration(
               showNotification: false),
