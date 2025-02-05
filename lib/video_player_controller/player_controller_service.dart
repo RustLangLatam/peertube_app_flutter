@@ -37,7 +37,7 @@ class PeerTubePlayer {
       // Configure the video player with custom settings
       BetterPlayerConfiguration(
         aspectRatio: 1.0, // Set the aspect ratio to 16:9
-        fit: BoxFit.fill, // Fit the video to the container
+        fit: BoxFit.contain, // Fit the video to the container
         autoPlay: true, // Auto-play the video when ready
         looping: !isLive, // Loop the video if it's not a live stream
         controlsConfiguration: _peerTubeControls, // Use custom controls

@@ -100,14 +100,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       backgroundColor: const Color(0xFF13100E),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const PeerTubeTextWidget(text: "PeerTube Video"),
-        leading: Padding(
+        title: const PeerTubeTextWidget(),
+        leading: const PeerTubeLogoWidget(),
+        actions: [Padding(
             padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),
             child: IconButton(
               icon:
-                  const Icon(Icons.arrow_back, size: 20, color: Colors.orange),
+                  const Icon(Icons.close_rounded, size: 20, color: Colors.orange),
               onPressed: () => Navigator.of(context).pop(),
-            )),
+            ))],
       ),
       body: _hasError
           ? const UnsupportedFormatWidget() // Error widget
