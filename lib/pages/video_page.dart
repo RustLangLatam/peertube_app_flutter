@@ -27,6 +27,8 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  GlobalKey _videoPlayerKey = GlobalKey();
+
   final PeerTubePlayer _videoPlayer = PeerTubePlayer();
   VideoDetails? _videoDetails;
   bool _isInitialized = false;
@@ -51,7 +53,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
         // Run video initialization in the background
         Future.microtask(() async {
-          await _videoPlayer.initializePlayer(_videoDetails);
+          await _videoPlayer.initializePlayer(_videoPlayerKey, _videoDetails,
+              nodeUrl: widget.api.getHost);
         });
 
         int elapsedTime = 0;
@@ -126,15 +129,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         _isInitialized
             ? AspectRatio(
                 aspectRatio: 16 / 9,
-                child: BetterPlayer(controller: _videoPlayer.controller!),
+                child: BetterPlayer(
+                    controller: _videoPlayer.controller!, key: _videoPlayerKey),
               )
-            : AspectRatio(
-                aspectRatio: 16 / 9,
-                child: CachedNetworkImage(
-                  imageUrl: thumbnailURL,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                )),
+            : UIUtils.buildHeroVideoThumbnail(
+                thumbnailURL: thumbnailURL,
+                useRoundedCorners: false,
+              ),
 
         // 📌 Video Details Section
         Expanded(

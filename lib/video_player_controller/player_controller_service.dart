@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:river_player/river_player.dart';
@@ -16,26 +17,36 @@ class PeerTubePlayer {
   /// and prepares it for playback.
   ///
   /// [source] The video source information, including URL and settings.
-  Future<void> initializePlayer(VideoDetails? videoDetails) async {
+  Future<void> initializePlayer(key, VideoDetails? videoDetails,
+      {String? nodeUrl}) async {
     final source = VideoSourceInfo.extractBestVideoSource(videoDetails)!;
 
+    String? thumbnailURL;
+
+    // Determine the thumbnail URL
+    if (videoDetails!.previewPath != null) {
+      thumbnailURL = '$nodeUrl${videoDetails.previewPath}';
+    }
+
     // Determine if the video is a live stream
-    final bool isLive = source.isLive();
+    final bool isLive = source.isLive;
 
     // Create a new video player controller instance
     _controller = BetterPlayerController(
       // Configure the video player with custom settings
       BetterPlayerConfiguration(
-        aspectRatio: 16 / 9, // Set the aspect ratio to 16:9
-        fit: BoxFit.contain, // Fit the video to the container
+        aspectRatio: 1.0, // Set the aspect ratio to 16:9
+        fit: BoxFit.fill, // Fit the video to the container
         autoPlay: true, // Auto-play the video when ready
         looping: !isLive, // Loop the video if it's not a live stream
         controlsConfiguration: _peerTubeControls, // Use custom controls
         allowedScreenSleep: false, // Prevent screen sleep during playback
-        autoDetectFullscreenDeviceOrientation:
-            true, // Auto-detect device orientation in fullscreen
-        autoDetectFullscreenAspectRatio:
-            true, // Auto-detect aspect ratio in fullscreen
+        autoDetectFullscreenDeviceOrientation: true,
+        autoDetectFullscreenAspectRatio: true,
+        placeholder:
+            CachedNetworkImage(imageUrl: thumbnailURL!, fit: BoxFit.cover),
+        showPlaceholderUntilPlay: true,
+        handleLifecycle: !isLive,
       ),
     );
 
@@ -43,6 +54,7 @@ class PeerTubePlayer {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network, // Use a network data source
       source.url, // Set the video URL
+      videoFormat: source.type,
       useAsmsSubtitles: false, // Disable ASMS subtitles
       liveStream: isLive, // Set live stream flag
       cacheConfiguration: BetterPlayerCacheConfiguration(
@@ -57,10 +69,20 @@ class PeerTubePlayer {
       bufferingConfiguration: BufferOptimizer.getOptimalBufferConfig(
           source.duration ?? 0), // Set buffering configuration
       resolutions: source.resolutions, // Set video resolutions
+      notificationConfiguration: thumbnailURL != null
+          ? BetterPlayerNotificationConfiguration(
+              showNotification: true,
+              title: videoDetails.name,
+              author: videoDetails.channel?.name,
+              imageUrl: thumbnailURL,
+            )
+          : const BetterPlayerNotificationConfiguration(
+              showNotification: false),
     );
 
     // Set up the data source for the video player
     await _controller!.setupDataSource(dataSource);
+    _controller!.setBetterPlayerGlobalKey(key);
 
     // Pre-cache the video data
     Future.microtask(() => _controller!.preCache(dataSource));
@@ -115,7 +137,8 @@ const BetterPlayerControlsConfiguration _peerTubeControls =
   subtitlesIcon: Icons.closed_caption, // Subtitle icon
   playbackSpeedIcon: Icons.speed, // Playback speed icon
   qualitiesIcon: Icons.high_quality, // Quality icon
+  // pipMenuIcon: Icons.picture_as_pdf_sharp, // Picture-in-Picture icon
   forwardSkipTimeInMilliseconds: 10000, // Skip forward 10 sec
   backwardSkipTimeInMilliseconds: 10000, // Skip backward 10 sec
-  controlsHideTime: Duration(milliseconds: 100), // Auto-hide controls after 3s
+  controlsHideTime: Duration(milliseconds: 200), // Auto-hide controls after 3s
 );

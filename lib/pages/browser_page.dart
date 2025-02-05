@@ -8,9 +8,7 @@ import '../widgets/peertube_logo_widget.dart';
 class BrowserScreen extends StatefulWidget {
   final PeerTubeApiSdk api;
 
-  const BrowserScreen(
-      {super.key,
-      required this.api});
+  const BrowserScreen({super.key, required this.api});
 
   @override
   _BrowserScreenState createState() => _BrowserScreenState();
@@ -18,7 +16,9 @@ class BrowserScreen extends StatefulWidget {
 
 class _BrowserScreenState extends State<BrowserScreen> {
   bool isTrending = false;
-  bool recentlyAdded = false;
+  bool recentlyAdded = true;
+  String sortBy = '-publishedAt';
+  bool isLive = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
         children: [
           _buildFilters(), // 🟢 Ensures filters appear below the AppBar
           Expanded(
-            child: ListVideosWidget(api: widget.api),
+            child: ListVideosWidget(
+                api: widget.api, isLive: isLive, sortBy: sortBy),
           ),
         ],
       ),
@@ -42,22 +43,26 @@ class _BrowserScreenState extends State<BrowserScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         children: [
-          UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded, () {
+          UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded,
+              () {
             setState(() {
               recentlyAdded = true;
               isTrending = false;
+              sortBy = '-publishedAt';
             });
-            // TODO: Implement recently added videos
-            UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+            // // TODO: Implement recently added videos
+            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
           }),
           const SizedBox(width: 5),
-          UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending, () {
+          UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending,
+              () {
             setState(() {
               recentlyAdded = false;
               isTrending = true;
+              sortBy = '-trending';
             });
-            // TODO: Implement trending videos
-            UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+            // // TODO: Implement trending videos
+            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
           }),
         ],
       ),

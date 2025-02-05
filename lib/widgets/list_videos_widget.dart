@@ -13,6 +13,9 @@ const int pageSize = 10;
 class ListVideosWidget extends StatefulWidget {
   final int? categoryId; // If null, fetch all videos
   final PeerTubeApiSdk api;
+  final String? sortBy;
+  final bool isLive;
+
   final PagingController<int, Video>? externalPagingController;
 
   const ListVideosWidget({
@@ -20,6 +23,8 @@ class ListVideosWidget extends StatefulWidget {
     this.categoryId,
     required this.api,
     this.externalPagingController,
+    this.isLive = false,
+    this.sortBy,
   });
 
   @override
@@ -37,6 +42,15 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
     _pagingController.addPageRequestListener(fetchVideos);
   }
 
+  @override
+  void didUpdateWidget(covariant ListVideosWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((oldWidget.sortBy != widget.sortBy) ||
+        (oldWidget.isLive != widget.isLive)) {
+      _refreshVideos();
+    }
+  }
+
   Future<void> fetchVideos(int pageKey) async {
     try {
       final categoryOneOf = widget.categoryId != null
@@ -48,6 +62,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
           categoryOneOf: categoryOneOf,
           start: pageKey,
           count: pageSize,
+          isLive: widget.isLive,
+          nsfw: 'false',
+          sort: widget.sortBy,
           skipCount: 'true');
 
       if (response.statusCode == 200) {
@@ -78,6 +95,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
           categoryOneOf: categoryOneOf,
           start: 0,
           count: pageSize,
+          isLive: widget.isLive,
+          nsfw: 'false',
+          sort: widget.sortBy,
           skipCount: 'true');
 
       if (response.statusCode == 200) {
@@ -184,38 +204,34 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
-              video: video,
-              api: widget.api,
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              // Entry animation
-              if (animation.status == AnimationStatus.forward) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.1), // Start slightly below
-                    end: Offset.zero, // End at the normal position
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut, // Smooth out the animation
-                  )),
-                  child: FadeTransition(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                VideoPlayerScreen(video: video, api: widget.api),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return Stack(
+                children: [
+                  FadeTransition(
                     opacity: animation,
                     child: child,
                   ),
-                );
-              }
-              // Immediate exit without animation
-              else {
-                return child;
-              }
+                  SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.1), // Start slightly below
+                      end: Offset.zero, // End at the normal position
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut, // Smooth out the animation
+                    )),
+                    child: child,
+                  ),
+                ],
+              );
             },
-            transitionDuration: const Duration(milliseconds: 200), // Duration of the entry animation
-            reverseTransitionDuration: Duration.zero, // Duration of the exit animation (zero for immediate)
+            transitionDuration: const Duration(milliseconds: 300),
+            reverseTransitionDuration: Duration(milliseconds: 150),
           ),
         );
       },
-
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         padding: const EdgeInsets.only(bottom: 10),
@@ -230,14 +246,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
               clipBehavior: Clip.none,
               children: [
                 // Video Thumbnail
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: CachedNetworkImage(
-                    imageUrl: thumbnailURL,
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
-                  ),
+                UIUtils.buildHeroVideoThumbnail(
+                  thumbnailURL: thumbnailURL,
+                  useRoundedCorners: true,
                 ),
 
                 // Video Duration (Bottom Right)

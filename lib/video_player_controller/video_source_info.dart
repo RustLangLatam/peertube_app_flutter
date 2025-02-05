@@ -1,4 +1,5 @@
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:river_player/river_player.dart';
 
 /// Represents the best available video source extracted from [VideoDetails].
 /// Prioritizes `HLS` (streamingPlaylists) over `MP4` (files).
@@ -7,18 +8,22 @@ class VideoSourceInfo {
 
   /// Duration in milliseconds.
   int? duration;
-
+  
+  /// Whether the video is a live stream.
+  bool isLive;
+  
   /// Resolutions available for the video.
   final Map<String, String> resolutions;
 
   /// Type of the video source. Can be "hls" or "mp4".
-  final String type;
+  final BetterPlayerVideoFormat type;
 
   VideoSourceInfo._({
     required this.url,
     required this.duration,
     required this.resolutions,
     required this.type,
+    this.isLive = false,
   });
 
   /// Extracts the best video source (HLS or MP4) from [VideoDetails].
@@ -40,7 +45,9 @@ class VideoSourceInfo {
         // No separate resolutions needed for HLS
         resolutions: {},
         // Determine the type of video (live or hls)
-        type: videoDetails.isLive! ? "live" : "hls",
+        type: videoDetails.streamingPlaylists != null ? BetterPlayerVideoFormat.hls : BetterPlayerVideoFormat.other,
+        // Determine if the video is a live stream
+        isLive: videoDetails.isLive ?? false,
         // Video duration
         duration: videoDetails.duration,
       );
@@ -71,7 +78,7 @@ class VideoSourceInfo {
         // All available MP4 resolutions
         resolutions: availableResolutions,
         // Type of video (mp4)
-        type: "mp4",
+        type: BetterPlayerVideoFormat.other,
       );
     }
 
@@ -80,16 +87,11 @@ class VideoSourceInfo {
     return null;
   }
 
-  /// Checks if the video source is a live stream.
-  bool isLive() => type == "live";
-
   /// Checks if the video source is an HLS stream.
-  bool isHLS() => type == "hls";
+  bool isHLS() => type == BetterPlayerVideoFormat.hls;
 
   /// Checks if the video source is an MP4 file.
-  bool isMP4() => type == "mp4";
-
-  bool isHlsContent() => type == "hls" || type == "live";
+  bool isOther() => type == BetterPlayerVideoFormat.other;
 }
 
 

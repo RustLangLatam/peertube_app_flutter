@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class UIUtils {
@@ -165,6 +166,82 @@ class UIUtils {
           ),
         );
       },
+    );
+  }
+
+  /// Builds a video thumbnail with `Hero` animation, supporting both `ClipRRect` and `AspectRatio`.
+  ///
+  /// - [thumbnailURL]: The image URL.
+  /// - [useRoundedCorners]: If `true`, applies rounded corners using `ClipRRect`, otherwise uses `AspectRatio`.
+  /// - [aspectRatio]: Defines the aspect ratio for `AspectRatio` mode.
+  /// - [borderRadius]: The corner radius when using `ClipRRect`.
+  static Widget buildHeroVideoThumbnail({
+    required String thumbnailURL,
+    bool useRoundedCorners = false,
+    double aspectRatio = 16 / 9,
+    double borderRadius = 6.0,
+  }) {
+    return Hero(
+      tag: "video_$thumbnailURL",
+      transitionOnUserGestures: true,
+      flightShuttleBuilder: _heroFlightBuilder,
+      child: useRoundedCorners
+          ? _buildRoundedThumbnail(thumbnailURL, borderRadius)
+          : _buildAspectRatioThumbnail(thumbnailURL, aspectRatio),
+    );
+  }
+
+  /// Builds a rounded thumbnail using `ClipRRect`.
+  static Widget _buildRoundedThumbnail(String imageUrl, double borderRadius) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: _buildCachedNetworkImage(imageUrl,
+          width: double.infinity, height: 180),
+    );
+  }
+
+  /// Builds an aspect ratio thumbnail using `AspectRatio`.
+  static Widget _buildAspectRatioThumbnail(
+      String imageUrl, double aspectRatio) {
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: _buildCachedNetworkImage(imageUrl, width: double.infinity),
+    );
+  }
+
+  /// Loads the image with `CachedNetworkImage` and handles errors/loading states.
+  static Widget _buildCachedNetworkImage(String imageUrl,
+      {double? width, double? height}) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      placeholder: (_, __) => _buildShimmerPlaceholder(),
+      errorWidget: (_, __, ___) =>
+          const Icon(Icons.image_not_supported, color: Colors.grey),
+    );
+  }
+
+  /// Customizes the `Hero` animation transition effect.
+  static Widget _heroFlightBuilder(
+    BuildContext context,
+    Animation<double> animation,
+    HeroFlightDirection flightDirection,
+    BuildContext fromHeroContext,
+    BuildContext toHeroContext,
+  ) {
+    return FadeTransition(
+      opacity: animation,
+      child: toHeroContext.widget,
+    );
+  }
+
+  /// Creates a shimmer placeholder while loading.
+  static Widget _buildShimmerPlaceholder() {
+    return Container(
+      color: Colors.black12,
+      child: const Center(child: CircularProgressIndicator(color: Colors.grey)),
     );
   }
 }
