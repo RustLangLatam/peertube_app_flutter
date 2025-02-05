@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:river_player/river_player.dart';
 
-import 'peerTube_controls_config.dart';
+import 'peerTube_player_controls_config.dart';
 
 /// A utility class for configuring BetterPlayer with a PeerTube-style theme.
 ///
@@ -29,8 +29,8 @@ class PeerTubePlayerConfig {
       autoPlay: autoPlay,
       looping: !isLive,
       controlsConfiguration: isLive
-          ? PeerTubeControlsConfig.liveStreamConfig()
-          : PeerTubeControlsConfig.defaultConfig(),
+          ? PeerTubePlayerControlsConfig.liveStreamConfig()
+          : PeerTubePlayerControlsConfig.defaultConfig(),
       allowedScreenSleep: false,
       autoDetectFullscreenDeviceOrientation: true,
       autoDetectFullscreenAspectRatio: true,

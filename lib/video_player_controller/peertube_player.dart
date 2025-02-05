@@ -2,8 +2,8 @@ import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:river_player/river_player.dart';
 
 import '../utils/video_utils.dart';
-import 'buffer_optimizer.dart';
-import 'video_source_info.dart';
+import 'peertube_player_buffer_optimizer_config.dart';
+import 'peertube_video_source_info.dart';
 import 'peertube_player_config.dart';
 import 'peertube_player_notification_config.dart';
 import 'peertube_player_cache_config.dart';
@@ -15,13 +15,13 @@ class PeerTubePlayer {
 
   /// Initialize the video player with the given URL and settings.
   ///
-  /// This method sets up the video player with the provided [VideoSourceInfo]
+  /// This method sets up the video player with the provided [PeerTubeVideoSourceInfo]
   /// and prepares it for playback.
   ///
   /// [source] The video source information, including URL and settings.
   Future<void> initializePlayer(key, VideoDetails? videoDetails,
       {String? nodeUrl}) async {
-    final source = VideoSourceInfo.extractBestVideoSource(videoDetails)!;
+    final source = PeerTubeVideoSourceInfo.extractBestVideoSource(videoDetails)!;
 
     String? thumbnailURL;
 
@@ -49,7 +49,7 @@ class PeerTubePlayer {
         useAsmsSubtitles: false, // Disable ASMS subtitles
         liveStream: isLive, // Set live stream flag
         cacheConfiguration: PeerTubePlayerCacheConfig.create(source),
-        bufferingConfiguration: BufferOptimizer.getOptimalBufferConfig(source.duration), // Set buffering configuration
+        bufferingConfiguration: PeerTubePlayerBufferOptimizerConfig.getOptimalBufferConfig(source.duration), // Set buffering configuration
         resolutions: source.resolutions, // Set video resolutions
         notificationConfiguration: PeerTubePlayerNotificationConfig.create(
             thumbnailURL: thumbnailURL,

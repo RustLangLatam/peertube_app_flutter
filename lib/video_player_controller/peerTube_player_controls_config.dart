@@ -3,7 +3,7 @@ import 'package:river_player/river_player.dart';
 
 /// A utility class for configuring video player controls with
 /// a PeerTube-style theme and advanced customization.
-class PeerTubeControlsConfig {
+class PeerTubePlayerControlsConfig {
   /// Returns a `BetterPlayerControlsConfiguration` with custom settings.
   ///
   /// - [showControlsOnInitialize] Determines if controls should be visible on startup.

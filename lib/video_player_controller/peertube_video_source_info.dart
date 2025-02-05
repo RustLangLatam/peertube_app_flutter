@@ -3,7 +3,7 @@ import 'package:river_player/river_player.dart';
 
 /// Represents the best available video source extracted from [VideoDetails].
 /// Prioritizes `HLS` (streamingPlaylists) over `MP4` (files).
-class VideoSourceInfo {
+class PeerTubeVideoSourceInfo {
   final String url;
 
   /// Duration in milliseconds.
@@ -18,7 +18,7 @@ class VideoSourceInfo {
   /// Type of the video source. Can be "hls" or "mp4".
   final BetterPlayerVideoFormat type;
 
-  VideoSourceInfo._({
+  PeerTubeVideoSourceInfo._({
     required this.url,
     required this.duration,
     required this.resolutions,
@@ -31,7 +31,7 @@ class VideoSourceInfo {
   ///
   /// Returns the best available video source as a `VideoSourceInfo` object.
   /// If no valid video source is found, returns `null`.
-  static VideoSourceInfo? extractBestVideoSource(VideoDetails? videoDetails) {
+  static PeerTubeVideoSourceInfo? extractBestVideoSource(VideoDetails? videoDetails) {
     // Check if videoDetails is null, return null if so
     if (videoDetails == null) return null;
 
@@ -39,7 +39,7 @@ class VideoSourceInfo {
     // HLS is prioritized over MP4 files
     if (videoDetails.streamingPlaylists?.isNotEmpty == true) {
       // Extract the first HLS streaming playlist URL
-      return VideoSourceInfo._(
+      return PeerTubeVideoSourceInfo._(
         // HLS URL
         url: videoDetails.streamingPlaylists!.first.playlistUrl!,
         // No separate resolutions needed for HLS
@@ -72,7 +72,7 @@ class VideoSourceInfo {
       if (bestResolution == null) return null;
 
       // Return the best MP4 video source
-      return VideoSourceInfo._(
+      return PeerTubeVideoSourceInfo._(
         // Best MP4 file URL
         url: availableResolutions[bestResolution]!,
         // Video duration

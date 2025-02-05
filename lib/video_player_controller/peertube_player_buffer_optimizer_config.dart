@@ -1,7 +1,7 @@
 import 'package:river_player/river_player.dart';
 
 /// A utility class for optimizing video buffering configurations based on video duration.
-class BufferOptimizer {
+class PeerTubePlayerBufferOptimizerConfig {
   /// Returns an optimized `BetterPlayerBufferingConfiguration` based on video duration.
   ///
   /// This method uses adaptive calculations to determine the optimal buffering configuration

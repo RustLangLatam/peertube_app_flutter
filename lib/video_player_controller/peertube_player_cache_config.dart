@@ -1,4 +1,4 @@
-import 'package:peertube_app_flutter/video_player_controller/video_source_info.dart';
+import 'package:peertube_app_flutter/video_player_controller/peertube_video_source_info.dart';
 import 'package:river_player/river_player.dart';
 
 /// A utility class for generating optimized BetterPlayer cache configurations.
@@ -12,7 +12,7 @@ class PeerTubePlayerCacheConfig {
   /// [source]: The video source information, including URL and settings.
   /// [customKey]: (Optional) Custom cache key.
   static BetterPlayerCacheConfiguration create(
-    VideoSourceInfo source, {
+    PeerTubeVideoSourceInfo source, {
     String? customKey,
   }) {
     return BetterPlayerCacheConfiguration(
