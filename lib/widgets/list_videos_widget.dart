@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:peertube_app_flutter/widgets/peertube_loading_indicator.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:peertube_app_flutter/pages/video_page.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
@@ -149,8 +147,11 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
       children: [
         // Video List with Refresh Indicator
         RefreshIndicator(
-          color: Colors.orange,
-          backgroundColor: Colors.grey[800],
+          color: Colors.orangeAccent,
+          backgroundColor: Colors.transparent,
+          displacement: 30,
+          strokeWidth: 1.5,
+          elevation: 2,
           onRefresh: _refreshVideos, // Refresh without clearing UI
           child: PagedListView<int, Video>(
             pagingController: _pagingController,
@@ -160,7 +161,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
               firstPageProgressIndicatorBuilder: (_) =>
                   _buildShimmerEffect(), // Show skeleton while loading first page
               newPageProgressIndicatorBuilder: (_) =>
-                  PeerTubeLoadingIndicator(isPagination: true), // Pagination
+                  UIUtils.networkImageShimmerPlaceholder(), // Pagination
             ),
           ),
         ),

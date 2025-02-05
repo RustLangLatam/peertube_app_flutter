@@ -217,7 +217,7 @@ class UIUtils {
       width: width,
       height: height,
       fit: BoxFit.cover,
-      placeholder: (_, __) => _buildShimmerPlaceholder(),
+      placeholder: (_, __) => networkImageShimmerPlaceholder(),
       errorWidget: (_, __, ___) =>
           const Icon(Icons.image_not_supported, color: Colors.grey),
     );
@@ -238,10 +238,10 @@ class UIUtils {
   }
 
   /// Creates a shimmer placeholder while loading.
-  static Widget _buildShimmerPlaceholder() {
+  static Widget networkImageShimmerPlaceholder() {
     return Container(
-      color: Colors.black12,
-      child: const Center(child: CircularProgressIndicator(color: Colors.grey)),
+      color:Colors.grey[800],
+      child: const Center(child: CircularProgressIndicator(color: Colors.orange, strokeWidth: 1.5)),
     );
   }
 }

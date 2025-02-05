@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:river_player/river_player.dart';
 
+import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
 import 'buffer_optimizer.dart';
 import 'video_source_info.dart';
@@ -106,7 +107,7 @@ class PeerTubePlayer {
 }
 
 /// Configuration for the video player controls
-const BetterPlayerControlsConfiguration _peerTubeControls =
+BetterPlayerControlsConfiguration _peerTubeControls =
     BetterPlayerControlsConfiguration(
   showControlsOnInitialize: false,
 
@@ -118,6 +119,8 @@ const BetterPlayerControlsConfiguration _peerTubeControls =
   progressBarBufferedColor: Color(0xFF28A745), // Buffered video color
   progressBarBackgroundColor: Colors.white30, // Background of progress bar
   loadingColor: Colors.orange, // Red loading indicator
+  // loadingWidget: UIUtils.networkImageShimmerPlaceholder(),
+  liveTextColor: Colors.redAccent,
   backgroundColor: Color(0xFF13100E), // Clean black background
   overflowModalColor: Colors.black87, // Dark modal background
   overflowModalTextColor: Colors.white, // White text in modal
