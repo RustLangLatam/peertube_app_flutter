@@ -217,7 +217,7 @@ class UIUtils {
       width: width,
       height: height,
       fit: BoxFit.cover,
-      placeholder: (_, __) => networkImageShimmerPlaceholder(),
+      placeholder: (_, __) => progressIndicatorPlaceholder(),
       errorWidget: (_, __, ___) =>
           const Icon(Icons.image_not_supported, color: Colors.grey),
     );
@@ -238,7 +238,7 @@ class UIUtils {
   }
 
   /// Creates a shimmer placeholder while loading.
-  static Widget networkImageShimmerPlaceholder() {
+  static Widget progressIndicatorPlaceholder() {
     return Container(
       color:Colors.grey[800],
       child: const Center(child: CircularProgressIndicator(color: Colors.orange, strokeWidth: 1.5)),

@@ -8,10 +8,10 @@ class VideoSourceInfo {
 
   /// Duration in milliseconds.
   int? duration;
-  
+
   /// Whether the video is a live stream.
   bool isLive;
-  
+
   /// Resolutions available for the video.
   final Map<String, String> resolutions;
 
@@ -45,7 +45,9 @@ class VideoSourceInfo {
         // No separate resolutions needed for HLS
         resolutions: {},
         // Determine the type of video (live or hls)
-        type: videoDetails.streamingPlaylists != null ? BetterPlayerVideoFormat.hls : BetterPlayerVideoFormat.other,
+        type: videoDetails.streamingPlaylists != null
+            ? BetterPlayerVideoFormat.hls
+            : BetterPlayerVideoFormat.other,
         // Determine if the video is a live stream
         isLive: videoDetails.isLive ?? false,
         // Video duration
@@ -59,12 +61,12 @@ class VideoSourceInfo {
       Map<String, String> availableResolutions = {
         for (var file in videoDetails.files!)
           if (file.fileUrl != null)
-          // Use the resolution label or "Unknown" if not available
+            // Use the resolution label or "Unknown" if not available
             file.resolution?.label ?? "Unknown": file.fileUrl!,
       };
 
-      // Get the best resolution (highest available)
-      String? bestResolution = _getHighestResolution(availableResolutions.keys);
+      // Get the best resolution (midpoint between lowest and highest available)
+      String? bestResolution = _getMidResolution(availableResolutions.keys);
 
       // If no best resolution is found, return null
       if (bestResolution == null) return null;
@@ -94,7 +96,6 @@ class VideoSourceInfo {
   bool isOther() => type == BetterPlayerVideoFormat.other;
 }
 
-
 /// Returns the highest resolution label from a list of resolution labels.
 ///
 /// This function takes an iterable of resolution labels (e.g., "1080p", "720p") and
@@ -117,4 +118,31 @@ String? _getHighestResolution(Iterable<String> resolutionLabels) {
         ? current // Return the current label if its value is higher
         : best; // Otherwise, return the best label found so far
   });
+}
+
+/// Returns the **mid-range** resolution label from a list of resolution labels.
+///
+/// If there's an odd number of resolutions, it picks the **middle one**.
+/// If there's an even number, it picks the **lower of the two middle values**.
+/// If the list is empty, returns `null`.
+String? _getMidResolution(Iterable<String> resolutionLabels) {
+  if (resolutionLabels.isEmpty) return null;
+
+  // Convert resolution labels to numeric values
+  List<int> resolutions = resolutionLabels
+      .map((res) => int.tryParse(res.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0)
+      .where((res) => res > 0) // Remove invalid or zero resolutions
+      .toList();
+
+  if (resolutions.isEmpty) return null;
+
+  // Sort resolutions in ascending order
+  resolutions.sort();
+
+  // Find the middle index
+  int midIndex = (resolutions.length - 1) ~/ 2;
+
+  // Return the corresponding resolution label
+  return resolutionLabels
+      .firstWhere((label) => label.contains(resolutions[midIndex].toString()));
 }

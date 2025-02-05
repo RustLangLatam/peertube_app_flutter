@@ -161,7 +161,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
               firstPageProgressIndicatorBuilder: (_) =>
                   _buildShimmerEffect(), // Show skeleton while loading first page
               newPageProgressIndicatorBuilder: (_) =>
-                  UIUtils.networkImageShimmerPlaceholder(), // Pagination
+                  UIUtils.progressIndicatorPlaceholder(), // Pagination
             ),
           ),
         ),

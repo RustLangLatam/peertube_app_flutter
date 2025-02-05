@@ -5,6 +5,7 @@ import 'package:peertube_app_flutter/pages/channels_page.dart';
 import 'package:peertube_app_flutter/pages/discover_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:peertube_app_flutter/pages/library_page.dart';
 import 'package:peertube_app_flutter/pages/lives_page.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:system_theme/system_theme.dart';
@@ -14,12 +15,17 @@ PeerTubeApiSdk node = PeerTubeApiSdk(
 
 void main() async {
   HttpOverrides.global = MyHttpOverrides();
+
   WidgetsFlutterBinding.ensureInitialized();
+
   await SystemTheme.accentColor.load();
+
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -32,6 +38,7 @@ class _MyAppState extends State<MyApp> {
     DiscoverScreen(api: node),
     ChannelsScreen(api: node),
     LivesScreen(api: node),
+    LibraryScreen(api: node),
     // const PeerTubeEmbedPlayer(),
   ];
 
@@ -53,9 +60,9 @@ class _MyAppState extends State<MyApp> {
       case 3:
         Navigator.pushNamed(context, '/live');
         break;
-      // case 4:
-      //   Navigator.pushNamed(context, '/library');
-      //   break;
+      case 4:
+        Navigator.pushNamed(context, '/library');
+        break;
       default:
         break;
     }
@@ -123,11 +130,11 @@ class _MyAppState extends State<MyApp> {
               activeIcon: Icon(Icons.podcasts_rounded, size: 26),
               label: "Live",
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.video_library_rounded, size: 24),
-            //   activeIcon: Icon(Icons.video_library_rounded, size: 26),
-            //   label: "Library",
-            // ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.video_library_rounded, size: 24),
+              activeIcon: Icon(Icons.video_library_rounded, size: 26),
+              label: "Library",
+            ),
           ],
         ),
       ),

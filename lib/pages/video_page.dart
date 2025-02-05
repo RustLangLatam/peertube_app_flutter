@@ -5,7 +5,7 @@ import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
 import 'package:river_player/river_player.dart';
 import 'package:shimmer/shimmer.dart';
-import '../video_player_controller/player_controller_service.dart';
+import '../video_player_controller/peertube_player.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
 import '../widgets/peertube_logo_widget.dart';
@@ -283,6 +283,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   ? [video.category!.label!]
                   : ["Unknown"],
               onButtonPressed: (label) {
+                _videoPlayer.controller!.pause();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -291,7 +292,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       category: video.category!,
                     ),
                   ),
-                );
+                ).whenComplete(() {
+                  _videoPlayer.controller!.play();
+                });
               },
             )),
         UIUtils.buildDetailRow("Language", video.language?.label ?? "English"),
