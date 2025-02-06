@@ -35,8 +35,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
   @override
   void initState() {
     super.initState();
-    _pagingController =
-        widget.externalPagingController ?? PagingController(firstPageKey: 0);
+    _pagingController = widget.externalPagingController ?? PagingController(firstPageKey: 0);
     _pagingController.addPageRequestListener(fetchVideos);
   }
 
@@ -102,9 +101,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
         final newVideos = response.data?.data?.toList() ?? [];
 
         // Only replace if new videos are different from the current first pageSize list
-        if (!_areListsEqual(
-            (_pagingController.itemList ?? []).take(pageSize).toList(),
-            newVideos)) {
+        if (!_areListsEqual( (_pagingController.itemList ?? []).take(pageSize).toList(), newVideos)) {
           _replaceVideoList(newVideos);
         }
       }

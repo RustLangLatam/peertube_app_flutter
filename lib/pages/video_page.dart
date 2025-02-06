@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
@@ -157,7 +156,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: ListView(
               children: [
                 // 🎥 Video Title
-                TextUtils.buildVideoTitle(video.name),
+                VideoUtils.buildVideoTitle(video.name),
                 const SizedBox(height: 4),
 
                 // 📅 Video Metadata (Published Date & Views)

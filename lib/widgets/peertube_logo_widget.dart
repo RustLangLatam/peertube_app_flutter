@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PeerTubeLogoWidget extends StatelessWidget {
-  final String? text; // Nullable text parameter
-
-  const PeerTubeLogoWidget({super.key, this.text});
+  const PeerTubeLogoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,15 +10,15 @@ class PeerTubeLogoWidget extends StatelessWidget {
         child:
             // PeerTube Logo from assets
             Container(
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(5), // Rounded corners
-              ),
-              padding: const EdgeInsets.all(2), // Inner padding
-              child: Image.asset(
-                "assets/logo.png",
-                fit: BoxFit.contain,
-              ),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(5), // Rounded corners
+          ),
+          padding: const EdgeInsets.all(2), // Inner padding
+          child: Image.asset(
+            "assets/logo.png",
+            fit: BoxFit.contain,
+          ),
         ));
   }
 }
@@ -57,5 +55,22 @@ class PeerTubeTextWidget extends StatelessWidget {
                   ),
                 ],
               ));
+  }
+}
+
+class PeerTubeBannerWidget extends StatelessWidget {
+  const PeerTubeBannerWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+        child: Container(
+          color: Colors.transparent,
+          child: Image.asset(
+            "assets/peertube-banner.png",
+            fit: BoxFit.fill,
+          ),
+        ));
   }
 }

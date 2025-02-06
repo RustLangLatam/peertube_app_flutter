@@ -16,14 +16,14 @@ class AvatarUtils {
       ),
       child: avatarUrl?.isNotEmpty == true
           ? ClipRRect(
-        borderRadius: BorderRadius.circular(6), // Keep square shape
-        child: CachedNetworkImage(
-          imageUrl: avatarUrl!,
-          placeholder: (_, __) => _defaultAvatar(channelName),
-          errorWidget: (_, __, ___) => _defaultAvatar(channelName),
-          fit: BoxFit.cover,
-        ),
-      )
+              borderRadius: BorderRadius.circular(6), // Keep square shape
+              child: CachedNetworkImage(
+                imageUrl: avatarUrl!,
+                placeholder: (_, __) => _defaultAvatar(channelName),
+                errorWidget: (_, __, ___) => _defaultAvatar(channelName),
+                fit: BoxFit.cover,
+              ),
+            )
           : _defaultAvatar(channelName),
     );
   }
@@ -49,23 +49,49 @@ class AvatarUtils {
     );
   }
 
-  /// Extracts the **best available avatar** from the `VideoDetails` object.
+  /// Extracts the **best available avatar** from the [VideoDetails] object.
   /// Checks in the following order: `channel` → `account`.
   /// Returns the **full avatar URL** or `null` if no avatar is found.
-  static String? getBestAvatar(Video? videoDetails, String host) {
+  static String? _getBestVideoAvatar(Video? videoDetails, String host) {
+    // Check if videoDetails is null, return null if true
     if (videoDetails == null) return null;
 
+    // Extract the avatar path from the videoDetails object
+    // First, check the channel avatars, then the account avatars
     String? avatarPath = videoDetails.channel?.avatars?.firstOrNull?.path ??
         videoDetails.account?.avatars?.firstOrNull?.path;
 
+    // Return the full avatar URL if a path is found, otherwise return null
     return avatarPath != null ? "$host$avatarPath" : null;
   }
 
-  /// Builds an **avatar widget** directly from `VideoDetails`, keeping a **consistent style**.
+  /// Builds an **avatar widget** directly from [VideoDetails], keeping a **consistent style**.
+  ///
+  /// This function uses [_getBestVideoAvatar] to extract the avatar URL and then passes it to [buildChannelAvatar] along with the channel name.
   static Widget buildAvatarFromVideoDetails(Video? videoDetails, String host) {
-    String? avatarUrl = getBestAvatar(videoDetails, host);
-    String? channelName = videoDetails?.channel?.name ?? "U";
+    final avatarUrl = _getBestVideoAvatar(videoDetails, host);
+    final channelName = videoDetails?.channel?.name ?? "U";
+    return buildChannelAvatar(avatarUrl: avatarUrl, channelName: channelName);
+  }
 
+  /// Extracts the **best available avatar** from the [VideoChannel] object.
+  /// Checks in the following order: `channel` → `ownerAccount`.
+  /// Returns the **full avatar URL** or `null` if no avatar is found.
+  static String? _getBestChannelAvatar(
+      VideoChannel? videoChannel, String host) {
+    if (videoChannel == null) return null;
+    final avatarPath = videoChannel.avatars?.firstOrNull?.path ??
+        videoChannel.ownerAccount?.avatars?.firstOrNull?.path;
+    return avatarPath != null ? "$host$avatarPath" : null;
+  }
+
+  /// Builds an **avatar widget** directly from [VideoChannel], keeping a **consistent style**.
+  ///
+  /// This function uses [_getBestChannelAvatar] to extract the avatar URL and then passes it to [buildChannelAvatar] along with the channel name.
+  static Widget buildAvatarFromVideoChannel(
+      VideoChannel? videoChannel, String host) {
+    final avatarUrl = _getBestChannelAvatar(videoChannel, host);
+    final channelName = videoChannel?.name ?? "C";
     return buildChannelAvatar(avatarUrl: avatarUrl, channelName: channelName);
   }
 }

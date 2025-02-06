@@ -45,6 +45,7 @@ dependencies:
   river_player: ^0.1.4
   url_launcher: ^6.3.1
   shimmer: ^3.0.0
+  shimmer_loading: ^0.0.1
   timeago: ^3.7.0
 
 dev_dependencies:

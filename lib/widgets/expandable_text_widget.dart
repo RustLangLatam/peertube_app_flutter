@@ -43,6 +43,13 @@ class ExpandableTextWidget extends StatefulWidget {
 
 class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   bool isExpanded = false;
+  bool isOverflowing = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkOverflow(); // Check if the text overflows
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +67,10 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
           maxLines: isExpanded ? null : widget.maxLines,
           overflow: isExpanded ? TextOverflow.clip : TextOverflow.ellipsis,
         ),
-        if (!isExpanded || widget.text.length > widget.maxLines * 50)
-          InkWell(
+
+        // Show "See More" only if the text overflows
+        if (isOverflowing)
+          GestureDetector(
             onTap: () {
               setState(() {
                 isExpanded = !isExpanded;
@@ -81,6 +90,23 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
     );
   }
 
+  /// Checks if the text exceeds the max lines allowed
+  void _checkOverflow() {
+    final textPainter = TextPainter(
+      text: TextSpan(text: widget.text, style: widget.textStyle),
+      maxLines: widget.maxLines,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 32);
+
+    // If the text overflows, set `isOverflowing` to true
+    setState(() {
+      isOverflowing = textPainter.didExceedMaxLines;
+    });
+  }
+
+  /// Extracts URLs from the text and makes them tappable
   List<TextSpan> _buildTextSpans(String text) {
     final RegExp urlRegExp = RegExp(
       r'((https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?)',

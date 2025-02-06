@@ -42,4 +42,19 @@ class VideoUtils {
       return removeDefaultPrefix(accountDisplayName ?? channelDisplayName ?? video.account?.name ?? video.channel?.name ?? "Unknown");
     }
   }
+
+  /// 📌 Builds a video title that supports **up to 2 lines**.
+  static Widget buildVideoTitle(String? title,
+      {Color color = Colors.white, double fontSize = 18}) {
+    return Text(
+      title ?? "Unknown Title",
+      style: TextStyle(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis, // Truncates if too long
+    );
+  }
 }

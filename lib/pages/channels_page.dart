@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
-import '../widgets/coming_soon_widget.dart';
+import '../widgets/list_channels_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class ChannelsScreen extends StatefulWidget {
@@ -30,7 +30,11 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF13100E),
       appBar: _buildAppBar(),
-      body: ComingSoonWidget(),
+      body: Column(children: [
+        Expanded(
+          child: ListChannelsWidget(api: widget.api),
+        )
+      ]),
     );
   }
 
