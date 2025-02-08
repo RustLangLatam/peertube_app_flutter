@@ -1,6 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
@@ -10,12 +10,12 @@ import '../widgets/list_channel_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class VideoChannelScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+  final String node;
   final VideoChannel channel;
 
   const VideoChannelScreen({
     super.key,
-    required this.api,
+    required this.node,
     required this.channel,
   });
 
@@ -47,7 +47,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
   /// 🔹 **SliverAppBar with Banner**
   Widget _buildSliverAppBar() {
     final bannerUrl = widget.channel.banners?.isNotEmpty == true
-        ? widget.api.getHost + widget.channel.banners!.first.path!
+        ? widget.node + widget.channel.banners!.first.path!
         : null;
 
     return SliverAppBar(
@@ -99,31 +99,33 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
   Widget _buildFilters() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: SizedBox(height: 30, child: Row(
-        children: [
-          UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded,
-              () {
-            setState(() {
-              recentlyAdded = true;
-              isTrending = false;
-              sortBy = '-publishedAt';
-            });
-            // // TODO: Implement recently added videos
-            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-          }),
-          const SizedBox(width: 5),
-          UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending,
-              () {
-            setState(() {
-              recentlyAdded = false;
-              isTrending = true;
-              sortBy = '-trending';
-            });
-            // // TODO: Implement trending videos
-            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-          }),
-        ],
-      )),
+      child: SizedBox(
+          height: 30,
+          child: Row(
+            children: [
+              UIUtils.filterToggleButton(
+                  "Recently Added", Icons.add, recentlyAdded, () {
+                setState(() {
+                  recentlyAdded = true;
+                  isTrending = false;
+                  sortBy = '-publishedAt';
+                });
+                // // TODO: Implement recently added videos
+                // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+              }),
+              const SizedBox(width: 5),
+              UIUtils.filterToggleButton(
+                  "Trending", Icons.trending_up, isTrending, () {
+                setState(() {
+                  recentlyAdded = false;
+                  isTrending = true;
+                  sortBy = '-trending';
+                });
+                // // TODO: Implement trending videos
+                // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
+              }),
+            ],
+          )),
     );
   }
 
@@ -137,7 +139,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
           Row(
             children: [
               AvatarUtils.buildAvatarFromVideoChannel(
-                  widget.channel, widget.api.getHost),
+                  widget.channel, widget.node),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -221,12 +223,13 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white)), _buildFilters()
+                      color: Colors.white)),
+              _buildFilters()
             ]),
             const SizedBox(height: 10),
             Expanded(
               child: ListChannelVideosWidget(
-                  api: widget.api,
+                  node: widget.node,
                   channelName: widget.channel.name!,
                   sortBy: sortBy,
                   isLive: isLive,

@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
 import 'package:river_player/river_player.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../providers/api_provider.dart';
 import '../video_player_controller/peertube_player.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
@@ -11,13 +14,13 @@ import '../widgets/peertube_logo_widget.dart';
 import '../widgets/unsupported_format_widget.dart';
 import 'category_page.dart';
 
-class VideoPlayerScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class VideoPlayerScreen extends ConsumerStatefulWidget {
+  final String node;
   final Video video;
 
   const VideoPlayerScreen({
     super.key,
-    required this.api,
+    required this.node,
     required this.video,
   });
 
@@ -25,7 +28,7 @@ class VideoPlayerScreen extends StatefulWidget {
   _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
 }
 
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
   GlobalKey _videoPlayerKey = GlobalKey();
 
   final PeerTubePlayer _videoPlayer = PeerTubePlayer();
@@ -36,24 +39,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
+
     _initializeVideo();
   }
 
   Future<void> _initializeVideo() async {
-    final apiVideos = widget.api.getVideoApi();
-
     try {
-      final id = ApiV1VideosOwnershipIdAcceptPostIdParameter(
-          (p) => p..oneOf = OneOf.fromValue1(value: '${widget.video.id}'));
+      final api = ref.read(videoApiProvider());
 
-      var response = await apiVideos.getVideo(id: id);
+      final response = await api.getVideo(
+        id: ApiV1VideosOwnershipIdAcceptPostIdParameter(
+          (p) => p..oneOf = OneOf.fromValue1(value: '${widget.video.uuid}'),
+        ),
+      );
+
       if (response.statusCode == 200) {
         _videoDetails = response.data;
 
         // Run video initialization in the background
         Future.microtask(() async {
           await _videoPlayer.initializePlayer(_videoPlayerKey, _videoDetails,
-              nodeUrl: widget.api.getHost);
+              nodeUrl: widget.node);
         });
 
         int elapsedTime = 0;
@@ -101,13 +107,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         backgroundColor: const Color(0xFF1A1A1A),
         title: const PeerTubeTextWidget(),
         leading: const PeerTubeLogoWidget(),
-        actions: [Padding(
-            padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),
-            child: IconButton(
-              icon:
-                  const Icon(Icons.close_rounded, size: 20, color: Colors.orange),
-              onPressed: () => Navigator.of(context).pop(),
-            ))],
+        actions: [
+          Padding(
+              padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),
+              child: IconButton(
+                icon: const Icon(Icons.close_rounded,
+                    size: 20, color: Colors.orange),
+                onPressed: () => Navigator.of(context).pop(),
+              ))
+        ],
       ),
       body: _hasError
           ? const UnsupportedFormatWidget() // Error widget
@@ -119,13 +127,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget _buildVideoContent() {
     final video = widget.video;
 
-    final thumbnailURL = video.previewPath != null
-        ? '${widget.api.getHost}${video.previewPath}'
-        : '';
+    final thumbnailURL =
+        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
 
     return Column(
       children: [
         // 🎬 Video Player
+
         _isInitialized
             ? AspectRatio(
                 aspectRatio: 16 / 9,
@@ -210,8 +218,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 Row(
                   children: [
                     // Channel Avatar
-                    AvatarUtils.buildAvatarFromVideoDetails(
-                        video, widget.api.getHost),
+                    AvatarUtils.buildAvatarFromVideoDetails(video, widget.node),
                     const SizedBox(width: 8),
 
                     // Channel Name & "By" Section
@@ -287,7 +294,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CategoryVideosScreen(
-                      api: widget.api,
+                      node: widget.node,
                       category: video.category!,
                     ),
                   ),

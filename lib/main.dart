@@ -1,45 +1,44 @@
 import 'dart:io';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peertube_app_flutter/pages/browser_page.dart';
 import 'package:peertube_app_flutter/pages/channels_page.dart';
 import 'package:peertube_app_flutter/pages/discover_page.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:peertube_app_flutter/pages/library_page.dart';
 import 'package:peertube_app_flutter/pages/lives_page.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/providers/api_provider.dart';
 import 'package:system_theme/system_theme.dart';
 
-PeerTubeApiSdk node = PeerTubeApiSdk(
-    basePathOverride: 'https://peertube.cpy.re', debugMode: kDebugMode);
+String node = 'https://peertube.cpy.re';
 
 void main() async {
   HttpOverrides.global = MyHttpOverrides();
 
   WidgetsFlutterBinding.ensureInitialized();
-
+  //
   await SystemTheme.accentColor.load();
 
-  runApp(MyApp());
+  runApp(ProviderScope(
+      overrides: [peerTubeApiProvider(apiBaseUrl: node)], child: const Home()));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class Home extends ConsumerStatefulWidget {
+  const Home({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _HomeState extends ConsumerState<Home> {
   int _selectedIndex = 0;
 
   static final List<Widget> _widgetOptions = <Widget>[
-    BrowserScreen(api: node),
-    DiscoverScreen(api: node),
-    ChannelsScreen(api: node),
-    LivesScreen(api: node),
-    LibraryScreen(api: node),
-    // const PeerTubeEmbedPlayer(),
+    BrowserScreen(node: node),
+    DiscoverScreen(node: node),
+    ChannelsScreen(node: node),
+    LivesScreen(node: node),
+    LibraryScreen(node: node),
   ];
 
   void _onItemTapped(int index) {

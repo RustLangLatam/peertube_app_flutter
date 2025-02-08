@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
 import '../widgets/list_channels_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class ChannelsScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class ChannelsScreen extends ConsumerStatefulWidget {
+  final String node;
 
-  const ChannelsScreen({super.key, required this.api});
+  const ChannelsScreen({super.key, required this.node});
 
   @override
-  _ChannelsScreenState createState() => _ChannelsScreenState();
+  ConsumerState<ChannelsScreen> createState() => _ChannelsScreenState();
 }
 
-class _ChannelsScreenState extends State<ChannelsScreen> {
+class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
   @override
   void initState() {
     super.initState();
@@ -32,7 +32,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
       appBar: _buildAppBar(),
       body: Column(children: [
         Expanded(
-          child: ListChannelsWidget(api: widget.api),
+          child: ListChannelsWidget(node: widget.node),
         )
       ]),
     );

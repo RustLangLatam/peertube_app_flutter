@@ -1,25 +1,24 @@
 // ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/widgets/list_videos_widget.dart';
 
 import '../widgets/peertube_logo_widget.dart';
 
-class CategoryVideosScreen extends StatefulWidget {
+class CategoryVideosScreen extends ConsumerStatefulWidget {
   final VideoConstantNumberCategory category;
 
-  final PeerTubeApiSdk api;
+  final String node;
 
-  const CategoryVideosScreen({ required this.api,required this.category});
+  const CategoryVideosScreen({required this.node, required this.category});
 
   @override
   _CategoryVideosScreenState createState() => _CategoryVideosScreenState();
 }
 
-class _CategoryVideosScreenState extends State<CategoryVideosScreen> {
-
+class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
   @override
   void initState() {
     super.initState();
@@ -29,11 +28,10 @@ class _CategoryVideosScreenState extends State<CategoryVideosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF13100E),
-
       appBar: _buildAppBar(),
       body: ListVideosWidget(
         categoryId: widget.category.id, // Fetch all videos
-        api: widget.api,
+        node: widget.node,
       ),
     );
   }
@@ -59,5 +57,4 @@ class _CategoryVideosScreenState extends State<CategoryVideosScreen> {
       ],
     );
   }
-
 }

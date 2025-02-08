@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../providers/api_provider.dart';
 import '../utils/ui_utils.dart';
 import '../utils/video_date_utils.dart';
 import '../pages/video_page.dart';
@@ -13,8 +15,8 @@ import 'list_videos_widget.dart';
 
 const int pageSize = 10;
 
-class ListChannelVideosWidget extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class ListChannelVideosWidget extends ConsumerStatefulWidget {
+  final String node;
   final String channelName;
   final String? sortBy;
   final bool isLive;
@@ -23,7 +25,7 @@ class ListChannelVideosWidget extends StatefulWidget {
 
   const ListChannelVideosWidget({
     super.key,
-    required this.api,
+    required this.node,
     required this.channelName,
     this.videoCountCallback,
     this.isLive = false,
@@ -31,11 +33,12 @@ class ListChannelVideosWidget extends StatefulWidget {
   });
 
   @override
-  _ListChannelVideosWidgetState createState() =>
+  ConsumerState<ListChannelVideosWidget> createState() =>
       _ListChannelVideosWidgetState();
 }
 
-class _ListChannelVideosWidgetState extends State<ListChannelVideosWidget> {
+class _ListChannelVideosWidgetState
+    extends ConsumerState<ListChannelVideosWidget> {
   late final PagingController<int, Video> _pagingController;
 
   @override
@@ -56,16 +59,17 @@ class _ListChannelVideosWidgetState extends State<ListChannelVideosWidget> {
 
   Future<void> _fetchVideos(int pageKey) async {
     try {
-      final response =
-          await widget.api.getVideoChannelsApi().getVideoChannelVideos(
-                channelHandle: widget.channelName,
-                start: pageKey,
-                count: pageSize,
-                sort: widget.sortBy,
-                skipCount: 'false',
-                isLive: widget.isLive,
-                nsfw: 'false',
-              );
+      final api = ref.read(videoChannelsApiProvider());
+
+      final response = await api.getVideoChannelVideos(
+        channelHandle: widget.channelName,
+        start: pageKey,
+        count: pageSize,
+        sort: widget.sortBy,
+        skipCount: 'false',
+        isLive: widget.isLive,
+        nsfw: 'false',
+      );
 
       if (response.statusCode == 200) {
         final videos = response.data?.data?.toList() ?? [];
@@ -92,16 +96,16 @@ class _ListChannelVideosWidgetState extends State<ListChannelVideosWidget> {
   /// **Refresh videos without clearing immediately**
   Future<void> _refreshVideos() async {
     try {
-      final response = await widget.api
-          .getVideoChannelsApi()
-          .getVideoChannelVideos(
-              channelHandle: widget.channelName,
-              start: 0,
-              count: pageSize,
-              isLive: widget.isLive,
-              nsfw: 'false',
-              sort: widget.sortBy,
-              skipCount: 'false');
+      final api = ref.read(videoChannelsApiProvider());
+
+      final response = await api.getVideoChannelVideos(
+          channelHandle: widget.channelName,
+          start: 0,
+          count: pageSize,
+          isLive: widget.isLive,
+          nsfw: 'false',
+          sort: widget.sortBy,
+          skipCount: 'false');
 
       if (response.statusCode == 200) {
         final newVideos = response.data?.data?.toList() ?? [];
@@ -165,16 +169,15 @@ class _ListChannelVideosWidgetState extends State<ListChannelVideosWidget> {
 
   /// Builds a compact video card with essential details
   Widget _buildVideoCard(Video video) {
-    final thumbnailURL = video.previewPath != null
-        ? '${widget.api.getHost}${video.previewPath}'
-        : '';
+    final thumbnailURL =
+        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
 
     return InkWell(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) =>
-              VideoPlayerScreen(video: video, api: widget.api),
+              VideoPlayerScreen(video: video, node: widget.node),
         ),
       ),
       child: Container(

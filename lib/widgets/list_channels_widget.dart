@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
 import '../utils/channels_utils.dart';
@@ -14,16 +16,16 @@ import 'expandable_text_widget.dart';
 
 const int pageSize = 10;
 
-class ListChannelsWidget extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class ListChannelsWidget extends ConsumerStatefulWidget {
+  final String node;
 
-  const ListChannelsWidget({super.key, required this.api});
+  const ListChannelsWidget({super.key, required this.node});
 
   @override
-  _ListChannelsWidgetState createState() => _ListChannelsWidgetState();
+  ConsumerState<ListChannelsWidget> createState() => _ListChannelsWidgetState();
 }
 
-class _ListChannelsWidgetState extends State<ListChannelsWidget> {
+class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
   late final PagingController<int, VideoChannel> _pagingController;
 
   @override
@@ -36,8 +38,9 @@ class _ListChannelsWidgetState extends State<ListChannelsWidget> {
   /// Fetches the list of PeerTube channels
   Future<void> _fetchChannels(int pageKey) async {
     try {
-      final apiChannels = widget.api.getVideoChannelsApi();
-      final response = await apiChannels.getVideoChannels(
+      final api = ref.read(videoChannelsApiProvider());
+
+      final response = await api.getVideoChannels(
         start: pageKey,
         count: pageSize,
         sort: "-createdAt",
@@ -62,8 +65,9 @@ class _ListChannelsWidgetState extends State<ListChannelsWidget> {
   /// **Refresh Channels without clearing immediately**
   Future<void> _refreshChannels() async {
     try {
-      final apiChannels = widget.api.getVideoChannelsApi();
-      final response = await apiChannels.getVideoChannels(
+      final api = ref.read(videoChannelsApiProvider());
+
+      final response = await api.getVideoChannels(
         start: 0,
         count: pageSize,
         sort: "-createdAt",
@@ -161,7 +165,7 @@ class _ListChannelsWidgetState extends State<ListChannelsWidget> {
   /// Builds a channel card with a **PeerTube** design.
   Widget _buildChannelCard(VideoChannel channel) {
     final bannerUrl = channel.banners?.isNotEmpty == true
-        ? widget.api.getHost + channel.banners!.first.path!
+        ? widget.node + channel.banners!.first.path!
         : null;
 
     return InkWell(
@@ -172,7 +176,7 @@ class _ListChannelsWidgetState extends State<ListChannelsWidget> {
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                VideoChannelScreen(channel: channel, api: widget.api),
+                VideoChannelScreen(channel: channel, node: widget.node),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return Stack(
@@ -230,7 +234,7 @@ class _ListChannelsWidgetState extends State<ListChannelsWidget> {
                 Positioned(
                   left: 12,
                   bottom: -16, // Smaller overlap
-                   child: AvatarUtils.buildAvatarFromVideoChannel(channel, widget.api.getHost),
+                   child: AvatarUtils.buildAvatarFromVideoChannel(channel, widget.node),
                 ),
               ],
             ),

@@ -47,10 +47,14 @@ dependencies:
   shimmer: ^3.0.0
   shimmer_loading: ^0.0.1
   timeago: ^3.7.0
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: any
+  riverpod_generator: ^2.6.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

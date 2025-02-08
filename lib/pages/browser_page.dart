@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peertube_app_flutter/widgets/list_videos_widget.dart';
 
 import '../utils/export.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class BrowserScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class BrowserScreen extends ConsumerStatefulWidget {
+  final String node;
 
-  const BrowserScreen({super.key, required this.api});
+  const BrowserScreen({super.key, required this.node});
 
   @override
-  _BrowserScreenState createState() => _BrowserScreenState();
+  ConsumerState<BrowserScreen> createState() => _BrowserScreenState();
 }
 
-class _BrowserScreenState extends State<BrowserScreen> {
+class _BrowserScreenState extends ConsumerState<BrowserScreen> {
   bool isTrending = false;
   bool recentlyAdded = true;
   String sortBy = '-publishedAt';
@@ -30,7 +30,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           _buildFilters(), // 🟢 Ensures filters appear below the AppBar
           Expanded(
             child: ListVideosWidget(
-                api: widget.api, isLive: isLive, sortBy: sortBy),
+                node: widget.node, isLive: isLive, sortBy: sortBy),
           ),
         ],
       ),

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../providers/api_provider.dart';
 import '../widgets/peertube_logo_widget.dart';
 import 'category_page.dart';
 
-class DiscoverScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class DiscoverScreen extends ConsumerStatefulWidget {
+  final String node;
 
-  const DiscoverScreen({Key? key, required this.api}) : super(key: key);
+  const DiscoverScreen({Key? key, required this.node}) : super(key: key);
 
   @override
-  _DiscoverScreenState createState() => _DiscoverScreenState();
+  ConsumerState<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen> {
+class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   List<VideoConstantNumberCategory> categoriesWithIcons = [];
   bool isLoading = true;
 
@@ -28,7 +30,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     setState(() => isLoading = true);
 
     try {
-      final response = await widget.api.getVideoApi().getCategories();
+      final api = ref.read(videoApiProvider());
+
+      final response = await api.getCategories();
 
       if (response.statusCode == 200 && response.data != null) {
         setState(() {
@@ -157,7 +161,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => CategoryVideosScreen(
-              api: widget.api,
+              node: widget.node,
               category: category,
             ),
           ),

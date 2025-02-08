@@ -1,21 +1,20 @@
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
 import '../widgets/coming_soon_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class LibraryScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class LibraryScreen extends ConsumerStatefulWidget {
+  final String node;
 
-  const LibraryScreen({super.key, required this.api});
+  const LibraryScreen({super.key, required this.node});
 
   @override
-  _LibraryScreenState createState() => _LibraryScreenState();
+  ConsumerState<LibraryScreen> createState() => _LibraryScreenState();
 }
 
-class _LibraryScreenState extends State<LibraryScreen> {
+class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   @override
   void initState() {
     super.initState();

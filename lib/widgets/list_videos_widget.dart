@@ -1,16 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:peertube_app_flutter/pages/video_page.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
+
+import '../pages/video_page.dart';
+import '../providers/api_provider.dart';
 
 const int pageSize = 10;
 
-class ListVideosWidget extends StatefulWidget {
+class ListVideosWidget extends ConsumerStatefulWidget {
   final int? categoryId; // If null, fetch all videos
-  final PeerTubeApiSdk api;
+  final String node;
   final String? sortBy;
   final bool isLive;
 
@@ -19,23 +22,24 @@ class ListVideosWidget extends StatefulWidget {
   const ListVideosWidget({
     super.key,
     this.categoryId,
-    required this.api,
+    required this.node,
     this.externalPagingController,
     this.isLive = false,
     this.sortBy,
   });
 
   @override
-  State<ListVideosWidget> createState() => _ListVideosWidgetState();
+  ConsumerState<ListVideosWidget> createState() => _ListVideosWidgetState();
 }
 
-class _ListVideosWidgetState extends State<ListVideosWidget> {
+class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   late final PagingController<int, Video> _pagingController;
 
   @override
   void initState() {
     super.initState();
-    _pagingController = widget.externalPagingController ?? PagingController(firstPageKey: 0);
+    _pagingController =
+        widget.externalPagingController ?? PagingController(firstPageKey: 0);
     _pagingController.addPageRequestListener(fetchVideos);
   }
 
@@ -55,7 +59,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
               (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
           : null;
 
-      final response = await widget.api.getVideoApi().getVideos(
+      final api = ref.read(videoApiProvider());
+
+      final response = await api.getVideos(
           categoryOneOf: categoryOneOf,
           start: pageKey,
           count: pageSize,
@@ -88,7 +94,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
               (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
           : null;
 
-      final response = await widget.api.getVideoApi().getVideos(
+      final api = ref.read(videoApiProvider());
+
+      final response = await api.getVideos(
           categoryOneOf: categoryOneOf,
           start: 0,
           count: pageSize,
@@ -101,7 +109,9 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
         final newVideos = response.data?.data?.toList() ?? [];
 
         // Only replace if new videos are different from the current first pageSize list
-        if (!_areListsEqual( (_pagingController.itemList ?? []).take(pageSize).toList(), newVideos)) {
+        if (!_areListsEqual(
+            (_pagingController.itemList ?? []).take(pageSize).toList(),
+            newVideos)) {
           _replaceVideoList(newVideos);
         }
       }
@@ -191,9 +201,8 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
 
   /// Builds video list items
   Widget _buildVideoListItem(Video video) {
-    final thumbnailURL = video.previewPath != null
-        ? '${widget.api.getHost}${video.previewPath}'
-        : '';
+    final thumbnailURL =
+        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
 
     return InkWell(
       highlightColor: const Color(0xFF1A1A1A).withOpacity(0.7),
@@ -203,7 +212,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                VideoPlayerScreen(video: video, api: widget.api),
+                VideoPlayerScreen(node: widget.node, video: video),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return Stack(
@@ -278,7 +287,7 @@ class _ListVideosWidgetState extends State<ListVideosWidget> {
                   bottom: -20,
                   left: 12,
                   child: AvatarUtils.buildAvatarFromVideoDetails(
-                      video, widget.api.getHost),
+                      video, widget.node),
                 ),
               ],
             ),

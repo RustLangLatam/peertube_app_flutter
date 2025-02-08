@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
 import '../widgets/coming_soon_widget.dart';

@@ -1,21 +1,20 @@
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
 import '../widgets/coming_soon_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class LivesScreen extends StatefulWidget {
-  final PeerTubeApiSdk api;
+class LivesScreen extends ConsumerStatefulWidget {
+  final String node;
 
-  const LivesScreen({super.key, required this.api});
+  const LivesScreen({super.key, required this.node});
 
   @override
-  _LivesScreenState createState() => _LivesScreenState();
+  ConsumerState<LivesScreen> createState() => _LivesScreenState();
 }
 
-class _LivesScreenState extends State<LivesScreen> {
+class _LivesScreenState extends ConsumerState<LivesScreen> {
   @override
   void initState() {
     super.initState();
