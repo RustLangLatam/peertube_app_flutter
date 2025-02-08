@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peertube_app_flutter/widgets/list_videos_widget.dart';
 
 import '../utils/export.dart';
+import '../widgets/list_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class BrowserScreen extends ConsumerStatefulWidget {
@@ -19,6 +19,11 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
   bool recentlyAdded = true;
   String sortBy = '-publishedAt';
   bool isLive = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

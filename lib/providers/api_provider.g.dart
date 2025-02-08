@@ -6,7 +6,7 @@ part of 'api_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$peerTubeApiHash() => r'13304eb00850a319800fe84b04bcf2e45477e40a';
+String _$peerTubeApiHash() => r'4ef2cad512ccaabf391fe0fe97c7aa33ea124a4d';
 
 /// Copied from Dart SDK
 class _SystemHash {

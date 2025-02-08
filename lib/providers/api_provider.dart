@@ -10,7 +10,7 @@ const String baseUrl = 'https://peertube.cpy.re';
 /// Provider to get the peerTube api
 @Riverpod(keepAlive: true)
 PeerTubeApiSdk peerTubeApi(Ref ref, {String? apiBaseUrl}) {
-  return PeerTubeApiSdk(basePathOverride: apiBaseUrl ?? baseUrl);
+  return PeerTubeApiSdk(basePathOverride: apiBaseUrl ?? baseUrl, debugMode: false);
 }
 
 /// Provider to get the console domain api
