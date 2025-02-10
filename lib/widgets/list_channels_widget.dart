@@ -234,7 +234,7 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
                           children: [
                         // 📌 Channel Name
                         Text(
-                          ChannelsUtils.extractDisplayName(channel),
+                          ChannelsUtils.extractVideoChannelDisplayName(channel),
                           style: const TextStyle(
                             fontSize: 14, // ⬅ Slightly smaller
                             fontWeight: FontWeight.bold,

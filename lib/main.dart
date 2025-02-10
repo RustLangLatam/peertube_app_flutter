@@ -36,7 +36,7 @@ class _HomeState extends ConsumerState<Home> {
   static final List<Widget> _widgetOptions = <Widget>[
     BrowserScreen(node: node),
     DiscoverScreen(node: node),
-    ChannelsScreen(node: node),
+    // ChannelsScreen(node: node),
     LivesScreen(node: node),
     LibraryScreen(node: node),
   ];
@@ -69,7 +69,7 @@ class _HomeState extends ConsumerState<Home> {
           children: [
             BrowserScreen(node: node),
             DiscoverScreen(node: node),
-            ChannelsScreen(node: node),
+            // ChannelsScreen(node: node),
             LivesScreen(node: node),
             LibraryScreen(node: node),
           ],
@@ -100,11 +100,11 @@ class _HomeState extends ConsumerState<Home> {
               activeIcon: Icon(Icons.explore, size: 26),
               label: "Discover",
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.subscriptions_rounded, size: 24),
-              activeIcon: Icon(Icons.subscriptions_rounded, size: 26),
-              label: "Channels",
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.subscriptions_rounded, size: 24),
+            //   activeIcon: Icon(Icons.subscriptions_rounded, size: 26),
+            //   label: "Channels",
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.podcasts_rounded, size: 24),
               activeIcon: Icon(Icons.podcasts_rounded, size: 26),

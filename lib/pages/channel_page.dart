@@ -1,8 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:uuid/uuid.dart';
 
+import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
 import '../utils/channels_utils.dart';
@@ -10,26 +13,60 @@ import '../utils/ui_utils.dart';
 import '../widgets/list_channel_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class VideoChannelScreen extends StatefulWidget {
+class ChannelScreen extends ConsumerStatefulWidget {
   final String node;
-  final VideoChannel channel;
+  final Channel channel; // ✅ Optional
 
-  const VideoChannelScreen({
+  const ChannelScreen({
     super.key,
     required this.node,
-    required this.channel,
+    required this.channel, // ✅ Optional
   });
 
   @override
-  _VideoChannelScreenState createState() => _VideoChannelScreenState();
+  ConsumerState<ChannelScreen> createState() => _VideoChannelScreenState();
 }
 
-class _VideoChannelScreenState extends State<VideoChannelScreen> {
+class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
+  VideoChannel? videoChannel;
+
   int _videoCount = 0;
   bool isTrending = false;
   bool recentlyAdded = true;
   String sortBy = '-publishedAt';
   bool isLive = false;
+
+  @override
+  void initState() {
+    super.initState();
+      fetchVideoChannel();
+  }
+
+  String getChannelHandle(Channel channel) {
+    return "${channel.name}@${channel.host}";
+  }
+
+  Future<void> fetchVideoChannel() async {
+    try {
+      final api = ref.read(videoChannelsApiProvider());
+
+      final channelHandle = getChannelHandle(widget.channel);
+
+      final response = await api.getVideoChannel(
+        channelHandle: channelHandle,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        setState(() {
+          videoChannel = response.data;
+        });
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching channel: $error');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,24 +84,21 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
 
   /// 🔹 **SliverAppBar with Banner**
   Widget _buildSliverAppBar() {
-    final bannerUrl = widget.channel.banners?.isNotEmpty == true
-        ? widget.node + widget.channel.banners!.first.path!
+    final bannerUrl = videoChannel?.banners?.isNotEmpty == true
+        ? widget.node + videoChannel!.banners!.first.path!
         : null;
 
     return SliverAppBar(
       expandedHeight: 180,
-      leading: PeerTubeLogoWidget(),
+      leading: const PeerTubeLogoWidget(),
       floating: false,
       pinned: true,
       backgroundColor: const Color(0xFF1A1A1A),
       actions: [
-        Padding(
-            padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),
-            child: IconButton(
-              icon: const Icon(Icons.close_rounded,
-                  size: 20, color: Colors.orange),
-              onPressed: () => Navigator.of(context).pop(),
-            ))
+        IconButton(
+          icon: const Icon(Icons.close_rounded, size: 20, color: Colors.orange),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: bannerUrl != null
@@ -96,40 +130,6 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
     );
   }
 
-  /// Builds filter buttons
-  Widget _buildFilters() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: SizedBox(
-          height: 30,
-          child: Row(
-            children: [
-              UIUtils.filterToggleButton(
-                  "Recently Added", Icons.add, recentlyAdded, () {
-                setState(() {
-                  recentlyAdded = true;
-                  isTrending = false;
-                  sortBy = '-publishedAt';
-                });
-                // // TODO: Implement recently added videos
-                // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-              }),
-              const SizedBox(width: 5),
-              UIUtils.filterToggleButton(
-                  "Trending", Icons.trending_up, isTrending, () {
-                setState(() {
-                  recentlyAdded = false;
-                  isTrending = true;
-                  sortBy = '-trending';
-                });
-                // // TODO: Implement trending videos
-                // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-              }),
-            ],
-          )),
-    );
-  }
-
   /// 🔹 **Channel Info**
   Widget _buildChannelInfo() {
     return Padding(
@@ -139,15 +139,14 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
         children: [
           Row(
             children: [
-              AvatarUtils.buildAvatarFromVideoChannel(
-                  widget.channel, widget.node),
+              AvatarUtils.buildChannelAvatar(channel:widget.channel, host:widget.node),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      ChannelsUtils.extractVideoChannelDisplayName(widget.channel),
+                      ChannelsUtils.extractChannelDisplayName(widget.channel) ?? "Unknown Channel",
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -162,19 +161,12 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
                           color: Colors.white.withOpacity(0.7),
                         ),
                         children: [
-                          TextSpan(
-                            text:
-                            "${widget.channel.followersCount ?? 0} followers  ",
-                          ),
-                          TextSpan(
+                          TextSpan(text: "${videoChannel?.followersCount ?? 0} followers  "),
+                          const TextSpan(
                             text: "•",
-                            style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                           ),
-                          TextSpan(
-                            text: "  $_videoCount videos",
-                          ),
+                          TextSpan(text: "  $_videoCount videos"),
                         ],
                       ),
                     ),
@@ -190,9 +182,8 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          if (widget.channel.description != null &&
-              widget.channel.description!.isNotEmpty)
-            Text(widget.channel.description!,
+          if (videoChannel?.description != null && videoChannel!.description!.isNotEmpty)
+            Text(videoChannel!.description!,
                 style: const TextStyle(fontSize: 14, color: Colors.white70)),
           const SizedBox(height: 12),
           Row(
@@ -200,7 +191,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
               const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
               const SizedBox(width: 4),
               Text(
-                "Created on ${widget.channel.createdAt?.toLocal().toString().split(' ')[0] ?? 'Unknown'}",
+                "Created on ${videoChannel?.createdAt?.toLocal().toString().split(' ')[0] ?? 'Unknown'}",
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -209,10 +200,6 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
         ],
       ),
     );
-  }
-
-  String getChannelHandle(VideoChannel channel) {
-    return "${channel.name}@${channel.host}";
   }
 
   /// 🔹 **Videos Section**
@@ -224,25 +211,62 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Text("Videos",
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              _buildFilters()
+              const Text("Videos",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              _buildFilters(),
             ]),
             const SizedBox(height: 10),
             Expanded(
               child: ListChannelVideosWidget(
-                  node: widget.node,
-                  channelName: getChannelHandle(widget.channel),
-                  sortBy: sortBy,
-                  isLive: isLive,
-                  videoCountCallback: (videoCount) {
-                    setState(() {
-                      _videoCount = videoCount;
-                    });
-                  }),
+                node: widget.node,
+                channelName: getChannelHandle(widget.channel),
+                sortBy: sortBy,
+                isLive: isLive,
+                videoCountCallback: (videoCount) {
+                  setState(() {
+                    _videoCount = videoCount;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds filter buttons
+  Widget _buildFilters() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: SizedBox(
+        height: 30,
+        child: Row(
+          children: [
+            UIUtils.filterToggleButton(
+              "Recently Added",
+              Icons.new_releases_outlined,
+              recentlyAdded,
+                  () {
+                setState(() {
+                  recentlyAdded = true;
+                  isTrending = false;
+                  sortBy = '-publishedAt';
+                });
+              },
+            ),
+            const SizedBox(width: 5),
+            UIUtils.filterToggleButton(
+              "Trending",
+              Icons.trending_up,
+              isTrending,
+                  () {
+                setState(() {
+                  recentlyAdded = false;
+                  isTrending = true;
+                  sortBy = '-trending';
+                });
+              },
             ),
           ],
         ),
@@ -250,3 +274,4 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
     );
   }
 }
+

@@ -10,6 +10,7 @@ import 'package:peertube_app_flutter/pages/video_channel_page.dart';
 import 'package:peertube_app_flutter/pages/video_page.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../pages/channel_page.dart';
 import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/ui_utils.dart';
@@ -300,12 +301,14 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
                         padding: const EdgeInsets.only(bottom: 6),
                         child: avatar,
                       ), // 🔹 Avatar (if present)
-                    if (avatar != null) const SizedBox(width: 8), // 🔹 Spacing after avatar
+                    if (avatar != null)
+                      const SizedBox(width: 8), // 🔹 Spacing after avatar
                     Flexible(
                       child: Text(
                         isTag ? '#$title' : title, // 🔹 Tags get a '#' prefix
                         maxLines: 1, // 🔹 Prevents multi-line overflow
-                        overflow: TextOverflow.ellipsis, // 🔹 Adds "..." if too long
+                        overflow:
+                            TextOverflow.ellipsis, // 🔹 Adds "..." if too long
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -318,7 +321,8 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
                 Positioned(
                   bottom: -2, // 🔹 Adjusts underline below text
                   child: Container(
-                    width: constraints.maxWidth, // 🔹 Matches title width dynamically
+                    width: constraints
+                        .maxWidth, // 🔹 Matches title width dynamically
                     height: 4,
                     color: Colors.orange, // 🔹 Underline color
                   ),
@@ -342,7 +346,8 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
                 category.category!.id.toString(),
                 SectionType.categories,
                 _buildTitleWidget(
-                    category.category?.label ?? 'Unknown Category'),
+                  category.category?.label ?? 'Unknown Category',
+                ),
                 _extractVideos(category.videos!.asList()),
               ),
             ),
@@ -355,11 +360,15 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
               (channel) => OverviewData(
                 channel.channel!.id.toString(),
                 SectionType.channels,
-                _buildTitleWidget(
-                  channel.channel?.displayName ?? 'Unknown Channel',
-                  avatar: AvatarUtils.buildChannelAvatar(
-                    channel: channel.channel!,
-                    host: widget.node,
+                GestureDetector(
+                  onTap: () => _navigateToChannel(
+                      channel.channel!), // ✅ Clickable Avatar
+                  child: _buildTitleWidget(
+                    channel.channel?.displayName ?? 'Unknown Channel',
+                    avatar: AvatarUtils.buildChannelAvatar(
+                      channel: channel.channel!,
+                      host: widget.node,
+                    ),
                   ),
                 ),
                 _extractVideos(channel.videos!.asList()),
@@ -383,6 +392,18 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
 
     allSections.shuffle(Random()); // Shuffle once to maintain order
     return allSections;
+  }
+
+  /// Navigates to the channel page
+  void _navigateToChannel(Channel channel) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChannelScreen(
+            channel: channel,
+            node: widget.node), // ✅ Replace with actual channel screen
+      ),
+    );
   }
 
   Widget _buildShimmerEffect() {
