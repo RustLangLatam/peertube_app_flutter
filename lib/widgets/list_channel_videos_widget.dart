@@ -154,9 +154,9 @@ class _ListChannelVideosWidgetState
       pagingController: _pagingController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Show 2 videos per row
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 16 / 11, // More compact
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 0,
+        childAspectRatio: 16 / 14, // More compact
       ),
       builderDelegate: PagedChildBuilderDelegate<Video>(
         itemBuilder: (context, video, index) => _buildVideoCard(video),
@@ -169,117 +169,27 @@ class _ListChannelVideosWidgetState
 
   /// Builds a compact video card with essential details
   Widget _buildVideoCard(Video video) {
-    final thumbnailURL =
-        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
-
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              VideoPlayerScreen(video: video, node: widget.node),
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        clipBehavior: Clip.hardEdge, // Prevents overflow
-        child: Stack(
-          children: [
-            // 🔹 Thumbnail with duration overlay
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    // 🎞️ Video Thumbnail
-                    AspectRatio(
-                      aspectRatio: 16 / 9, // Ensures consistent aspect ratio
-                      child: CachedNetworkImage(
-                        imageUrl: thumbnailURL,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => _buildShimmerContainer(),
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[800],
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.image_not_supported,
-                              color: Colors.white54),
-                        ),
-                      ),
-                    ),
-
-                    // ▶ Play Icon (Centered)
-                    Positioned.fill(
-                      child: Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black
-                                .withOpacity(0.15), // More translucent
-                            border: Border.all(
-                              color:
-                                  Colors.white.withOpacity(0.1), // Soft outline
-                              width: 1.2,
-                            ),
-                          ),
-                          padding: EdgeInsets.zero,
-                          child: Icon(
-                            Icons.play_circle_filled_rounded,
-                            color: Colors.white
-                                .withOpacity(0.25), // More subtle icon
-                            size: 42,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 6, // Softer shadow
-                                color: Colors.black.withOpacity(0.4),
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // 🕒 Video Duration (Bottom Right)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius:
-                              BorderRadius.only(topLeft: Radius.circular(6)),
-                        ),
-                        child: Text(
-                          VideoDateUtils.formatSecondsToMinSec(video.duration),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // 🏷 Video Title
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, left: 5, right: 5),
-                  child: VideoUtils.buildVideoTitle(video.name, fontSize: 10),
-                ),
-              ],
+    return
+        // 🎞️ Video Thumbnail
+        VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 300), // Smooth transition
+              reverseTransitionDuration: const Duration(milliseconds: 150),
+              pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
+                node: widget.node,
+                video: video,
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
             ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   /// **Shimmer Loading Effect for Grid**

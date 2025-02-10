@@ -190,31 +190,18 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                VideoPlayerScreen(node: widget.node, video: video),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return Stack(
-                children: [
-                  FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                  SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.1), // Start slightly below
-                      end: Offset.zero, // End at the normal position
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOut, // Smooth out the animation
-                    )),
-                    child: child,
-                  ),
-                ],
+            transitionDuration: const Duration(milliseconds: 300), // Smooth transition
+            reverseTransitionDuration: const Duration(milliseconds: 150),
+            pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
+              node: widget.node,
+              video: video,
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
               );
             },
-            transitionDuration: const Duration(milliseconds: 300),
-            reverseTransitionDuration: Duration(milliseconds: 150),
           ),
         );
       },

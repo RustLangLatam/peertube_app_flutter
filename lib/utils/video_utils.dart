@@ -71,22 +71,47 @@ class VideoUtils {
     );
   }
 
-  /// Builds a video item (thumbnail, title, metadata)
-  static Widget buildDiscoverVideoItem(
-      Video video, String node, {required VoidCallback onTap}) {
+  /// Builds a minimal video item (thumbnail, title, metadata)
+  static Widget buildMinimalVideoItem(Video video, String node,
+      {required VoidCallback onTap}) {
     final thumbnailURL =
     video.previewPath != null ? '$node${video.previewPath}' : '';
+
     return GestureDetector(
       onTap: onTap, // 🔹 Executes callback on tap
       child: Container(
         width: 160,
-        margin: const EdgeInsets.only(right: 12),
+        margin: const EdgeInsets.only(right: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Video Thumbnail
-            UIUtils.buildHeroVideoOverViewThumbnail(
-              thumbnailURL: thumbnailURL,
+            // 🔹 Video Thumbnail with Duration Overlay
+            Stack(
+              children: [
+                UIUtils.buildHeroVideoOverViewThumbnail(
+                  thumbnailURL: thumbnailURL,
+                ),
+                // 🕒 Video Duration (Bottom Right)
+                Positioned(
+                  bottom: 0,  // Ensures it's at the bottom inside the thumbnail
+                  right: 0,   // Aligns to the right inside the thumbnail
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: const BoxDecoration(
+                      color: Colors.black87,
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(6)),
+                    ),
+                    child: Text(
+                      VideoDateUtils.formatSecondsToMinSec(video.duration),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 5),
             // Video Title

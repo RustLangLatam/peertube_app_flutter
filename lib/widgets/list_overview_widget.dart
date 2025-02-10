@@ -228,56 +228,37 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: overview.title, // ✅ Dynamic title widget
         ),
         SizedBox(
           height: 160,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             itemCount: overview.videos.length,
             itemBuilder: (context, index) {
-              return VideoUtils.buildDiscoverVideoItem(
-                overview.videos[index],
-                widget.node,
-                onTap: () {
+              return
+                // 🎞️ Video Thumbnail
+                VideoUtils.buildMinimalVideoItem(overview.videos[index], widget.node, onTap: () {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          VideoPlayerScreen(
-                              node: widget.node, video: overview.videos[index]),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return Stack(
-                          children: [
-                            FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
-                            SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(
-                                    0, 0.1), // Start slightly below
-                                end: Offset.zero, // End at the normal position
-                              ).animate(CurvedAnimation(
-                                parent: animation,
-                                curve:
-                                    Curves.easeOut, // Smooth out the animation
-                              )),
-                              child: child,
-                            ),
-                          ],
+                      transitionDuration: const Duration(milliseconds: 300), // Smooth transition
+                      reverseTransitionDuration: const Duration(milliseconds: 150),
+                      pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
+                        node: widget.node,
+                        video: overview.videos[index],
+                      ),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
                         );
                       },
-                      transitionDuration: const Duration(milliseconds: 300),
-                      reverseTransitionDuration:
-                          const Duration(milliseconds: 150),
                     ),
                   );
-                },
-              );
+                });
             },
           ),
         ),
