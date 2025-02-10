@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/utils/video_date_utils.dart';
 
 class VideoUtils {
   /// Formats the number of views with appropriate suffix (K for thousands, M for millions).
@@ -30,16 +31,26 @@ class VideoUtils {
       {bool prioritizeChannel = true}) {
     String removeDefaultPrefix(String text) {
       const prefix = "Default";
-      return text.startsWith(prefix) ? text.substring(prefix.length).trim() : text;
+      return text.startsWith(prefix)
+          ? text.substring(prefix.length).trim()
+          : text;
     }
 
     String? channelDisplayName = video.channel?.displayName;
     String? accountDisplayName = video.account?.displayName;
 
     if (prioritizeChannel) {
-      return removeDefaultPrefix(channelDisplayName ?? accountDisplayName ?? video.channel?.name ?? video.account?.name ?? "Unknown");
+      return removeDefaultPrefix(channelDisplayName ??
+          accountDisplayName ??
+          video.channel?.name ??
+          video.account?.name ??
+          "Unknown");
     } else {
-      return removeDefaultPrefix(accountDisplayName ?? channelDisplayName ?? video.account?.name ?? video.channel?.name ?? "Unknown");
+      return removeDefaultPrefix(accountDisplayName ??
+          channelDisplayName ??
+          video.account?.name ??
+          video.channel?.name ??
+          "Unknown");
     }
   }
 
@@ -55,6 +66,47 @@ class VideoUtils {
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis, // Truncates if too long
+    );
+  }
+
+  /// Builds a video item (thumbnail, title, metadata)
+  static Widget buildDiscoverVideoItem(Video video, String node) {
+    final thumbnailURL =
+        video.previewPath != null ? '$node${video.previewPath}' : '';
+
+    return Container(
+      width: 160,
+      margin: const EdgeInsets.only(right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Video Thumbnail
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              thumbnailURL,
+              width: 160,
+              height: 90,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: Colors.grey[800]),
+            ),
+          ),
+          const SizedBox(height: 5),
+          // Video Title
+          Text(
+            video.name ?? "Unknown Video",
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+          ),
+          // Video Metadata (Views & Time Ago)
+          Text(
+            '${video.views} views • ${VideoDateUtils.formatTimeAgo(video.publishedAt?.toIso8601String())}',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -240,8 +240,11 @@ class UIUtils {
   /// Creates a shimmer placeholder while loading.
   static Widget progressIndicatorPlaceholder() {
     return Container(
-      color:Colors.grey[800],
-      child: const Center(child: CircularProgressIndicator(color: Colors.orange, strokeWidth: 1.5)),
+      color: const Color(0xFF13100E), // ✅ Match scaffold background
+      alignment: Alignment.center,
+      child: const Center(
+          child: CircularProgressIndicator(
+              color: Colors.orange, strokeWidth: 1.5)),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'api_provider.g.dart';
 
-const String baseUrl = 'https://peertube.cpy.re';
+const String baseUrl = 'https://peertube.tv';
 
 /// Provider to get the peerTube api
 @Riverpod(keepAlive: true)
@@ -25,6 +25,12 @@ VideoApi videoApi(Ref ref, {String? apiBaseUrl}) {
 VideoChannelsApi videoChannelsApi(Ref ref, {String? apiBaseUrl}) {
   final api = ref.read(peerTubeApiProvider(apiBaseUrl: apiBaseUrl ?? baseUrl));
   return api.getVideoChannelsApi();
+}
+
+@Riverpod(keepAlive: true)
+OverviewVideosApi overviewVideosApi(Ref ref, {String? apiBaseUrl}) {
+  final api = ref.read(peerTubeApiProvider(apiBaseUrl: apiBaseUrl ?? baseUrl));
+  return api.getOverviewVideosApi();
 }
 
 // TODO: Add more providers for other APIs

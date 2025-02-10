@@ -451,5 +451,135 @@ class _VideoChannelsApiProviderElement extends ProviderElement<VideoChannelsApi>
   @override
   String? get apiBaseUrl => (origin as VideoChannelsApiProvider).apiBaseUrl;
 }
+
+String _$overviewVideosApiHash() => r'69792c4daf3c8c9d31a90f568aa48752b1028556';
+
+/// See also [overviewVideosApi].
+@ProviderFor(overviewVideosApi)
+const overviewVideosApiProvider = OverviewVideosApiFamily();
+
+/// See also [overviewVideosApi].
+class OverviewVideosApiFamily extends Family<OverviewVideosApi> {
+  /// See also [overviewVideosApi].
+  const OverviewVideosApiFamily();
+
+  /// See also [overviewVideosApi].
+  OverviewVideosApiProvider call({
+    String? apiBaseUrl,
+  }) {
+    return OverviewVideosApiProvider(
+      apiBaseUrl: apiBaseUrl,
+    );
+  }
+
+  @override
+  OverviewVideosApiProvider getProviderOverride(
+    covariant OverviewVideosApiProvider provider,
+  ) {
+    return call(
+      apiBaseUrl: provider.apiBaseUrl,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'overviewVideosApiProvider';
+}
+
+/// See also [overviewVideosApi].
+class OverviewVideosApiProvider extends Provider<OverviewVideosApi> {
+  /// See also [overviewVideosApi].
+  OverviewVideosApiProvider({
+    String? apiBaseUrl,
+  }) : this._internal(
+          (ref) => overviewVideosApi(
+            ref as OverviewVideosApiRef,
+            apiBaseUrl: apiBaseUrl,
+          ),
+          from: overviewVideosApiProvider,
+          name: r'overviewVideosApiProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$overviewVideosApiHash,
+          dependencies: OverviewVideosApiFamily._dependencies,
+          allTransitiveDependencies:
+              OverviewVideosApiFamily._allTransitiveDependencies,
+          apiBaseUrl: apiBaseUrl,
+        );
+
+  OverviewVideosApiProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.apiBaseUrl,
+  }) : super.internal();
+
+  final String? apiBaseUrl;
+
+  @override
+  Override overrideWith(
+    OverviewVideosApi Function(OverviewVideosApiRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: OverviewVideosApiProvider._internal(
+        (ref) => create(ref as OverviewVideosApiRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        apiBaseUrl: apiBaseUrl,
+      ),
+    );
+  }
+
+  @override
+  ProviderElement<OverviewVideosApi> createElement() {
+    return _OverviewVideosApiProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is OverviewVideosApiProvider && other.apiBaseUrl == apiBaseUrl;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, apiBaseUrl.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin OverviewVideosApiRef on ProviderRef<OverviewVideosApi> {
+  /// The parameter `apiBaseUrl` of this provider.
+  String? get apiBaseUrl;
+}
+
+class _OverviewVideosApiProviderElement
+    extends ProviderElement<OverviewVideosApi> with OverviewVideosApiRef {
+  _OverviewVideosApiProviderElement(super.provider);
+
+  @override
+  String? get apiBaseUrl => (origin as OverviewVideosApiProvider).apiBaseUrl;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

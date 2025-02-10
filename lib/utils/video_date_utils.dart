@@ -8,13 +8,16 @@ class VideoDateUtils {
     final now = DateTime.now();
     final years = _calculateYearsDifference(date.toLocal(), now);
 
-    return years == 0 ? _formatTimeAgo(date) : '$years ${years == 1 ? 'year' : 'years'} ago';
+    return years == 0
+        ? _formatTimeAgo(date)
+        : '$years ${years == 1 ? 'year' : 'years'} ago';
   }
 
   /// Calculates the exact difference in years between two dates.
   static int _calculateYearsDifference(DateTime from, DateTime to) {
     int years = to.year - from.year;
-    if (to.month < from.month || (to.month == from.month && to.day < from.day)) {
+    if (to.month < from.month ||
+        (to.month == from.month && to.day < from.day)) {
       years--;
     }
     return years;
@@ -55,4 +58,18 @@ class VideoDateUtils {
     }
   }
 
+  /// Converts a DateTime string to a "time ago" format
+  static String formatTimeAgo(String? dateTime) {
+    if (dateTime == null) return "Unknown";
+    final dt = DateTime.tryParse(dateTime);
+    if (dt == null) return "Unknown";
+
+    final diff = DateTime.now().difference(dt);
+    if (diff.inDays > 365) return "${diff.inDays ~/ 365} year(s) ago";
+    if (diff.inDays > 30) return "${diff.inDays ~/ 30} month(s) ago";
+    if (diff.inDays > 0) return "${diff.inDays} day(s) ago";
+    if (diff.inHours > 0) return "${diff.inHours} hour(s) ago";
+    if (diff.inMinutes > 0) return "${diff.inMinutes} minute(s) ago";
+    return "Just now";
+  }
 }

@@ -5,7 +5,7 @@ import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 class AvatarUtils {
   /// Builds a channel avatar with a **square shape and rounded borders**.
   /// Uses the same style for both default and network avatars.
-  static Widget buildChannelAvatar({String? avatarUrl, String? channelName}) {
+  static Widget buildChannelAvatarFromString({String? avatarUrl, String? channelName}) {
     return Container(
       width: 32,
       height: 32,
@@ -28,6 +28,36 @@ class AvatarUtils {
     );
   }
 
+  static Widget buildChannelAvatar({required Channel channel, required String host}) {
+    // Extract the avatar path from the videoDetails object
+    // First, check the channel avatars, then the account avatars
+    String? firstAvatarPath = channel.avatars?.firstOrNull?.path;
+
+    // Return the full avatar URL if a path is found, otherwise return null
+    final avatarPath = firstAvatarPath != null ? "$host$firstAvatarPath" : null;
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: Colors.white, // Match background color
+        borderRadius: BorderRadius.circular(6), // Rounded corners
+        border: Border.all(color: Colors.grey, width: 1), // Dark border
+      ),
+      child: avatarPath != null
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(6), // Keep square shape
+        child: CachedNetworkImage(
+          imageUrl: avatarPath,
+          placeholder: (_, __) => _defaultAvatar(channel.name),
+          errorWidget: (_, __, ___) => _defaultAvatar(channel.name),
+          fit: BoxFit.cover,
+        ),
+      )
+          : _defaultAvatar(channel.name),
+    );
+  }
+  
   /// Creates a **default avatar** with the **first letter of the channel name**.
   static Widget _defaultAvatar(String? channelName) {
     return Container(
@@ -67,11 +97,11 @@ class AvatarUtils {
 
   /// Builds an **avatar widget** directly from [VideoDetails], keeping a **consistent style**.
   ///
-  /// This function uses [_getBestVideoAvatar] to extract the avatar URL and then passes it to [buildChannelAvatar] along with the channel name.
+  /// This function uses [_getBestVideoAvatar] to extract the avatar URL and then passes it to [buildChannelAvatarFromString] along with the channel name.
   static Widget buildAvatarFromVideoDetails(Video? videoDetails, String host) {
     final avatarUrl = _getBestVideoAvatar(videoDetails, host);
     final channelName = videoDetails?.channel?.name ?? "U";
-    return buildChannelAvatar(avatarUrl: avatarUrl, channelName: channelName);
+    return buildChannelAvatarFromString(avatarUrl: avatarUrl, channelName: channelName);
   }
 
   /// Extracts the **best available avatar** from the [VideoChannel] object.
@@ -87,11 +117,11 @@ class AvatarUtils {
 
   /// Builds an **avatar widget** directly from [VideoChannel], keeping a **consistent style**.
   ///
-  /// This function uses [_getBestChannelAvatar] to extract the avatar URL and then passes it to [buildChannelAvatar] along with the channel name.
+  /// This function uses [_getBestChannelAvatar] to extract the avatar URL and then passes it to [buildChannelAvatarFromString] along with the channel name.
   static Widget buildAvatarFromVideoChannel(
       VideoChannel? videoChannel, String host) {
     final avatarUrl = _getBestChannelAvatar(videoChannel, host);
     final channelName = videoChannel?.name ?? "C";
-    return buildChannelAvatar(avatarUrl: avatarUrl, channelName: channelName);
+    return buildChannelAvatarFromString(avatarUrl: avatarUrl, channelName: channelName);
   }
 }

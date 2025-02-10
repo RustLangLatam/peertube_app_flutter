@@ -1,139 +1,156 @@
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../providers/api_provider.dart';
+import '../utils/avatar_utils.dart';
+import '../utils/ui_utils.dart';
+import '../utils/video_utils.dart';
 import '../widgets/peertube_logo_widget.dart';
-import 'category_page.dart';
+
+class OverviewData {
+  Widget? title;
+  final List<Video> videos;
+
+  OverviewData(this.title, this.videos);
+}
 
 class DiscoverScreen extends ConsumerStatefulWidget {
   final String node;
 
-  const DiscoverScreen({Key? key, required this.node}) : super(key: key);
+  const DiscoverScreen({super.key, required this.node});
 
   @override
   ConsumerState<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
-  List<VideoConstantNumberCategory> categoriesWithIcons = [];
-  bool isLoading = true;
+  String? _firstPageSignature; // Stores the first page signature
+  late final PagingController<int, OverviewData> _pagingController;
 
   @override
   void initState() {
     super.initState();
-    fetchCategories();
+    _pagingController = PagingController(firstPageKey: 1);
+    _pagingController.addPageRequestListener(fetchOverview);
   }
 
-  Future<void> fetchCategories() async {
-    setState(() => isLoading = true);
+  /// Fetches paginated video overview
+  Future<void> fetchOverview(int pageKey) async {
+    if (kDebugMode) {
+      print('🔹 Fetching page $pageKey');
+    }
 
     try {
-      final api = ref.read(videoApiProvider());
-
-      final response = await api.getCategories();
+      final api = ref.read(overviewVideosApiProvider());
+      final response = await api.getOverviewVideos(page: pageKey);
 
       if (response.statusCode == 200 && response.data != null) {
-        setState(() {
-          categoriesWithIcons = response.data!.asMap().entries.map((entry) {
-            return VideoConstantNumberCategory((b) => b
-              ..id = int.parse(entry.key)
-              ..label = entry.value.asString);
-          }).toList();
-        });
+        final isLastPage = response.data!.categories!.isEmpty &&
+            response.data!.channels!.isEmpty &&
+            response.data!.tags!.isEmpty;
+
+        if (pageKey == 1) {
+          _firstPageSignature = _generateSignature(response.data!);
+        }
+
+        final data = _generateSections(response.data!);
+
+        if (isLastPage) {
+          _pagingController.appendLastPage(data);
+        } else {
+          final nextPageKey = pageKey + 1;
+          _pagingController.appendPage(data, nextPageKey);
+        }
+      } else {
+        _pagingController.error =
+            'Failed to load videos: ${response.statusCode}';
       }
     } catch (error) {
-      debugPrint('Error fetching categories: $error');
-    } finally {
-      setState(() => isLoading = false);
+      _pagingController.error = 'Error fetching videos: $error';
     }
   }
 
-  /// Returns the corresponding icon for each category.
-  IconData _getIconForCategory(int categoryId) {
-    switch (categoryId) {
-      case 1:
-        return Icons.music_note_outlined;
-      case 2:
-        return Icons.movie_outlined;
-      case 3:
-        return Icons.bike_scooter_outlined;
-      case 4:
-        return Icons.brush_outlined;
-      case 5:
-        return Icons.sports;
-      case 6:
-        return Icons.airplane_ticket_outlined;
-      case 7:
-        return Icons.games_outlined;
-      case 8:
-        return Icons.emoji_people_rounded;
-      case 9:
-        return Icons.theater_comedy_outlined;
-      case 10:
-        return Icons.tv_outlined;
-      case 11:
-        return Icons.newspaper_outlined;
-      case 12:
-        return Icons.settings_applications;
-      case 13:
-        return Icons.school_outlined;
-      case 14:
-        return Icons.volunteer_activism_outlined;
-      case 15:
-        return Icons.science_outlined;
-      case 16:
-        return Icons.forest_outlined;
-      case 17:
-        return Icons.child_friendly_outlined;
-      case 18:
-        return Icons.fastfood_rounded;
-      default:
-        return Icons.category;
+  Future<void> _refreshOverview() async {
+    if (kDebugMode) {
+      print('🔹 Refreshing overview');
     }
+
+    try {
+      final api = ref.read(overviewVideosApiProvider());
+      final response = await api.getOverviewVideos(page: 1);
+
+      if (response.statusCode == 200 && response.data != null) {
+        final newSignature = _generateSignature(response.data!);
+
+        // 🔹 Compare only with the first page signature
+        if (_firstPageSignature != null &&
+            _firstPageSignature == newSignature) {
+          if (kDebugMode) {
+            print('🔹 No changes detected in page 1, skipping UI update.');
+          }
+          return; // Skip UI update if data remains the same
+        }
+
+        final newOverview = _generateSections(response.data!);
+
+        _pagingController.value = PagingState<int, OverviewData>(
+          nextPageKey: 2,
+          itemList: newOverview,
+          error: null,
+        );
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error refreshing videos: $error');
+      }
+    }
+  }
+
+  String _generateSignature(OverviewVideosResponse data) {
+    return data.hashCode.toString(); // Uses hashCode as a lightweight signature
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Colors.grey[700]!;
-
     return Scaffold(
       backgroundColor: const Color(0xFF13100E),
       appBar: _buildAppBar(),
-      body: isLoading
-          ? _buildShimmerEffect() // Show shimmer while loading
-          : categoriesWithIcons.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No categories found',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: GridView.builder(
-                    itemCount: categoriesWithIcons.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // Three categories per row
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.9, // Adjusted aspect ratio
-                    ),
-                    itemBuilder: (context, index) {
-                      return _buildCategoryCard(
-                        categoriesWithIcons[index],
-                        _getIconForCategory(categoriesWithIcons[index].id!),
-                        primaryColor,
-                      );
-                    },
-                  ),
-                ),
+      body: RefreshIndicator(
+        color: Colors.orangeAccent,
+        backgroundColor: Colors.transparent,
+        displacement: 30,
+        strokeWidth: 1.5,
+        elevation: 2,
+        onRefresh: _refreshOverview,
+        child: PagedListView<int, OverviewData>(
+          pagingController: _pagingController,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          builderDelegate: PagedChildBuilderDelegate<OverviewData>(
+            itemBuilder: (context, overview, index) =>
+                _buildSection(overview.title!, overview.videos),
+            firstPageProgressIndicatorBuilder: (_) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+            newPageProgressIndicatorBuilder: (_) =>
+                UIUtils.progressIndicatorPlaceholder(),
+          ),
+        ),
+      ),
     );
   }
 
-  /// Builds the app bar with search & settings
+  /// 🔹 Extracts videos safely
+  List<Video> _extractVideos(List<Video>? videos) {
+    return (videos ?? []).take(10).toList();
+  }
+
+  /// Builds the app bar
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: const Color(0xFF1A1A1A),
@@ -141,184 +158,121 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       leading: PeerTubeLogoWidget(),
       actions: [
         IconButton(
-          icon: const Icon(Icons.settings_outlined, color: Colors.white),
-          onPressed: () {},
-        ),
+            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () {}),
         IconButton(
-          icon: const Icon(Icons.account_circle_outlined, color: Colors.white),
-          onPressed: () {},
+            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            onPressed: () {}),
+        IconButton(
+            icon:
+                const Icon(Icons.account_circle_outlined, color: Colors.white),
+            onPressed: () {}),
+      ],
+    );
+  }
+
+  /// Builds a section with a dynamic title widget and a horizontal video list
+  Widget _buildSection(Widget titleWidget, List<Video> videos) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: titleWidget, // ✅ Dynamic title widget
+        ),
+        SizedBox(
+          height: 160,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: videos.length,
+            itemBuilder: (context, index) {
+              return VideoUtils.buildDiscoverVideoItem(
+                  videos[index], widget.node);
+            },
+          ),
         ),
       ],
     );
   }
 
-  /// Builds an elegant category card
-  Widget _buildCategoryCard(
-      VideoConstantNumberCategory category, IconData iconData, Color color) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoryVideosScreen(
-              node: widget.node,
-              category: category,
+  /// Builds a title widget based on type (Tag, Channel, Category)
+  Widget _buildTitleWidget(String title, {Widget? avatar, bool isTag = false}) {
+    if (isTag) {
+      // 🔹 Tag: #TagName
+      return Text(
+        '#$title',
+        style: const TextStyle(
+            color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      );
+    } else if (avatar != null) {
+      // 🔹 Channel: Avatar + Title
+      return Row(
+        children: [
+          avatar,
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
+      );
+    } else {
+      // 🔹 Category: Plain text title
+      return Text(
+        title,
+        style: const TextStyle(
+            color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      );
+    }
+  }
+
+  /// Generates sections based on categories, channels, and tags
+  List<OverviewData> _generateSections(OverviewVideosResponse overview) {
+    final allSections = <OverviewData>[];
+
+    if (overview.categories != null && overview.categories!.isNotEmpty) {
+      allSections.addAll(
+        overview.categories!.asList().map(
+              (category) => OverviewData(
+                _buildTitleWidget(
+                    category.category?.label ?? 'Unknown Category'),
+                _extractVideos(category.videos!.asList()),
+              ),
             ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              color.withOpacity(0.1),
-              color.withOpacity(0.2),
-              Colors.transparent,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 8,
-              offset: const Offset(2, 2),
-            )
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Circle with icon and logo
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Circle background
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: color.withOpacity(0.9), width: 1),
+      );
+    }
+
+    if (overview.channels != null && overview.channels!.isNotEmpty) {
+      allSections.addAll(
+        overview.channels!.asList().map(
+              (channel) => OverviewData(
+                _buildTitleWidget(
+                  channel.channel?.displayName ?? 'Unknown Channel',
+                  avatar: AvatarUtils.buildChannelAvatar(
+                    channel: channel.channel!,
+                    host: widget.node,
                   ),
                 ),
-                // Icon on top of the logo
-                Icon(iconData, color: color.withOpacity(0.9), size: 28),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // Category name with shadow
-            Text(
-              category.label!,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withOpacity(0.5),
-                    blurRadius: 4,
-                    offset: const Offset(2, 2),
-                  )
-                ],
+                _extractVideos(channel.videos!.asList()),
               ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
             ),
-          ],
-        ),
-      ),
-    );
-  }
+      );
+    }
 
-  /// Builds the shimmer effect for loading state
-  Widget _buildShimmerEffect() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[800]!,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          itemCount: 16, // Number of shimmer placeholders
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // Three placeholders per row
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.9, // Adjusted aspect ratio
-          ),
-          itemBuilder: (context, index) {
-            return _buildShimmerCategoryCard();
-          },
-        ),
-      ),
-    );
-  }
+    if (overview.tags != null && overview.tags!.isNotEmpty) {
+      allSections.addAll(
+        overview.tags!.asList().map(
+              (tag) => OverviewData(
+                _buildTitleWidget(tag.tag ?? 'Unknown Tag', isTag: true),
+                _extractVideos(tag.videos!.asList()),
+              ),
+            ),
+      );
+    }
 
-  /// Builds a shimmering category card placeholder
-  Widget _buildShimmerCategoryCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.grey[800]!.withOpacity(0.2),
-            Colors.grey[800]!.withOpacity(0.1),
-            Colors.transparent,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[800]!.withOpacity(0.3), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 8,
-            offset: const Offset(2, 2),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Shimmering circle placeholder
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[800]!.withOpacity(0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: Colors.grey[800]!.withOpacity(0.3), width: 2),
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Shimmering text placeholder
-          Container(
-            width: double.infinity,
-            height: 14,
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: 80,
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ],
-      ),
-    );
+    allSections.shuffle(Random()); // Shuffle once to maintain order
+    return allSections;
   }
 }

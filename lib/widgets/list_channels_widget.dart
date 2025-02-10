@@ -35,6 +35,7 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
     _pagingController.addPageRequestListener(_fetchChannels);
   }
 
+
   /// Fetches the list of PeerTube channels
   Future<void> _fetchChannels(int pageKey) async {
     try {

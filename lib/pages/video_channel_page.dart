@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:uuid/uuid.dart';
 
 import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
@@ -208,6 +209,11 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
         ],
       ),
     );
+  }
+
+  /// **Check if the input string is a valid UUID**
+  bool isValidUUID(String input) {
+    return Uuid.isValidUUID(fromString: input);
   }
 
   /// 🔹 **Videos Section**
