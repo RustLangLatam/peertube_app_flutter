@@ -16,16 +16,19 @@ class ListVideosWidget extends ConsumerStatefulWidget {
   final String node;
   final String? sortBy;
   final bool isLive;
-
-  final PagingController<int, Video>? externalPagingController;
+  final bool ridView;
+  final bool skipCount;
+  final void Function(int count)? videoCountCallback;
 
   const ListVideosWidget({
     super.key,
     this.categoryId,
     required this.node,
-    this.externalPagingController,
     this.isLive = false,
     this.sortBy,
+    this.ridView = false,
+    this.skipCount = true,
+    this.videoCountCallback,
   });
 
   @override
@@ -38,8 +41,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   @override
   void initState() {
     super.initState();
-    _pagingController =
-        widget.externalPagingController ?? PagingController(firstPageKey: 0);
+    _pagingController = PagingController(firstPageKey: 0);
     _pagingController.addPageRequestListener(fetchVideos);
   }
 
@@ -68,11 +70,15 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
           isLive: widget.isLive,
           nsfw: 'false',
           sort: widget.sortBy,
-          skipCount: 'true');
+          skipCount: widget.skipCount.toString());
 
       if (response.statusCode == 200) {
         final videosList = response.data?.data?.toList() ?? [];
         final isLastPage = videosList.length < pageSize;
+
+        if (widget.videoCountCallback != null) {
+          widget.videoCountCallback!(response.data?.total ?? 0);
+        }
 
         isLastPage
             ? _pagingController.appendLastPage(videosList)
@@ -142,9 +148,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
 
   @override
   void dispose() {
-    if (widget.externalPagingController == null) {
-      _pagingController.dispose();
-    }
+    _pagingController.dispose();
     super.dispose();
   }
 
@@ -154,32 +158,78 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
       children: [
         // Video List with Refresh Indicator
         RefreshIndicator(
-          color: Colors.orangeAccent,
-          backgroundColor: Colors.transparent,
-          displacement: 30,
-          strokeWidth: 1.5,
-          elevation: 2,
-          onRefresh: _refreshVideos, // Refresh without clearing UI
-          child: PagedListView<int, Video>(
-            pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<Video>(
-              itemBuilder: (context, video, index) =>
-                  _buildVideoListItem(video),
-              firstPageProgressIndicatorBuilder: (_) =>
-                  _buildShimmerEffect(), // Show skeleton while loading first page
-              newPageProgressIndicatorBuilder: (_) =>
-                  UIUtils.progressIndicatorPlaceholder(), // Pagination
-            ),
-          ),
-        ),
+            color: Colors.orangeAccent,
+            backgroundColor: Colors.transparent,
+            displacement: 30,
+            strokeWidth: 1.5,
+            elevation: 2,
+            onRefresh: _refreshVideos, // Refresh without clearing UI
+            child: !widget.ridView
+                ? PagedListView<int, Video>(
+                    pagingController: _pagingController,
+                    builderDelegate: PagedChildBuilderDelegate<Video>(
+                      itemBuilder: (context, video, index) =>
+                          _buildVideoListViewCard(video),
+                      firstPageProgressIndicatorBuilder: (_) =>
+                          _buildShimmerEffect(), // Show skeleton while loading first page
+                      newPageProgressIndicatorBuilder: (_) =>
+                          UIUtils.progressIndicatorPlaceholder(), // Pagination
+                    ),
+                  )
+                : PagedGridView<int, Video>(
+                    pagingController: _pagingController,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Show 2 videos per row
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: 16 / 14, // More compact
+                    ),
+                    builderDelegate: PagedChildBuilderDelegate<Video>(
+                      itemBuilder: (context, video, index) =>
+                          _buildVideoGridViewCard(video),
+                      firstPageProgressIndicatorBuilder: (_) => VideoUtils
+                          .buildMinimalVideoBlurEffect(), // Show skeleton while loading first page
+                      newPageProgressIndicatorBuilder: (_) =>
+                          UIUtils.progressIndicatorPlaceholder(), // Pagination
+                    ),
+                  )),
 
         // Blur Effect at the Bottom
-        UIUtils.blurEffectAtTheBottom()      ],
+        UIUtils.blurEffectAtTheBottom()
+      ],
     );
   }
 
+  /// Builds a compact video card with essential details
+  Widget _buildVideoGridViewCard(Video video) {
+    return
+        // 🎞️ Video Thumbnail
+        VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration:
+              const Duration(milliseconds: 300), // Smooth transition
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              VideoPlayerScreen(
+            node: widget.node,
+            video: video,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    });
+  }
+
   /// Builds video list items
-  Widget _buildVideoListItem(Video video) {
+  Widget _buildVideoListViewCard(Video video) {
     final thumbnailURL =
         video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
 
@@ -190,13 +240,16 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 300), // Smooth transition
+            transitionDuration:
+                const Duration(milliseconds: 300), // Smooth transition
             reverseTransitionDuration: const Duration(milliseconds: 150),
-            pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                VideoPlayerScreen(
               node: widget.node,
               video: video,
             ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(
                 opacity: animation,
                 child: child,

@@ -154,13 +154,13 @@ class _ListChannelVideosWidgetState
       pagingController: _pagingController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Show 2 videos per row
-        crossAxisSpacing: 0,
-        mainAxisSpacing: 0,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
         childAspectRatio: 16 / 14, // More compact
       ),
       builderDelegate: PagedChildBuilderDelegate<Video>(
         itemBuilder: (context, video, index) => _buildVideoCard(video),
-        firstPageProgressIndicatorBuilder: (_) => _buildShimmerGrid(),
+        firstPageProgressIndicatorBuilder: (_) => VideoUtils.buildMinimalVideoBlurEffect(),
         newPageProgressIndicatorBuilder: (_) =>
             UIUtils.progressIndicatorPlaceholder(),
       ),
@@ -190,37 +190,5 @@ class _ListChannelVideosWidgetState
             ),
           );
         });
-  }
-
-  /// **Shimmer Loading Effect for Grid**
-  Widget _buildShimmerGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 6, // Show 6 placeholders while loading
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 16 / 10,
-      ),
-      itemBuilder: (_, __) => _buildShimmerContainer(),
-    );
-  }
-
-  /// **Shimmer Placeholder for Video Thumbnail**
-  Widget _buildShimmerContainer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[700]!,
-      child: Container(
-        width: double.infinity,
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.grey[800],
-          borderRadius: BorderRadius.circular(6),
-        ),
-      ),
-    );
   }
 }

@@ -10,6 +10,8 @@ import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
 import '../utils/channels_utils.dart';
 import '../utils/ui_utils.dart';
+import '../utils/video_utils.dart';
+import '../widgets/expandable_text_widget.dart';
 import '../widgets/list_channel_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 
@@ -76,6 +78,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         slivers: [
           _buildSliverAppBar(),
           SliverToBoxAdapter(child: _buildChannelInfo()),
+          _buildFiltersSection(),
           _buildVideosSection(),
         ],
       ),
@@ -104,7 +107,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         background: bannerUrl != null
             ? CachedNetworkImage(
           imageUrl: bannerUrl,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           placeholder: (context, url) => _defaultBanner(),
           errorWidget: (context, url, error) => _defaultBanner(),
         )
@@ -183,8 +186,10 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
           ),
           const SizedBox(height: 12),
           if (videoChannel?.description != null && videoChannel!.description!.isNotEmpty)
-            Text(videoChannel!.description!,
-                style: const TextStyle(fontSize: 14, color: Colors.white70)),
+            buildExpandableText(
+              maxLines: 2,
+              text: videoChannel?.description ?? "No description",
+            ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -202,6 +207,28 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
     );
   }
 
+  Widget _buildFiltersSection() {
+    return SliverToBoxAdapter( // ✅ Converts it into a Sliver
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFilters(), // ✅ Ensures filters are inside SliverToBoxAdapter
+            const SizedBox(height: 8), // 🔹 Add spacing
+            Text('Total: ${VideoUtils.formatVideosCount(_videoCount)}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// 🔹 **Videos Section**
   Widget _buildVideosSection() {
     return SliverFillRemaining(
@@ -210,12 +237,6 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              const Text("Videos",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              _buildFilters(),
-            ]),
-            const SizedBox(height: 10),
             Expanded(
               child: ListChannelVideosWidget(
                 node: widget.node,
@@ -238,7 +259,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
   /// Builds filter buttons
   Widget _buildFilters() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
         height: 30,
         child: Row(

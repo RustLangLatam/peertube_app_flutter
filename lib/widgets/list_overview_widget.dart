@@ -92,9 +92,6 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
           );
           // _scrollController.jumpTo(0.0);
         });
-      } else {
-        // ✅ If no clients, refresh immediately
-        _refreshOverview();
       }
     }
   }

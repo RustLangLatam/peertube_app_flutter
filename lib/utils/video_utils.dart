@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/utils/ui_utils.dart';
 import 'package:peertube_app_flutter/utils/video_date_utils.dart';
+import 'package:shimmer/shimmer.dart';
 
 class VideoUtils {
   /// Formats the number of views with appropriate suffix (K for thousands, M for millions).
@@ -25,6 +25,17 @@ class VideoUtils {
       return "${(views / 1000).toStringAsFixed(1).replaceAll('.0', '')}K views";
     } else {
       return "$views view${views == 1 ? '' : 's'}";
+    }
+  }
+
+  static String formatVideosCount(int? views) {
+    if (views == null || views < 0) return "0 videos";
+    if (views >= 1000000) {
+      return "${(views / 1000000).toStringAsFixed(1).replaceAll('.0', '')}M views";
+    } else if (views >= 1000) {
+      return "${(views / 1000).toStringAsFixed(1).replaceAll('.0', '')}K videos";
+    } else {
+      return "$views video${views == 1 ? '' : 's'}";
     }
   }
 
@@ -81,7 +92,7 @@ class VideoUtils {
       onTap: onTap, // 🔹 Executes callback on tap
       child: Container(
         width: 160,
-        margin: const EdgeInsets.only(right: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,7 +105,7 @@ class VideoUtils {
                 // 🕒 Video Duration (Bottom Right)
                 Positioned(
                   bottom: 0,  // Ensures it's at the bottom inside the thumbnail
-                  right: 0,   // Aligns to the right inside the thumbnail
+                  right: -1,   // Aligns to the right inside the thumbnail
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                     decoration: const BoxDecoration(
@@ -131,5 +142,34 @@ class VideoUtils {
       ),
     );
   }
+
+  /// **Shimmer Placeholder for Video Thumbnails**
+  static Widget buildMinimalVideoBlurEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[850]!, // ✅ Darker base color
+      highlightColor: Colors.grey[700]!, // ✅ Subtle highlight
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Wrap(
+          spacing: 42, // ✅ Horizontal spacing
+          runSpacing: 60, // ✅ Vertical spacing
+          children: List.generate(6, (_) => _buildShimmerContainer()),
+        ),
+      ),
+    );
+  }
+
+  /// **Shimmer Placeholder for Each Video Item**
+  static Widget _buildShimmerContainer() {
+    return Container(
+      width: 160, // ✅ Fixed width per item
+      height: 100, // ✅ Ensures consistent height
+      decoration: BoxDecoration(
+        color: Colors.grey[800], // ✅ Matches theme
+      ),
+    );
+  }
+
+
 
 }
