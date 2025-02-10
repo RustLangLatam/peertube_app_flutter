@@ -35,7 +35,6 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
     _pagingController.addPageRequestListener(_fetchChannels);
   }
 
-
   /// Fetches the list of PeerTube channels
   Future<void> _fetchChannels(int pageKey) async {
     try {
@@ -139,27 +138,7 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
       ),
 
       // Blur Effect at the Bottom
-      Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: IgnorePointer(
-          child: Container(
-            height: 5,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0),
-                  Colors.grey.withOpacity(0.5),
-                  Colors.black.withOpacity(0.9),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      UIUtils.blurEffectAtTheBottom()
     ]);
   }
 
@@ -220,7 +199,7 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
                 // 📌 Channel Banner (or Default)
                 ClipRRect(
                   borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(6)),
+                      const BorderRadius.vertical(top: Radius.circular(6)),
                   child: CachedNetworkImage(
                     imageUrl: bannerUrl ?? "",
                     width: double.infinity,
@@ -235,7 +214,8 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
                 Positioned(
                   left: 12,
                   bottom: -16, // Smaller overlap
-                   child: AvatarUtils.buildAvatarFromVideoChannel(channel, widget.node),
+                  child: AvatarUtils.buildAvatarFromVideoChannel(
+                      channel, widget.node),
                 ),
               ],
             ),
@@ -252,37 +232,37 @@ class _ListChannelsWidgetState extends ConsumerState<ListChannelsWidget> {
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 📌 Channel Name
-                            Text(
-                              ChannelsUtils.extractDisplayName(channel),
-                              style: const TextStyle(
-                                fontSize: 14, // ⬅ Slightly smaller
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
+                        // 📌 Channel Name
+                        Text(
+                          ChannelsUtils.extractDisplayName(channel),
+                          style: const TextStyle(
+                            fontSize: 14, // ⬅ Slightly smaller
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
 
-                            // 📌 Channel Description (Max 2 Lines)
-                            SizedBox(
-                              height: 38, // Fixed height to avoid resizing
-                              child: buildExpandableText(
-                                text: channel.description ?? "No description",
-                              ),
-                            ),
+                        // 📌 Channel Description (Max 2 Lines)
+                        SizedBox(
+                          height: 38, // Fixed height to avoid resizing
+                          child: buildExpandableText(
+                            text: channel.description ?? "No description",
+                          ),
+                        ),
 
-                            const SizedBox(height: 2),
+                        const SizedBox(height: 2),
 
-                            // 📌 Subscribers Count
-                            Text(
-                              "${channel.followersCount} subscribers",
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white.withOpacity(0.6)),
-                            ),
-                            const SizedBox(height: 2),
-                          ])),
+                        // 📌 Subscribers Count
+                        Text(
+                          "${channel.followersCount} subscribers",
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white.withOpacity(0.6)),
+                        ),
+                        const SizedBox(height: 2),
+                      ])),
 
                   // 📌 Subscribe Button (Left-aligned)
                   ButtonsUtils.subscribeButton(

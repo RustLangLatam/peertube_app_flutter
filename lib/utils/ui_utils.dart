@@ -263,4 +263,29 @@ class UIUtils {
               color: Colors.orange, strokeWidth: 1.5)),
     );
   }
+
+  /// Blur Effect at the Bottom of the List
+  static Widget blurEffectAtTheBottom() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: Container(
+          height: 5,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0),
+                Colors.grey.withOpacity(0.5),
+                Colors.black.withOpacity(0.9),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

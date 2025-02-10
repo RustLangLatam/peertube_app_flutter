@@ -37,8 +37,8 @@ class AvatarUtils {
     final avatarPath = firstAvatarPath != null ? "$host$firstAvatarPath" : null;
 
     return Container(
-      width: 32,
-      height: 32,
+      width: 26,
+      height: 26,
       decoration: BoxDecoration(
         color: Colors.white, // Match background color
         borderRadius: BorderRadius.circular(6), // Rounded corners
@@ -63,18 +63,18 @@ class AvatarUtils {
   /// Creates a **default avatar** with the **first letter of the channel name**.
   static Widget _defaultAvatar(String? channelName) {
     return Container(
-      width: 32,
-      height: 32,
+      // width: width,
+      // height: height,
       decoration: BoxDecoration(
-        color: Colors.cyan, // Default background color
+        color: Colors.orange, // Default background color
         borderRadius: BorderRadius.circular(5), // Keep square shape
       ),
       alignment: Alignment.center,
       child: Text(
         (channelName?.isNotEmpty == true ? channelName![0] : "U").toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 18,
+          // fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),
       ),
