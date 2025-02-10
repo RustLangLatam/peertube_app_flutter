@@ -149,11 +149,11 @@ class VideoUtils {
       baseColor: Colors.grey[850]!, // ✅ Darker base color
       highlightColor: Colors.grey[700]!, // ✅ Subtle highlight
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Wrap(
-          spacing: 42, // ✅ Horizontal spacing
-          runSpacing: 60, // ✅ Vertical spacing
-          children: List.generate(6, (_) => _buildShimmerContainer()),
+          spacing: 20, // ✅ Horizontal spacing
+          runSpacing: 20, // ✅ Vertical spacing
+          children: List.generate(10, (_) => _buildShimmerContainer()),
         ),
       ),
     );

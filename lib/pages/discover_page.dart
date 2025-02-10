@@ -34,7 +34,12 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
         children: [
           _buildFilters(), // 🟢 Ensures filters appear below the AppBar
           Expanded(
-            child: OverviewDataWidget(node: widget.node, all: all, channels: channels, category: category, tags: tags),
+            child: OverviewDataWidget(
+                node: widget.node,
+                all: all,
+                channels: channels,
+                category: category,
+                tags: tags),
           ),
         ],
       ),
@@ -58,11 +63,22 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
               });
             }),
             const SizedBox(width: 5),
-            UIUtils.filterToggleButton("Channels", Icons.subscriptions, channels, () {
+            UIUtils.filterToggleButton(
+                "Channels", Icons.subscriptions, channels, () {
               setState(() {
                 all = false;
                 channels = true;
                 category = false;
+                tags = false;
+              });
+            }),
+            const SizedBox(width: 5),
+            UIUtils.filterToggleButton("Categories", Icons.category, category,
+                () {
+              setState(() {
+                all = false;
+                channels = false;
+                category = true;
                 tags = false;
               });
             }),
@@ -75,16 +91,8 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
                 tags = true;
               });
             }),
-            const SizedBox(width: 5),
-            UIUtils.filterToggleButton("Categories", Icons.category, category, () {
-              setState(() {
-                all = false;
-                channels = false;
-                category = true;
-                tags = false;
-              });
-            }),
-          ],        ),
+          ],
+        ),
       ),
     );
   }
