@@ -48,6 +48,8 @@ class AvatarUtils {
           ? ClipRRect(
         borderRadius: BorderRadius.circular(6), // Keep square shape
         child: CachedNetworkImage(
+          fadeOutDuration:  Duration.zero,
+          fadeInDuration:  Duration.zero,
           imageUrl: avatarPath,
           placeholder: (_, __) => _defaultAvatar(channel.name),
           errorWidget: (_, __, ___) => _defaultAvatar(channel.name),

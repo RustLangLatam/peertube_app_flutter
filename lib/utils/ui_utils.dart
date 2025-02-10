@@ -169,6 +169,20 @@ class UIUtils {
     );
   }
 
+  static Widget buildHeroVideoOverViewThumbnail({
+    required String thumbnailURL,
+    double width = 160,
+    double height = 90,
+  }) {
+    return Hero(
+      tag: "video_$thumbnailURL",
+      transitionOnUserGestures: true,
+      flightShuttleBuilder: _heroFlightBuilder,
+      child:
+          _buildCachedNetworkImage(thumbnailURL, width: width, height: height),
+    );
+  }
+
   /// Builds a video thumbnail with `Hero` animation, supporting both `ClipRRect` and `AspectRatio`.
   ///
   /// - [thumbnailURL]: The image URL.
@@ -213,6 +227,8 @@ class UIUtils {
   static Widget _buildCachedNetworkImage(String imageUrl,
       {double? width, double? height}) {
     return CachedNetworkImage(
+      fadeOutDuration: Duration.zero,
+      fadeInDuration: Duration.zero,
       imageUrl: imageUrl,
       width: width,
       height: height,

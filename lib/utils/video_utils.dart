@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/utils/ui_utils.dart';
 import 'package:peertube_app_flutter/utils/video_date_utils.dart';
 
 class VideoUtils {
@@ -70,43 +72,39 @@ class VideoUtils {
   }
 
   /// Builds a video item (thumbnail, title, metadata)
-  static Widget buildDiscoverVideoItem(Video video, String node) {
+  static Widget buildDiscoverVideoItem(
+      Video video, String node, {required VoidCallback onTap}) {
     final thumbnailURL =
-        video.previewPath != null ? '$node${video.previewPath}' : '';
-
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Video Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              thumbnailURL,
-              width: 160,
-              height: 90,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(color: Colors.grey[800]),
+    video.previewPath != null ? '$node${video.previewPath}' : '';
+    return GestureDetector(
+      onTap: onTap, // 🔹 Executes callback on tap
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Video Thumbnail
+            UIUtils.buildHeroVideoOverViewThumbnail(
+              thumbnailURL: thumbnailURL,
             ),
-          ),
-          const SizedBox(height: 5),
-          // Video Title
-          Text(
-            video.name ?? "Unknown Video",
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
-          // Video Metadata (Views & Time Ago)
-          Text(
-            '${video.views} views • ${VideoDateUtils.formatTimeAgo(video.publishedAt?.toIso8601String())}',
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ],
+            const SizedBox(height: 5),
+            // Video Title
+            Text(
+              video.name ?? "Unknown Video",
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+            // Video Metadata (Views & Time Ago)
+            Text(
+              '${video.views} views • ${VideoDateUtils.formatTimeAgo(video.publishedAt?.toIso8601String())}',
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }
+
 }

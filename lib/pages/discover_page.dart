@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/pages/video_channel_page.dart';
+import 'package:peertube_app_flutter/pages/video_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
@@ -12,11 +15,17 @@ import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
 import '../widgets/peertube_logo_widget.dart';
 
+/// Enum for section types
+enum SectionType { tags, categories, channels }
+
+/// Data structure for paginated video overview
 class OverviewData {
-  Widget? title;
+  String? label;
+  SectionType type;
+  Widget title;
   final List<Video> videos;
 
-  OverviewData(this.title, this.videos);
+  OverviewData(this.label, this.type, this.title, this.videos);
 }
 
 class DiscoverScreen extends ConsumerStatefulWidget {
@@ -132,11 +141,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           pagingController: _pagingController,
           padding: const EdgeInsets.symmetric(vertical: 8),
           builderDelegate: PagedChildBuilderDelegate<OverviewData>(
-            itemBuilder: (context, overview, index) =>
-                _buildSection(overview.title!, overview.videos),
-            firstPageProgressIndicatorBuilder: (_) => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            itemBuilder: (context, overview, index) => _buildSection(overview),
+            firstPageProgressIndicatorBuilder: (_) => _buildShimmerEffect(),
             newPageProgressIndicatorBuilder: (_) =>
                 UIUtils.progressIndicatorPlaceholder(),
           ),
@@ -172,23 +178,54 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   /// Builds a section with a dynamic title widget and a horizontal video list
-  Widget _buildSection(Widget titleWidget, List<Video> videos) {
+  Widget _buildSection(OverviewData overview) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: titleWidget, // ✅ Dynamic title widget
+          child: overview.title, // ✅ Dynamic title widget
         ),
         SizedBox(
           height: 160,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: videos.length,
+            itemCount: overview.videos.length,
             itemBuilder: (context, index) {
               return VideoUtils.buildDiscoverVideoItem(
-                  videos[index], widget.node);
+                  overview.videos[index], widget.node, onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        VideoPlayerScreen(node: widget.node, video: overview.videos[index]),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return Stack(
+                        children: [
+                          FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                          SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, 0.1), // Start slightly below
+                              end: Offset.zero, // End at the normal position
+                            ).animate(CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOut, // Smooth out the animation
+                            )),
+                            child: child,
+                          ),
+                        ],
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 300),
+                    reverseTransitionDuration: Duration(milliseconds: 150),
+                  ),
+                );
+              });
             },
           ),
         ),
@@ -236,6 +273,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       allSections.addAll(
         overview.categories!.asList().map(
               (category) => OverviewData(
+                category.category!.id.toString(),
+                SectionType.categories,
                 _buildTitleWidget(
                     category.category?.label ?? 'Unknown Category'),
                 _extractVideos(category.videos!.asList()),
@@ -248,6 +287,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       allSections.addAll(
         overview.channels!.asList().map(
               (channel) => OverviewData(
+                channel.channel!.id.toString(),
+                SectionType.channels,
                 _buildTitleWidget(
                   channel.channel?.displayName ?? 'Unknown Channel',
                   avatar: AvatarUtils.buildChannelAvatar(
@@ -265,6 +306,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       allSections.addAll(
         overview.tags!.asList().map(
               (tag) => OverviewData(
+                tag.tag,
+                SectionType.tags,
                 _buildTitleWidget(tag.tag ?? 'Unknown Tag', isTag: true),
                 _extractVideos(tag.videos!.asList()),
               ),
@@ -274,5 +317,85 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
     allSections.shuffle(Random()); // Shuffle once to maintain order
     return allSections;
+  }
+
+  Widget _buildShimmerEffect() {
+    return Column(
+      children: List.generate(6, (index) => _shimmerEffect()),
+    );
+  }
+
+  /// **Main Shimmer Effect Function**
+  Widget _shimmerEffect() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[800]!,
+            highlightColor: Colors.grey[600]!,
+            child: Container(
+              width: 120,
+              height: 20,
+              color: Colors.grey[800], // Simulates the title
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 160,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5, // Simulates 5 loading items
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 🔹 Simulated video thumbnail
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[800]!,
+                      highlightColor: Colors.grey[600]!,
+                      child: Container(
+                        width: 160,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    // 🔹 Simulated video title
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[800]!,
+                      highlightColor: Colors.grey[600]!,
+                      child: Container(
+                        width: 140,
+                        height: 15,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    // 🔹 Simulated metadata
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[800]!,
+                      highlightColor: Colors.grey[600]!,
+                      child: Container(
+                        width: 100,
+                        height: 12,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

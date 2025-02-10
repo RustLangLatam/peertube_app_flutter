@@ -41,50 +41,19 @@ class _HomeState extends ConsumerState<Home> {
     LibraryScreen(node: node),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        Navigator.pushNamed(context, '/browse');
-        break;
-      case 1:
-        Navigator.pushNamed(context, '/discover');
-        break;
-      case 2:
-        Navigator.pushNamed(context, '/channels');
-        break;
-      case 3:
-        Navigator.pushNamed(context, '/live');
-        break;
-      case 4:
-        Navigator.pushNamed(context, '/library');
-        break;
-      default:
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final accentcolor = SystemTheme.accentColor.accent;
     int r = accentcolor.red;
     int g = accentcolor.green;
     int b = accentcolor.blue;
+
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, r, g, b),
           brightness: Brightness.light,
-        ),
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 72,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ),
       darkTheme: ThemeData(
@@ -95,24 +64,36 @@ class _HomeState extends ConsumerState<Home> {
       ),
       themeMode: ThemeMode.system,
       home: Scaffold(
-        body: _widgetOptions.elementAt(_selectedIndex),
+        body: IndexedStack( // ✅ Keeps the state of each tab
+          index: _selectedIndex,
+          children: [
+            BrowserScreen(node: node),
+            DiscoverScreen(node: node),
+            ChannelsScreen(node: node),
+            LivesScreen(node: node),
+            LibraryScreen(node: node),
+          ],
+        ),
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color(0xFF1A1A1A), // Dark background
+          backgroundColor: const Color(0xFF1A1A1A),
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.orange, // Highlighted tab
-          unselectedItemColor: Colors.white70, // Dimmed color for inactive tabs
+          selectedItemColor: Colors.orange,
+          unselectedItemColor: Colors.white70,
           showSelectedLabels: true,
           showUnselectedLabels: true,
           selectedFontSize: 12,
           unselectedFontSize: 12,
           currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.video_library_outlined, size: 24), // Browse icon
-              activeIcon:
-                  Icon(Icons.video_library, size: 26), // Active Browse icon
-              label: "Browse", // Updated label
+              icon: Icon(Icons.video_library_outlined, size: 24),
+              activeIcon: Icon(Icons.video_library, size: 26),
+              label: "Browse",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.explore_outlined, size: 24),
