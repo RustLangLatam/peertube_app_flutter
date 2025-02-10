@@ -10,12 +10,14 @@ import 'package:peertube_app_flutter/pages/video_channel_page.dart';
 import 'package:peertube_app_flutter/pages/video_page.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../pages/category_page.dart';
 import '../pages/channel_page.dart';
 import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
 import '../widgets/peertube_logo_widget.dart';
+import 'list_videos_widget.dart';
 
 /// Enum for section types
 enum SectionType { all, tags, categories, channels }
@@ -345,8 +347,11 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
               (category) => OverviewData(
                 category.category!.id.toString(),
                 SectionType.categories,
-                _buildTitleWidget(
-                  category.category?.label ?? 'Unknown Category',
+                GestureDetector(
+                  onTap: () => _navigateToCategory(category.category!),
+                  child: _buildTitleWidget(
+                    category.category?.label ?? 'Unknown Category',
+                  ),
                 ),
                 _extractVideos(category.videos!.asList()),
               ),
@@ -402,6 +407,18 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
         builder: (context) => ChannelScreen(
             channel: channel,
             node: widget.node), // ✅ Replace with actual channel screen
+      ),
+    );
+  }
+
+  void _navigateToCategory(VideoConstantNumberCategory category) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryVideosScreen(
+          category: category, // Fetch all videos
+          node: widget.node,
+        ),
       ),
     );
   }
