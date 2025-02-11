@@ -35,8 +35,7 @@ class PeerTubeTextWidget extends StatelessWidget {
         return Stack(
           children: [
             text != null
-                ? Flexible(
-                    child: Text(
+                ? Text(
                     text!,
                     maxLines: 1,
                     style: const TextStyle(
@@ -46,7 +45,7 @@ class PeerTubeTextWidget extends StatelessWidget {
                     ),
                     overflow:
                         TextOverflow.ellipsis, // 🔹 Adds "..." if too long
-                  ))
+                  )
                 : RichText(
                     text: const TextSpan(
                       style: TextStyle(

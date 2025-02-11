@@ -48,7 +48,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
               child: ListVideosWidget(
                 categoryId: widget.category.id, // Fetch all videos
                 node: widget.node,
-                ridView: true,
+                gridView: true,
                 sortBy: sortBy,
                 isLive: isLive,
                 skipCount: false,

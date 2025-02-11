@@ -155,7 +155,7 @@ class _ListChannelVideosWidgetState
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Show 2 videos per row
         crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        mainAxisSpacing: 12,
         childAspectRatio: 16 / 14, // More compact
       ),
       builderDelegate: PagedChildBuilderDelegate<Video>(

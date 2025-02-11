@@ -16,7 +16,7 @@ class ListVideosWidget extends ConsumerStatefulWidget {
   final String node;
   final String? sortBy;
   final bool isLive;
-  final bool ridView;
+  final bool gridView;
   final bool skipCount;
   final void Function(int count)? videoCountCallback;
 
@@ -26,7 +26,7 @@ class ListVideosWidget extends ConsumerStatefulWidget {
     required this.node,
     this.isLive = false,
     this.sortBy,
-    this.ridView = false,
+    this.gridView = false,
     this.skipCount = true,
     this.videoCountCallback,
   });
@@ -164,7 +164,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             strokeWidth: 1.5,
             elevation: 2,
             onRefresh: _refreshVideos, // Refresh without clearing UI
-            child: !widget.ridView
+            child: !widget.gridView
                 ? PagedListView<int, Video>(
                     pagingController: _pagingController,
                     builderDelegate: PagedChildBuilderDelegate<Video>(
