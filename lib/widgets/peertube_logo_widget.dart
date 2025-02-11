@@ -35,36 +35,42 @@ class PeerTubeTextWidget extends StatelessWidget {
         return Stack(
           children: [
             text != null
-                ? Text(
-              text!,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white, // White text
-              ),
-            )
+                ? Flexible(
+                    child: Text(
+                    text!,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // White text
+                    ),
+                    overflow:
+                        TextOverflow.ellipsis, // 🔹 Adds "..." if too long
+                  ))
                 : RichText(
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // White text
-                ),
-                children: [
-                  TextSpan(text: "Peer"), // "Peer" in white
-                  TextSpan(
-                    text: "Tube",
-                    style: TextStyle(color: Colors.orange), // "Tube" in orange
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // White text
+                      ),
+                      children: [
+                        TextSpan(text: "Peer"), // "Peer" in white
+                        TextSpan(
+                          text: "Tube",
+                          style: TextStyle(
+                              color: Colors.orange), // "Tube" in orange
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
             if (underlined) // ✅ Add underline only when `underlined` is true
               Positioned(
                 bottom: -2, // 🔹 Adjusts underline position
                 left: 0,
                 child: Container(
-                  width: constraints.maxWidth, // 🔹 Matches text width dynamically
+                  width:
+                      constraints.maxWidth, // 🔹 Matches text width dynamically
                   height: 4,
                   color: Colors.orange, // 🔹 Underline color
                 ),
@@ -93,4 +99,3 @@ class PeerTubeBannerWidget extends StatelessWidget {
     );
   }
 }
-

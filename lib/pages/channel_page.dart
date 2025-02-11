@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:uuid/uuid.dart';
 
 import '../providers/api_provider.dart';
 import '../utils/avatar_utils.dart';
@@ -11,6 +11,7 @@ import '../utils/buttons_utils.dart';
 import '../utils/channels_utils.dart';
 import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
+import '../widgets/blurred_backdrop_image.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/list_channel_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
@@ -30,6 +31,13 @@ class ChannelScreen extends ConsumerStatefulWidget {
 }
 
 class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
+  static const double collapsedBarHeight = 60.0;
+  static const double expandedBarHeight = 180.0;
+
+  late ScrollController _scrollController;
+  bool isCollapsed = false;
+  bool didAddFeedback = false;
+
   VideoChannel? videoChannel;
 
   int _videoCount = 0;
@@ -41,7 +49,33 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
   @override
   void initState() {
     super.initState();
-      fetchVideoChannel();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    fetchVideoChannel();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    bool shouldCollapse = _scrollController.hasClients &&
+        _scrollController.offset > (expandedBarHeight - collapsedBarHeight);
+
+    if (shouldCollapse != isCollapsed) {
+      setState(() {
+        isCollapsed = shouldCollapse;
+      });
+
+      if (isCollapsed && !didAddFeedback) {
+        HapticFeedback.mediumImpact();
+        didAddFeedback = true;
+      } else if (!isCollapsed) {
+        didAddFeedback = false;
+      }
+    }
   }
 
   String getChannelHandle(Channel channel) {
@@ -72,45 +106,69 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF13100E),
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(),
-          SliverToBoxAdapter(child: _buildChannelInfo()),
-          _buildFiltersSection(),
-          _buildVideosSection(),
-        ],
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        isCollapsed = _scrollController.hasClients &&
+            _scrollController.offset > (expandedBarHeight - collapsedBarHeight);
+        if (isCollapsed && !didAddFeedback) {
+          HapticFeedback.mediumImpact();
+          didAddFeedback = true;
+        } else if (!isCollapsed) {
+          didAddFeedback = false;
+        }
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF13100E),
+        body: Stack(
+          children: [
+            BlurredBackdropImage(channel: videoChannel, node: widget.node),
+            CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                _buildSliverAppBar(),
+                SliverToBoxAdapter(child: _buildChannelInfo()),
+                _buildFiltersSection(),
+                _buildVideosSection(),
+              ],
+            ),
+            // Blur Effect at the Bottom
+            UIUtils.blurEffectAtTheBottom()
+          ],
+        ),
       ),
     );
   }
 
   /// 🔹 **SliverAppBar with Banner**
-  Widget _buildSliverAppBar() {
+  SliverAppBar _buildSliverAppBar() {
     final bannerUrl = videoChannel?.banners?.isNotEmpty == true
         ? widget.node + videoChannel!.banners!.first.path!
         : null;
 
     return SliverAppBar(
-      expandedHeight: 180,
-      leading: const PeerTubeLogoWidget(),
-      floating: false,
+      expandedHeight: expandedBarHeight,
+      collapsedHeight: collapsedBarHeight,
+      centerTitle: false,
       pinned: true,
-      backgroundColor: const Color(0xFF1A1A1A),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.close_rounded, size: 20, color: Colors.orange),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
+      title: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: isCollapsed ? 1 : 0,
+        child: PeerTubeTextWidget(text: widget.channel.displayName ?? 'Unknown Channel', underlined: true),
+      ),
+      elevation: 0,
+      backgroundColor: isCollapsed ? Color(0xFF1A1A1A) : Colors.transparent,
+      leading: const BackButton(
+        color: Colors.white,
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: bannerUrl != null
             ? CachedNetworkImage(
-          imageUrl: bannerUrl,
-          fit: BoxFit.contain,
-          placeholder: (context, url) => _defaultBanner(),
-          errorWidget: (context, url, error) => _defaultBanner(),
-        )
+                imageUrl: bannerUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => _defaultBanner(),
+                errorWidget: (context, url, error) => _defaultBanner(),
+              )
             : _defaultBanner(),
       ),
     );
@@ -142,14 +200,15 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         children: [
           Row(
             children: [
-              AvatarUtils.buildChannelAvatar(channel:widget.channel, host:widget.node),
+              AvatarUtils.buildChannelAvatar( channel: widget.channel, host: widget.node),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      ChannelsUtils.extractChannelDisplayName(widget.channel) ?? "Unknown Channel",
+                      ChannelsUtils.extractChannelDisplayName(widget.channel) ??
+                          "Unknown Channel",
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -164,10 +223,14 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
                           color: Colors.white.withOpacity(0.7),
                         ),
                         children: [
-                          TextSpan(text: "${videoChannel?.followersCount ?? 0} followers  "),
+                          TextSpan(
+                              text:
+                                  "${videoChannel?.followersCount ?? 0} followers  "),
                           const TextSpan(
                             text: "•",
-                            style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold),
                           ),
                           TextSpan(text: "  $_videoCount videos"),
                         ],
@@ -185,7 +248,8 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          if (videoChannel?.description != null && videoChannel!.description!.isNotEmpty)
+          if (videoChannel?.description != null &&
+              videoChannel!.description!.isNotEmpty)
             buildExpandableText(
               maxLines: 2,
               text: videoChannel?.description ?? "No description",
@@ -208,7 +272,8 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
   }
 
   Widget _buildFiltersSection() {
-    return SliverToBoxAdapter( // ✅ Converts it into a Sliver
+    return SliverToBoxAdapter(
+      // ✅ Converts it into a Sliver
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
@@ -216,7 +281,8 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
           children: [
             _buildFilters(), // ✅ Ensures filters are inside SliverToBoxAdapter
             const SizedBox(height: 8), // 🔹 Add spacing
-            Text('Total: ${VideoUtils.formatVideosCount(_videoCount)}',
+            Text(
+              'Total: ${VideoUtils.formatVideosCount(_videoCount)}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -268,7 +334,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
               "Recently Added",
               Icons.new_releases_outlined,
               recentlyAdded,
-                  () {
+              () {
                 setState(() {
                   recentlyAdded = true;
                   isTrending = false;
@@ -281,7 +347,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
               "Trending",
               Icons.trending_up,
               isTrending,
-                  () {
+              () {
                 setState(() {
                   recentlyAdded = false;
                   isTrending = true;
@@ -295,4 +361,3 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
     );
   }
 }
-

@@ -383,7 +383,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       context,
       MaterialPageRoute(
         builder: (context) => ChannelScreen(
-            channel: channel,
+            channel:  channel,
             node: widget.node), // ✅ Replace with actual channel screen
       ),
     );

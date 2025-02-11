@@ -37,8 +37,8 @@ class AvatarUtils {
     final avatarPath = firstAvatarPath != null ? "$host$firstAvatarPath" : null;
 
     return Container(
-      width: 26,
-      height: 26,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
         color: Colors.white, // Match background color
         borderRadius: BorderRadius.circular(6), // Rounded corners
