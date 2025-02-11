@@ -31,8 +31,10 @@ class ChannelScreen extends ConsumerStatefulWidget {
 }
 
 class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
-  static const double collapsedBarHeight = 60.0;
-  static const double expandedBarHeight = 180.0;
+  static const double collapsedBarHeight = 70.0;
+  static const double expandedBarHeight = 90.0;
+
+  double titleOpacity = 0.0;
 
   late ScrollController _scrollController;
   bool isCollapsed = false;
@@ -61,20 +63,21 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
   }
 
   void _onScroll() {
-    bool shouldCollapse = _scrollController.hasClients &&
-        _scrollController.offset > (expandedBarHeight - collapsedBarHeight);
+    if (!_scrollController.hasClients) return;
 
-    if (shouldCollapse != isCollapsed) {
+    final offset = _scrollController.offset;
+    final fadeStart = expandedBarHeight * 0.4; // ✅ Start fading later
+    final fadeEnd = expandedBarHeight - collapsedBarHeight;
+
+    double newOpacity = 1 - ((offset - fadeStart) / (fadeEnd - fadeStart));
+    newOpacity = newOpacity.clamp(0, 1); // ✅ Keep value between 0 and 1
+
+    if (newOpacity != titleOpacity) {
       setState(() {
-        isCollapsed = shouldCollapse;
+        titleOpacity = newOpacity; // ✅ Title fades in as you scroll up
+        isCollapsed =
+            newOpacity <= 0; // ✅ Fully collapsed when opacity reaches 0
       });
-
-      if (isCollapsed && !didAddFeedback) {
-        HapticFeedback.mediumImpact();
-        didAddFeedback = true;
-      } else if (!isCollapsed) {
-        didAddFeedback = false;
-      }
     }
   }
 
@@ -153,11 +156,17 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
       pinned: true,
       title: AnimatedOpacity(
         duration: const Duration(milliseconds: 200),
-        opacity: isCollapsed ? 1 : 0,
-        child: PeerTubeTextWidget(text: widget.channel.displayName ?? 'Unknown Channel', underlined: true),
+        opacity: titleOpacity,
+        child: PeerTubeTextWidget(
+            text: widget.channel.displayName ?? 'Unknown Channel',
+            underlined: true),
       ),
       elevation: 0,
-      backgroundColor: isCollapsed ? Color(0xFF1A1A1A) : Colors.transparent,
+      backgroundColor: Color.lerp(
+        Colors.transparent,
+        const Color(0xFF1A1A1A),
+        Curves.easeOut.transform(titleOpacity), // ✅ Smooth fade-in effect
+      ),
       leading: const BackButton(
         color: Colors.white,
       ),
@@ -174,23 +183,6 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
     );
   }
 
-  /// 🔹 **Default Banner**
-  Widget _defaultBanner() {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF282828), Color(0xFF1A1A1A)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: const Icon(Icons.video_library, size: 50, color: Colors.white54),
-    );
-  }
-
   /// 🔹 **Channel Info**
   Widget _buildChannelInfo() {
     return Padding(
@@ -200,7 +192,8 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         children: [
           Row(
             children: [
-              AvatarUtils.buildChannelAvatar( channel: widget.channel, host: widget.node),
+              AvatarUtils.buildChannelAvatar(
+                  channel: widget.channel, host: widget.node),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -271,23 +264,72 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
     );
   }
 
+  /// 🔹 **Filters Section**
   Widget _buildFiltersSection() {
-    return SliverToBoxAdapter(
-      // ✅ Converts it into a Sliver
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFilters(), // ✅ Ensures filters are inside SliverToBoxAdapter
-            const SizedBox(height: 8), // 🔹 Add spacing
-            Text(
-              'Total: ${VideoUtils.formatVideosCount(_videoCount)}',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return SliverPersistentHeader(
+      pinned: true,
+      floating: false,
+      delegate: _SliverFixedHeaderDelegate(
+        child: Container(
+          color: const Color(0xFF13100E),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFilters(), // ✅ Filters now update correctly
+              const SizedBox(height: 8),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return Text(
+                    'Total: ${VideoUtils.formatVideosCount(_videoCount)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  );
+                },
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  /// Builds filter buttons
+  Widget _buildFilters() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: SizedBox(
+        height: 30,
+        child: Row(
+          children: [
+            UIUtils.filterToggleButton(
+              "Recently Added",
+              Icons.new_releases_outlined,
+              recentlyAdded,
+                  () {
+                setState(() {
+                  recentlyAdded = true;
+                  isTrending = false;
+                  sortBy = '-publishedAt';
+                });
+              },
+            ),
+            const SizedBox(width: 5),
+            UIUtils.filterToggleButton(
+              "Trending",
+              Icons.trending_up,
+              isTrending,
+                  () {
+                setState(() {
+                  recentlyAdded = false;
+                  isTrending = true;
+                  sortBy = '-trending';
+                });
+              },
             ),
           ],
         ),
@@ -322,42 +364,45 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
     );
   }
 
-  /// Builds filter buttons
-  Widget _buildFilters() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: SizedBox(
-        height: 30,
-        child: Row(
-          children: [
-            UIUtils.filterToggleButton(
-              "Recently Added",
-              Icons.new_releases_outlined,
-              recentlyAdded,
-              () {
-                setState(() {
-                  recentlyAdded = true;
-                  isTrending = false;
-                  sortBy = '-publishedAt';
-                });
-              },
-            ),
-            const SizedBox(width: 5),
-            UIUtils.filterToggleButton(
-              "Trending",
-              Icons.trending_up,
-              isTrending,
-              () {
-                setState(() {
-                  recentlyAdded = false;
-                  isTrending = true;
-                  sortBy = '-trending';
-                });
-              },
-            ),
-          ],
+  /// 🔹 **Default Banner**
+  Widget _defaultBanner() {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF282828), Color(0xFF1A1A1A)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
       ),
+      alignment: Alignment.center,
+      child: const Icon(Icons.video_library, size: 50, color: Colors.white54),
     );
   }
 }
+
+class _SliverFixedHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _SliverFixedHeaderDelegate({required this.child, this.height = 80.0});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return StatefulBuilder( // ✅ Rebuild only this section when state changes
+      builder: (context, setState) {
+        return child;
+      },
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+  @override
+  double get minExtent => height;
+  @override
+  bool shouldRebuild(covariant _SliverFixedHeaderDelegate oldDelegate) => true;
+}
+
+

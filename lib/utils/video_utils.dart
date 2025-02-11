@@ -10,7 +10,7 @@ class VideoUtils {
   /// - `1234` → `1.2K views`
   /// - `1000000` → `1M views`
   static Widget buildViewCount(int? views,
-      {Color color = Colors.red, double fontSize = 12}) {
+      {Color color = Colors.orangeAccent, double fontSize = 12}) {
     return Text(
       formatViews(views),
       style: TextStyle(color: color, fontSize: fontSize),
