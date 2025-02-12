@@ -35,19 +35,21 @@ This is a **modern, fully-featured Flutter application** for browsing and playin
 
 ## **📸 Screenshots**
 
-| **Discover Page** | **Browse Page** |
-|------------------|------------------|
-| ![Discover](resources/discover.png) | ![Browse](resources/browse.png) |
+| **Discover Page** | **Browse Page** |  
+|------------------|------------------|  
+| <img src="resources/discover.png" width="300"> | <img src="resources/browse.png" width="300"> |  
 
-| **Channel Page** | **Channel Videos** |
-|------------------|------------------|
-| ![Channel](resources/channel.png) | ![Category](resources/category.png) |
+| **Channel Page** | **Channel Videos** |  
+|------------------|------------------|  
+| <img src="resources/channel.png" width="300"> | <img src="resources/category.png" width="300"> |  
 
-| **Video Player** | **Trending Videos** |
-|------------------|------------------|
-| ![Player](resources/player.png) | ![Trending](resources/trending.png) |
+| **Video Player** | **Trending Videos** |  
+|------------------|------------------|  
+| <img src="resources/player.png" width="300"> | <img src="resources/trending.png" width="300"> |  
 
 ---
+
+💡 **Now, all images will display at 300px width**, making them **smaller and uniform**. Let me know if you want any further tweaks! 🚀
 
 ## **📌 Why This App?** 🤔
 
