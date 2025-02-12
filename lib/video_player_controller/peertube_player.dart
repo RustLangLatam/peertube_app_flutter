@@ -21,7 +21,8 @@ class PeerTubePlayer {
   /// [source] The video source information, including URL and settings.
   Future<void> initializePlayer(key, VideoDetails? videoDetails,
       {String? nodeUrl}) async {
-    final source = PeerTubeVideoSourceInfo.extractBestVideoSource(videoDetails)!;
+    final source =
+        PeerTubeVideoSourceInfo.extractBestVideoSource(videoDetails)!;
 
     String? thumbnailURL;
 
@@ -49,7 +50,9 @@ class PeerTubePlayer {
         useAsmsSubtitles: false, // Disable ASMS subtitles
         liveStream: isLive, // Set live stream flag
         cacheConfiguration: PeerTubePlayerCacheConfig.create(source),
-        bufferingConfiguration: PeerTubePlayerBufferOptimizerConfig.getOptimalBufferConfig(source.duration), // Set buffering configuration
+        bufferingConfiguration:
+            PeerTubePlayerBufferOptimizerConfig.getOptimalBufferConfig(
+                source.duration), // Set buffering configuration
         resolutions: source.resolutions, // Set video resolutions
         notificationConfiguration: PeerTubePlayerNotificationConfig.create(
             thumbnailURL: thumbnailURL,
@@ -69,7 +72,20 @@ class PeerTubePlayer {
   /// Returns the internal video player controller instance.
   BetterPlayerController? get controller => _controller;
 
+  /// Check if the video has been initialized.
+  ///
+  /// Returns `true` if the video has been initialized, `false` otherwise.
   bool get isVideoInitialized => _controller?.isVideoInitialized() ?? false;
+
+  /// Check if the video is currently playing.
+  ///
+  /// Returns `true` if the video is currently playing, `false` otherwise.
+  bool get isVideoPlaying => _controller?.isPlaying() ?? false;
+
+  /// Check if the video is initialized and currently playing.
+  ///
+  /// Returns `true` if the video is initialized and playing, `false` otherwise.
+  bool get isVideoActive => isVideoInitialized && isVideoPlaying;
 
   /// Dispose of the player when no longer needed.
   ///

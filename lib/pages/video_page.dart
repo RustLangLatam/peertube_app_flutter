@@ -223,14 +223,16 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                     // Channel Avatar
                     GestureDetector(
                       onTap: () {
-                        _videoPlayer.controller!.pause();
-                        Navigator.push(
-                          context,
-                          CustomPageRoute.slide(ChannelScreen(
-                              channel: video.channel!, node: widget.node)),
-                        ).whenComplete(() {
-                          _videoPlayer.controller!.play();
-                        });
+                        if (_videoPlayer.isVideoActive) {
+                          _videoPlayer.controller!.pause();
+                          Navigator.push(
+                            context,
+                            CustomPageRoute.slide(ChannelScreen(
+                                channel: video.channel!, node: widget.node)),
+                          ).whenComplete(() {
+                            _videoPlayer.controller!.play();
+                          });
+                        }
                       }, // ✅ Clickable Avatar
                       child: AvatarUtils.buildAvatarFromVideoDetails(
                           video, widget.node),
@@ -307,15 +309,17 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                   ? [video.category!.label!]
                   : ["Unknown"],
               onButtonPressed: (label) {
-                _videoPlayer.controller!.pause();
-                Navigator.push(
-                  context,
-                  CustomPageRoute.slide(CategoryVideosScreen(
-                      category: video.category!, // Fetch all videos
-                      node: widget.node)),
-                ).whenComplete(() {
-                  _videoPlayer.controller!.play();
-                });
+                if (_videoPlayer.isVideoActive) {
+                  _videoPlayer.controller!.pause();
+                  Navigator.push(
+                    context,
+                    CustomPageRoute.slide(CategoryVideosScreen(
+                        category: video.category!, // Fetch all videos
+                        node: widget.node)),
+                  ).whenComplete(() {
+                    _videoPlayer.controller!.play();
+                  });
+                }
               },
             )),
         UIUtils.buildDetailRow("Language", video.language?.label ?? "English"),
@@ -324,15 +328,16 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
           child: UIUtils.buildDynamicButtonRow(
             buttonLabels: _videoDetails?.tags?.asList() ?? ["Unknown"],
             onButtonPressed: (selectedTag) {
-              _videoPlayer.controller!.pause();
-
-              Navigator.push(
-                context,
-                CustomPageRoute.slide(
-                    TagVideosScreen(tag: selectedTag, node: widget.node)),
-              ).whenComplete(() {
-                _videoPlayer.controller!.play();
-              });
+              if (_videoPlayer.isVideoActive) {
+                _videoPlayer.controller!.pause();
+                Navigator.push(
+                  context,
+                  CustomPageRoute.slide(
+                      TagVideosScreen(tag: selectedTag, node: widget.node)),
+                ).whenComplete(() {
+                  _videoPlayer.controller!.play();
+                });
+              }
             },
           ),
         ),
