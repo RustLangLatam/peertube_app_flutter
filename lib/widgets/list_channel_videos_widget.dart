@@ -13,9 +13,11 @@ import '../pages/video_page.dart';
 import '../utils/video_utils.dart';
 import 'list_videos_widget.dart';
 
-const int pageSize = 10;
+const int defaultPageSize = 10;
 
 class ListChannelVideosWidget extends ConsumerStatefulWidget {
+  final List<Video> initialVideos;
+
   final String node;
   final String channelName;
   final String? sortBy;
@@ -30,6 +32,7 @@ class ListChannelVideosWidget extends ConsumerStatefulWidget {
     this.videoCountCallback,
     this.isLive = false,
     this.sortBy,
+    this.initialVideos = const [],
   });
 
   @override
@@ -41,11 +44,35 @@ class _ListChannelVideosWidgetState
     extends ConsumerState<ListChannelVideosWidget> {
   late final PagingController<int, Video> _pagingController;
 
+  late int pageSize;
+
   @override
   void initState() {
     super.initState();
+    pageSize = defaultPageSize;
+
     _pagingController = PagingController(firstPageKey: 0);
+
+    if (widget.initialVideos.isNotEmpty) {
+      if (widget.initialVideos.length > defaultPageSize) {
+        pageSize = widget.initialVideos.length;
+      }
+
+      // ✅ Load initial videos first without fetching
+      _pagingController.value = PagingState<int, Video>(
+        nextPageKey: widget.initialVideos.length < pageSize ? null : pageSize,
+        itemList: widget.initialVideos,
+        error: null,
+      );
+    }
     _pagingController.addPageRequestListener(_fetchVideos);
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        if (widget.videoCountCallback != null) {
+          widget.videoCountCallback!(widget.initialVideos.length);
+        }
+      });
+    });
   }
 
   @override
@@ -58,6 +85,13 @@ class _ListChannelVideosWidgetState
   }
 
   Future<void> _fetchVideos(int pageKey) async {
+    if (kDebugMode) print('🔹 FetchingChannelVideos page $pageKey');
+
+    if (widget.initialVideos.isNotEmpty && pageKey == 0) {
+      // ✅ Skip fetching if initialVideos exist
+      return;
+    }
+
     try {
       final api = ref.read(videoChannelsApiProvider());
 
@@ -155,12 +189,13 @@ class _ListChannelVideosWidgetState
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Show 2 videos per row
         crossAxisSpacing: 8,
-        mainAxisSpacing: 12,
+        mainAxisSpacing: 14,
         childAspectRatio: 16 / 14, // More compact
       ),
       builderDelegate: PagedChildBuilderDelegate<Video>(
         itemBuilder: (context, video, index) => _buildVideoCard(video),
-        firstPageProgressIndicatorBuilder: (_) => VideoUtils.buildMinimalVideoBlurEffect(),
+        firstPageProgressIndicatorBuilder: (_) =>
+            VideoUtils.buildMinimalVideoBlurEffect(),
         newPageProgressIndicatorBuilder: (_) =>
             UIUtils.progressIndicatorPlaceholder(),
       ),
@@ -172,23 +207,25 @@ class _ListChannelVideosWidgetState
     return
         // 🎞️ Video Thumbnail
         VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              transitionDuration: const Duration(milliseconds: 300), // Smooth transition
-              reverseTransitionDuration: const Duration(milliseconds: 150),
-              pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
-                node: widget.node,
-                video: video,
-              ),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-            ),
-          );
-        });
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration:
+              const Duration(milliseconds: 300), // Smooth transition
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              VideoPlayerScreen(
+            node: widget.node,
+            video: video,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    });
   }
 }

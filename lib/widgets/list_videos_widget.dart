@@ -9,26 +9,30 @@ import 'package:peertube_app_flutter/utils/export.dart';
 import '../pages/video_page.dart';
 import '../providers/api_provider.dart';
 
-const int pageSize = 10;
+const int defaultPageSize = 10;
 
 class ListVideosWidget extends ConsumerStatefulWidget {
   final int? categoryId; // If null, fetch all videos
+  final String? tagId;
   final String node;
   final String? sortBy;
   final bool isLive;
   final bool gridView;
   final bool skipCount;
   final void Function(int count)? videoCountCallback;
+  final List<Video> initialVideos;
 
   const ListVideosWidget({
     super.key,
     this.categoryId,
+    this.tagId,
     required this.node,
     this.isLive = false,
     this.sortBy,
     this.gridView = false,
     this.skipCount = true,
     this.videoCountCallback,
+    this.initialVideos = const [],
   });
 
   @override
@@ -37,12 +41,40 @@ class ListVideosWidget extends ConsumerStatefulWidget {
 
 class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   late final PagingController<int, Video> _pagingController;
+  late int pageSize;
 
   @override
   void initState() {
+
     super.initState();
+    pageSize = defaultPageSize;
+
     _pagingController = PagingController(firstPageKey: 0);
+
+    if (widget.initialVideos.isNotEmpty) {
+      if (widget.initialVideos.length > defaultPageSize) {
+        pageSize = widget.initialVideos.length;
+      }
+
+      // ✅ Load initial videos first without fetching
+      _pagingController.value = PagingState<int, Video>(
+        nextPageKey: widget.initialVideos.length < pageSize ? null : pageSize,
+        itemList: widget.initialVideos,
+        error: null,
+      );
+    }
+
     _pagingController.addPageRequestListener(fetchVideos);
+
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        if (widget.videoCountCallback != null &&
+            widget.initialVideos.isNotEmpty &&
+            widget.initialVideos.length <= defaultPageSize) {
+          widget.videoCountCallback!(widget.initialVideos.length);
+        }
+      });
+    });
   }
 
   @override
@@ -55,16 +87,29 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   }
 
   Future<void> fetchVideos(int pageKey) async {
+    if (kDebugMode) print('🔹 FetchingVideos page $pageKey');
+
+    if (widget.initialVideos.isNotEmpty && pageKey == 0) {
+      // ✅ Skip fetching if initialVideos exist
+      return;
+    }
+
     try {
       final categoryOneOf = widget.categoryId != null
           ? GetAccountVideosCategoryOneOfParameter(
               (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
           : null;
 
+      final tagsOneOf = widget.tagId != null
+          ? GetAccountVideosTagsOneOfParameter(
+              (p) => p..oneOf = OneOf.fromValue1(value: widget.tagId!))
+          : null;
+
       final api = ref.read(videoApiProvider());
 
       final response = await api.getVideos(
           categoryOneOf: categoryOneOf,
+          tagsOneOf: tagsOneOf,
           start: pageKey,
           count: pageSize,
           isLive: widget.isLive,
@@ -88,6 +133,8 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             'Failed to load videos: ${response.statusCode}';
       }
     } catch (error) {
+      if (kDebugMode) print('🔹 FetchingVideos error $error');
+
       _pagingController.error = 'Error fetching videos: $error';
     }
   }
@@ -318,7 +365,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    VideoUtils.extractDisplayName(video),
+                    VideoUtils.extractNameOrDisplayName(video, node: widget.node),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -342,12 +389,26 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             // Video Metadata (Upload Time & Views)
             Padding(
               padding: const EdgeInsets.only(left: 50, right: 10, top: 3),
-              child: Text(
-                "${VideoDateUtils.formatRelativeDate(video.publishedAt)} • ${VideoUtils.formatViews(video.views)}",
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
+              child: Row(
+                children: [
+                  Text(
+                    VideoDateUtils.formatRelativeDate(video.publishedAt),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.circle, size: 4, color: Colors.orange),
+                  const SizedBox(width: 4),
+                  Text(
+                    VideoUtils.formatViews(video.views),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

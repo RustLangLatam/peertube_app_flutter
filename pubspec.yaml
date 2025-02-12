@@ -40,17 +40,14 @@ dependencies:
 #  settings_ui: ^2.0.2
   peer_tube_api_sdk:
               git: https://github.com/RustLangLatam/peertube_api_sdk.git
-  cached_network_image: ^3.4.1
 
+  cached_network_image: ^3.4.1
   river_player: ^0.1.4
   url_launcher: ^6.3.1
   shimmer: ^3.0.0
-  shimmer_loading: ^0.0.1
   timeago: ^3.7.0
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
-  flutter_hooks: ^0.20.5
-
 
 dev_dependencies:
   flutter_test:

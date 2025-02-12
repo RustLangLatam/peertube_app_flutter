@@ -9,23 +9,21 @@ import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
 import '../widgets/peertube_logo_widget.dart';
 
-class CategoryVideosScreen extends ConsumerStatefulWidget {
-  final VideoConstantNumberCategory category;
+class TagVideosScreen extends ConsumerStatefulWidget {
+  final String tag;
 
   final String node;
 
   final List<Video> initialVideos;
 
-  const CategoryVideosScreen(
-      {required this.node,
-      required this.category,
-      this.initialVideos = const []});
+  const TagVideosScreen(
+      {required this.node, required this.tag, this.initialVideos = const []});
 
   @override
   _CategoryVideosScreenState createState() => _CategoryVideosScreenState();
 }
 
-class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
+class _CategoryVideosScreenState extends ConsumerState<TagVideosScreen> {
   int _videoCount = 0;
 
   bool isTrending = false;
@@ -51,7 +49,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
             Divider(color: Colors.grey[700]),
             Expanded(
               child: ListVideosWidget(
-                  categoryId: widget.category.id, // Fetch all videos
+                  tagId: widget.tag, // Fetch all videos
                   node: widget.node,
                   gridView: true,
                   sortBy: sortBy,
@@ -74,8 +72,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: const Color(0xFF1A1A1A),
-      title: PeerTubeTextWidget(
-          text: "${widget.category.label}", underlined: true),
+      title: PeerTubeTextWidget(text: '#${widget.tag}', underlined: true),
       leading: const PeerTubeLogoWidget(),
       actions: [
         IconButton(

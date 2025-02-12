@@ -25,8 +25,24 @@ class PeerTubeLogoWidget extends StatelessWidget {
 class PeerTubeTextWidget extends StatelessWidget {
   final String? text; // Nullable text parameter
   final bool underlined; // 🔹 Controls underline visibility (default: false)
+  final double fontSize;
 
-  const PeerTubeTextWidget({super.key, this.text, this.underlined = false});
+  const PeerTubeTextWidget({super.key, this.text, this.underlined = false, this.fontSize = 18.0});
+
+  /// Removes the "Default" prefix if present
+  String removeDefaultPrefix(String text) {
+    const prefix = "Default";
+    return text.startsWith(prefix)
+        ? text.substring(prefix.length).trim()
+        : text;
+  }
+
+  /// Capitalizes only the first letter of the string
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    final removedPrefix = removeDefaultPrefix(text);
+    return removedPrefix[0].toUpperCase() + removedPrefix.substring(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +52,10 @@ class PeerTubeTextWidget extends StatelessWidget {
           children: [
             text != null
                 ? Text(
-                    text!,
+                    capitalizeFirstLetter(text!),
                     maxLines: 1,
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                       color: Colors.white, // White text
                     ),
@@ -47,13 +63,13 @@ class PeerTubeTextWidget extends StatelessWidget {
                         TextOverflow.ellipsis, // 🔹 Adds "..." if too long
                   )
                 : RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                         color: Colors.white, // White text
                       ),
-                      children: [
+                      children: const [
                         TextSpan(text: "Peer"), // "Peer" in white
                         TextSpan(
                           text: "Tube",

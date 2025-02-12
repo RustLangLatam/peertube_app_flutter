@@ -34,19 +34,28 @@ class BlurredBackdropImage extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: bannerUrl,
               fit: BoxFit.cover,
+              fadeInDuration:
+                  const Duration(milliseconds: 500), // ✅ Smooth fade-in effect
+              fadeOutDuration:
+                  Duration.zero, // ✅ Prevent abrupt transition from placeholder
               placeholder: (context, url) => _defaultPlaceholder(),
               errorWidget: (context, url, error) => _defaultPlaceholder(),
               imageBuilder: (context, imageProvider) {
-                return Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      colorFilter: const ColorFilter.mode(
-                          Colors.black54, BlendMode.darken),
-                      image: imageProvider,
-                      fit: BoxFit.cover,
+                return AnimatedOpacity(
+                  duration:
+                      const Duration(milliseconds: 500), // ✅ Smooth transition
+                  opacity: 1.0, // Ensures gradual appearance
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        colorFilter: const ColorFilter.mode(
+                            Colors.black54, BlendMode.darken),
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
+                    child: _blurEffect(), // ✅ Maintains the blur effect
                   ),
-                  child: _blurEffect(), // ✅ Maintains the blur effect
                 );
               },
             )

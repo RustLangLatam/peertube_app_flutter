@@ -54,7 +54,7 @@ class PeerTubePlayer {
         notificationConfiguration: PeerTubePlayerNotificationConfig.create(
             thumbnailURL: thumbnailURL,
             title: videoDetails.name,
-            author: VideoUtils.extractDisplayName(videoDetails)));
+            author: VideoUtils.extractNameOrDisplayName(videoDetails)));
 
     // Set up the data source for the video player
     await _controller!.setupDataSource(dataSource);

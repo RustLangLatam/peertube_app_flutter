@@ -2,17 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/pages/tag_page.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
 import 'package:river_player/river_player.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../providers/api_provider.dart';
+import '../transitions/custom_page_route.dart';
 import '../video_player_controller/peertube_player.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
 import '../widgets/peertube_logo_widget.dart';
 import '../widgets/unsupported_format_widget.dart';
 import 'category_page.dart';
+import 'channel_page.dart';
 
 class VideoPlayerScreen extends ConsumerStatefulWidget {
   final String node;
@@ -176,12 +179,12 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                     ),
                     const SizedBox(width: 6),
                     const Icon(Icons.circle,
-                        size: 4, color: Colors.grey), // Bullet
+                        size: 4, color: Colors.orange), // Bullet
                     const SizedBox(width: 6),
                     VideoUtils.buildViewCount(video.views),
                     const SizedBox(width: 4),
                     const Icon(Icons.circle,
-                        size: 4, color: Colors.grey), // Bullet
+                        size: 4, color: Colors.orange), // Bullet
                     const SizedBox(width: 4),
 
                     if (video.licence != null)
@@ -218,7 +221,22 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                 Row(
                   children: [
                     // Channel Avatar
-                    AvatarUtils.buildAvatarFromVideoDetails(video, widget.node),
+                    GestureDetector(
+                      onTap: () {
+                        _videoPlayer.controller!.pause();
+                        Navigator.push(
+                          context,
+                          CustomPageRoute.build(
+                              ChannelScreen(
+                                  channel: video.channel!, node: widget.node),
+                              TransitionType.slide),
+                        ).whenComplete(() {
+                          _videoPlayer.controller!.play();
+                        });
+                      }, // ✅ Clickable Avatar
+                      child: AvatarUtils.buildAvatarFromVideoDetails(
+                          video, widget.node),
+                    ),
                     const SizedBox(width: 8),
 
                     // Channel Name & "By" Section
@@ -227,23 +245,25 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            VideoUtils.extractDisplayName(video),
+                            VideoUtils.extractNameOrDisplayName(video,
+                                node: widget.node),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              // fontWeight: FontWeight.bold,
                             ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
                           Text(
-                            "By ${VideoUtils.extractDisplayName(video, prioritizeChannel: false)}",
+                            "By ${VideoUtils.extractNameOrDisplayName(video, prioritizeChannel: false)}",
                             style: const TextStyle(
                                 color: Colors.grey, fontSize: 12),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
 
                     // 📌 Subscribe Button
                     ButtonsUtils.subscribeButton(onPressed: () {
@@ -292,12 +312,11 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                 _videoPlayer.controller!.pause();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CategoryVideosScreen(
-                      node: widget.node,
-                      category: video.category!,
-                    ),
-                  ),
+                  CustomPageRoute.build(
+                      CategoryVideosScreen(
+                          category: video.category!, // Fetch all videos
+                          node: widget.node),
+                      TransitionType.slide),
                 ).whenComplete(() {
                   _videoPlayer.controller!.play();
                 });
@@ -305,15 +324,24 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
             )),
         UIUtils.buildDetailRow("Language", video.language?.label ?? "English"),
         UIUtils.buildLabelWidgetRow(
-            label: "Tags",
-            child: UIUtils.buildDynamicButtonRow(
-              buttonLabels: _videoDetails?.tags?.asList() ?? ["Unknown"],
-              onButtonPressed: (label) {
-                // TODO: Redirect to tag page
-                UIUtils.showTemporaryBottomDialog(
-                    context, "Tag page no implemented yet...");
-              },
-            )),
+          label: "Tags",
+          child: UIUtils.buildDynamicButtonRow(
+            buttonLabels: _videoDetails?.tags?.asList() ?? ["Unknown"],
+            onButtonPressed: (selectedTag) {
+              _videoPlayer.controller!.pause();
+
+              Navigator.push(
+                context,
+                CustomPageRoute.build(
+                  TagVideosScreen(tag: selectedTag, node: widget.node),
+                  TransitionType.slide,
+                ),
+              ).whenComplete(() {
+                _videoPlayer.controller!.play();
+              });
+            },
+          ),
+        ),
         UIUtils.buildDetailRow(
             "Duration", VideoDateUtils.formatSecondsToMinSec(video.duration)),
       ],

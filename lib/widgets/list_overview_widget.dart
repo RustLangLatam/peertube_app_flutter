@@ -12,7 +12,9 @@ import 'package:shimmer/shimmer.dart';
 
 import '../pages/category_page.dart';
 import '../pages/channel_page.dart';
+import '../pages/tag_page.dart';
 import '../providers/api_provider.dart';
+import '../transitions/custom_page_route.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
@@ -29,7 +31,11 @@ class OverviewData {
   Widget title;
   final List<Video> videos;
 
-  OverviewData(this.label, this.type, this.title, this.videos);
+  OverviewData(
+      {this.label,
+      required this.type,
+      required this.title,
+      required this.videos});
 }
 
 class OverviewDataWidget extends ConsumerStatefulWidget {
@@ -106,7 +112,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
   /// Fetches paginated video overview
   Future<void> fetchOverview(int pageKey) async {
     if (kDebugMode) {
-      print('🔹 Fetching page $pageKey');
+      print('🔹 FetchingOverview page $pageKey');
     }
 
     try {
@@ -236,26 +242,31 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
             itemCount: overview.videos.length,
             itemBuilder: (context, index) {
               return
-                // 🎞️ Video Thumbnail
-                VideoUtils.buildMinimalVideoItem(overview.videos[index], widget.node, onTap: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      transitionDuration: const Duration(milliseconds: 300), // Smooth transition
-                      reverseTransitionDuration: const Duration(milliseconds: 150),
-                      pageBuilder: (context, animation, secondaryAnimation) => VideoPlayerScreen(
-                        node: widget.node,
-                        video: overview.videos[index],
-                      ),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
+                  // 🎞️ Video Thumbnail
+                  VideoUtils.buildMinimalVideoItem(
+                      overview.videos[index], widget.node, onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration:
+                        const Duration(milliseconds: 300), // Smooth transition
+                    reverseTransitionDuration:
+                        const Duration(milliseconds: 150),
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        VideoPlayerScreen(
+                      node: widget.node,
+                      video: overview.videos[index],
                     ),
-                  );
-                });
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              });
             },
           ),
         ),
@@ -323,15 +334,16 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       allSections.addAll(
         overview.categories!.asList().map(
               (category) => OverviewData(
-                category.category!.id.toString(),
-                SectionType.categories,
-                GestureDetector(
-                  onTap: () => _navigateToCategory(category.category!),
+                label: category.category!.id.toString(),
+                type: SectionType.categories,
+                title: GestureDetector(
+                  onTap: () => _navigateToCategory(
+                      category.category!, category.videos!.asList()),
                   child: _buildTitleWidget(
                     category.category?.label ?? 'Unknown Category',
                   ),
                 ),
-                _extractVideos(category.videos!.asList()),
+                videos: _extractVideos(category.videos!.asList()),
               ),
             ),
       );
@@ -341,11 +353,13 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       allSections.addAll(
         overview.channels!.asList().map(
               (channel) => OverviewData(
-                channel.channel!.id.toString(),
-                SectionType.channels,
-                GestureDetector(
+                label: channel.channel!.id.toString(),
+                type: SectionType.channels,
+                title: GestureDetector(
                   onTap: () => _navigateToChannel(
-                      channel.channel!), // ✅ Clickable Avatar
+                    channel.channel!,
+                    channel.videos!.asList(),
+                  ), // ✅ Clickable Avatar
                   child: _buildTitleWidget(
                     channel.channel?.displayName ?? 'Unknown Channel',
                     avatar: AvatarUtils.buildChannelAvatar(
@@ -354,7 +368,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
                     ),
                   ),
                 ),
-                _extractVideos(channel.videos!.asList()),
+                videos: _extractVideos(channel.videos!.asList()),
               ),
             ),
       );
@@ -364,10 +378,17 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       allSections.addAll(
         overview.tags!.asList().map(
               (tag) => OverviewData(
-                tag.tag,
-                SectionType.tags,
-                _buildTitleWidget(tag.tag ?? 'Unknown Tag', isTag: true),
-                _extractVideos(tag.videos!.asList()),
+                label: tag.tag,
+                type: SectionType.tags,
+                title: GestureDetector(
+                  onTap: () => _navigateToTags(
+                    tag.tag!,
+                    tag.videos!.asList(),
+                  ), // ✅ Clickable Avatar
+                  child:
+                      _buildTitleWidget(tag.tag ?? 'Unknown Tag', isTag: true),
+                ),
+                videos: _extractVideos(tag.videos!.asList()),
               ),
             ),
       );
@@ -378,29 +399,47 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
   }
 
   /// Navigates to the channel page
-  void _navigateToChannel(Channel channel) {
+  void _navigateToChannel(VideoChannelSummary channel, List<Video> initialVideos) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChannelScreen(
-            channel:  channel,
-            node: widget.node), // ✅ Replace with actual channel screen
-      ),
+      CustomPageRoute.build(
+          ChannelScreen(
+              channel: channel,
+              node: widget.node,
+              initialVideos: initialVideos),
+          TransitionType.fade),
     );
   }
 
-  void _navigateToCategory(VideoConstantNumberCategory category) {
+  /// Navigates to the category page
+  void _navigateToCategory(
+      VideoConstantNumberCategory category, List<Video> initialVideos) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CategoryVideosScreen(
-          category: category, // Fetch all videos
-          node: widget.node,
-        ),
-      ),
+      CustomPageRoute.build(
+          CategoryVideosScreen(
+              category: category, // Fetch all videos
+              node: widget.node,
+              initialVideos: initialVideos),
+          TransitionType.fade),
     );
   }
 
+  /// Navigates to the tag page
+  void _navigateToTags(String tag, List<Video> initialVideos) {
+    Navigator.push(
+      context,
+      CustomPageRoute.build(
+          TagVideosScreen(
+              tag: tag, // Fetch all videos
+              node: widget.node,
+              initialVideos: initialVideos),
+          TransitionType.fade),
+    );
+  }
+
+  /// **Main Shimmer Effect Function**
+  /// Wraps the entire list in a Shimmer effect
   Widget _buildShimmerEffect() {
     return Column(
       children: List.generate(6, (index) => _shimmerEffect()),
