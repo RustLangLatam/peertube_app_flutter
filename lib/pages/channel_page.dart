@@ -209,7 +209,10 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PeerTubeTextWidget(text: ChannelsUtils.extractChannelDisplayName(widget.channel), fontSize: 17.5),
+                    PeerTubeTextWidget(
+                      text: ChannelsUtils.extractChannelDisplayName(widget.channel),
+                      fontSize: 17.5,
+                    ),
                     Text(
                       ChannelsUtils.extractChannelDisplayName(widget.channel, prioritizeChannel: true),
                       style: const TextStyle(
@@ -220,23 +223,22 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
                       maxLines: 1,
                     ),
                     const SizedBox(height: 6),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
-                        ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal, // ✅ Allows scrolling if needed
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min, // ✅ Keeps it compact
                         children: [
-                          TextSpan(
-                              text:
-                                  "${videoChannel?.followersCount ?? 0} followers  "),
-                          const TextSpan(
-                            text: "•",
-                            style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold),
+                          Text(
+                            "${videoChannel?.followersCount ?? 0} ${ (videoChannel?.followersCount ?? 0) == 1 ? 'follower' : 'followers'}",
+                            style: const TextStyle(fontSize: 13, color: Colors.white70),
                           ),
-                          TextSpan(text: "  $_videoCount videos"),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.circle, color: Colors.orange, size: 4), // 🔹 Dot Icon
+                          const SizedBox(width: 6),
+                          Text(
+                            "$_videoCount ${_videoCount == 1 ? 'video' : 'videos'}",
+                            style: const TextStyle(fontSize: 13, color: Colors.white70),
+                          ),
                         ],
                       ),
                     ),
