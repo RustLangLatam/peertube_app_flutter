@@ -93,49 +93,51 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
       return;
     }
 
-    try {
-      final categoryOneOf = widget.categoryId != null
-          ? GetAccountVideosCategoryOneOfParameter(
-              (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
-          : null;
+    final categoryOneOf = widget.categoryId != null
+        ? GetAccountVideosCategoryOneOfParameter(
+            (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
+        : null;
 
-      final tagsOneOf = widget.tagId != null
-          ? GetAccountVideosTagsOneOfParameter(
-              (p) => p..oneOf = OneOf.fromValue1(value: widget.tagId!))
-          : null;
+    final tagsOneOf = widget.tagId != null
+        ? GetAccountVideosTagsOneOfParameter(
+            (p) => p..oneOf = OneOf.fromValue1(value: widget.tagId!))
+        : null;
 
-      final api = ref.read(videoApiProvider());
+    final api = ref.read(videoApiProvider());
 
-      final response = await api.getVideos(
-          categoryOneOf: categoryOneOf,
-          tagsOneOf: tagsOneOf,
-          start: pageKey,
-          count: pageSize,
-          isLive: widget.isLive,
-          nsfw: 'false',
-          sort: widget.sortBy,
-          skipCount: widget.skipCount.toString());
+    Future.microtask(() async {
+      try {
+        final response = await api.getVideos(
+            categoryOneOf: categoryOneOf,
+            tagsOneOf: tagsOneOf,
+            start: pageKey,
+            count: pageSize,
+            isLive: widget.isLive,
+            nsfw: 'false',
+            sort: widget.sortBy,
+            skipCount: widget.skipCount.toString());
 
-      if (response.statusCode == 200) {
-        final videosList = response.data?.data?.toList() ?? [];
-        final isLastPage = videosList.length < pageSize;
+        if (response.statusCode == 200) {
+          final videosList = response.data?.data?.toList() ?? [];
+          final isLastPage = videosList.length < pageSize;
 
-        if (widget.videoCountCallback != null) {
-          widget.videoCountCallback!(response.data?.total ?? 0);
+          if (widget.videoCountCallback != null) {
+            widget.videoCountCallback!(response.data?.total ?? 0);
+          }
+
+          isLastPage
+              ? _pagingController.appendLastPage(videosList)
+              : _pagingController.appendPage(videosList, pageKey + pageSize);
+        } else {
+          _pagingController.error =
+              'Failed to load videos: ${response.statusCode}';
         }
+      } catch (error) {
+        if (kDebugMode) print('🔹 FetchingVideos error $error');
 
-        isLastPage
-            ? _pagingController.appendLastPage(videosList)
-            : _pagingController.appendPage(videosList, pageKey + pageSize);
-      } else {
-        _pagingController.error =
-            'Failed to load videos: ${response.statusCode}';
+        _pagingController.error = 'Error fetching videos: $error';
       }
-    } catch (error) {
-      if (kDebugMode) print('🔹 FetchingVideos error $error');
-
-      _pagingController.error = 'Error fetching videos: $error';
-    }
+    });
   }
 
   /// **Refresh videos without clearing immediately**

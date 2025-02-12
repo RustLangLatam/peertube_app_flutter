@@ -89,9 +89,10 @@ class _ListChannelVideosWidgetState
       return;
     }
 
-    try {
-      final api = ref.read(videoChannelsApiProvider());
+    final api = ref.read(videoChannelsApiProvider());
 
+    Future.microtask(() async {
+      try {
       final response = await api.getVideoChannelVideos(
         channelHandle: widget.channelName,
         start: pageKey,
@@ -122,6 +123,7 @@ class _ListChannelVideosWidgetState
       }
       _pagingController.error = 'Error fetching videos';
     }
+    });
   }
 
   /// **Refresh videos without clearing immediately**

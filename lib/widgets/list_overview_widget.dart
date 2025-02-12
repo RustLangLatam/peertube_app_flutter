@@ -111,8 +111,10 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       print('🔹 FetchingOverview page $pageKey');
     }
 
+    final api = ref.read(overviewVideosApiProvider());
+
+    Future.microtask(() async {
     try {
-      final api = ref.read(overviewVideosApiProvider());
       final response = await api.getOverviewVideos(page: pageKey);
 
       if (response.statusCode == 200 && response.data != null) {
@@ -139,6 +141,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
     } catch (error) {
       _pagingController.error = 'Error fetching videos: $error';
     }
+    });
   }
 
   /// Refreshes the overview
