@@ -20,9 +20,8 @@ This is a **modern, fully-featured Flutter application** for browsing and playin
 ## **🛠 Tech Stack**
 
 - **Flutter** – Cross-platform mobile development
-- **Dart** – Core language for Flutter
 - **PeerTube API SDK** – Connects with PeerTube's REST API
-- **RiverPlayer** – HLS video player for seamless playback
+- **RiverPlayer** – Video player for seamless playback
 - **Riverpod** – State management
 - **Infinite Scroll Pagination** – Efficient video browsing
 - **Cached Network Image** – Optimized image loading
