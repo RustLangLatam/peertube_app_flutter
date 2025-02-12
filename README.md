@@ -71,7 +71,3 @@ flutter run
 Contributions are welcome! Feel free to submit **issues, pull requests**, or suggest improvements.
 
 🔗 **PeerTube + Flutter is the future of decentralized video on mobile!** 🚀
-
----
-
-This README is now **fully optimized**, featuring **clear sections, images, and installation steps**. Let me know if you need any modifications! 😃
