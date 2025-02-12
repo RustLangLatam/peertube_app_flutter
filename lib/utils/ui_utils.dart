@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:peertube_app_flutter/utils/text_utils.dart';
 
 class UIUtils {
   /// 📌 Creates a filter button similar to PeerTube's UI.
@@ -84,7 +85,7 @@ class UIUtils {
           alignment: WrapAlignment.start,
           children: buttonLabels.asMap().entries.map((entry) {
             final index = entry.key;
-            final label = entry.value;
+            final label = TextUtils.removeHashTagPrefix(entry.value);
 
             return IntrinsicWidth(
               child: Row(

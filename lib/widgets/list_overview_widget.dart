@@ -1,12 +1,10 @@
 import 'dart:math';
 
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:peertube_app_flutter/pages/video_channel_page.dart';
 import 'package:peertube_app_flutter/pages/video_page.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -18,8 +16,6 @@ import '../transitions/custom_page_route.dart';
 import '../utils/avatar_utils.dart';
 import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
-import '../widgets/peertube_logo_widget.dart';
-import 'list_videos_widget.dart';
 
 /// Enum for section types
 enum SectionType { all, tags, categories, channels }
@@ -399,15 +395,12 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
   }
 
   /// Navigates to the channel page
-  void _navigateToChannel(VideoChannelSummary channel, List<Video> initialVideos) {
+  void _navigateToChannel(
+      VideoChannelSummary channel, List<Video> initialVideos) {
     Navigator.push(
       context,
-      CustomPageRoute.build(
-          ChannelScreen(
-              channel: channel,
-              node: widget.node,
-              initialVideos: initialVideos),
-          TransitionType.fade),
+      CustomPageRoute.fade(ChannelScreen(
+          channel: channel, node: widget.node, initialVideos: initialVideos)),
     );
   }
 
@@ -416,12 +409,10 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       VideoConstantNumberCategory category, List<Video> initialVideos) {
     Navigator.push(
       context,
-      CustomPageRoute.build(
-          CategoryVideosScreen(
-              category: category, // Fetch all videos
-              node: widget.node,
-              initialVideos: initialVideos),
-          TransitionType.fade),
+      CustomPageRoute.fade(CategoryVideosScreen(
+          category: category, // Fetch all videos
+          node: widget.node,
+          initialVideos: initialVideos)),
     );
   }
 
@@ -429,12 +420,10 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
   void _navigateToTags(String tag, List<Video> initialVideos) {
     Navigator.push(
       context,
-      CustomPageRoute.build(
-          TagVideosScreen(
-              tag: tag, // Fetch all videos
-              node: widget.node,
-              initialVideos: initialVideos),
-          TransitionType.fade),
+      CustomPageRoute.fade(TagVideosScreen(
+          tag: tag, // Fetch all videos
+          node: widget.node,
+          initialVideos: initialVideos)),
     );
   }
 

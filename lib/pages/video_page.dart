@@ -226,10 +226,8 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                         _videoPlayer.controller!.pause();
                         Navigator.push(
                           context,
-                          CustomPageRoute.build(
-                              ChannelScreen(
-                                  channel: video.channel!, node: widget.node),
-                              TransitionType.slide),
+                          CustomPageRoute.slide(ChannelScreen(
+                              channel: video.channel!, node: widget.node)),
                         ).whenComplete(() {
                           _videoPlayer.controller!.play();
                         });
@@ -312,11 +310,9 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                 _videoPlayer.controller!.pause();
                 Navigator.push(
                   context,
-                  CustomPageRoute.build(
-                      CategoryVideosScreen(
-                          category: video.category!, // Fetch all videos
-                          node: widget.node),
-                      TransitionType.slide),
+                  CustomPageRoute.slide(CategoryVideosScreen(
+                      category: video.category!, // Fetch all videos
+                      node: widget.node)),
                 ).whenComplete(() {
                   _videoPlayer.controller!.play();
                 });
@@ -332,10 +328,8 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
               Navigator.push(
                 context,
-                CustomPageRoute.build(
-                  TagVideosScreen(tag: selectedTag, node: widget.node),
-                  TransitionType.slide,
-                ),
+                CustomPageRoute.slide(
+                    TagVideosScreen(tag: selectedTag, node: widget.node)),
               ).whenComplete(() {
                 _videoPlayer.controller!.play();
               });

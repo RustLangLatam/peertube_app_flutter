@@ -20,4 +20,21 @@ class TextUtils {
       ),
     );
   }
+
+  /// Removes the "Default" prefix if present
+  static String removeDefaultPrefix(String text) {
+    const prefix = "Default";
+    return text.startsWith(prefix)
+        ? text.substring(prefix.length).trim()
+        : text;
+  }
+
+  /// Removes the "#" prefix if present
+  static String removeHashTagPrefix(String text) {
+    const prefix = "#";
+    return text.startsWith(prefix)
+        ? text.substring(prefix.length).trim()
+        : text;
+  }
+
 }

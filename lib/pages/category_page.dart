@@ -51,7 +51,8 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
             Divider(color: Colors.grey[700]),
             Expanded(
               child: ListVideosWidget(
-                  categoryId: widget.category.id, // Fetch all videos
+                  categoryId: widget.category.id,
+                  // Fetch all videos
                   node: widget.node,
                   gridView: true,
                   sortBy: sortBy,

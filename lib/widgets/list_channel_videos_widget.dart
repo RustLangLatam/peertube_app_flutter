@@ -1,17 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
-import '../providers/api_provider.dart';
-import '../utils/ui_utils.dart';
-import '../utils/video_date_utils.dart';
 import '../pages/video_page.dart';
+import '../providers/api_provider.dart';
+import '../transitions/custom_page_route.dart';
+import '../utils/ui_utils.dart';
 import '../utils/video_utils.dart';
-import 'list_videos_widget.dart';
 
 const int defaultPageSize = 10;
 
@@ -204,27 +201,12 @@ class _ListChannelVideosWidgetState
 
   /// Builds a compact video card with essential details
   Widget _buildVideoCard(Video video) {
-    return
-        // 🎞️ Video Thumbnail
-        VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
+    // 🎞️ Video Thumbnail
+    return VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
       Navigator.push(
         context,
-        PageRouteBuilder(
-          transitionDuration:
-              const Duration(milliseconds: 300), // Smooth transition
-          reverseTransitionDuration: const Duration(milliseconds: 150),
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              VideoPlayerScreen(
-            node: widget.node,
-            video: video,
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        ),
+        CustomPageRoute.fade(
+            VideoPlayerScreen(video: video, node: widget.node)),
       );
     });
   }

@@ -24,7 +24,8 @@ class LicenseBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.policy, size: 12, color: Colors.white70), // License Icon
+            const Icon(Icons.policy, size: 12, color: Colors.white70),
+            // License Icon
             const SizedBox(width: 4),
             Flexible(
               child: Text(
@@ -59,7 +60,8 @@ class LicenseBadge extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close", style: TextStyle(color: Colors.orange)),
+              child:
+                  const Text("Close", style: TextStyle(color: Colors.orange)),
             ),
           ],
         );

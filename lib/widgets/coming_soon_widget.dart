@@ -20,7 +20,6 @@ class ComingSoonWidget extends StatelessWidget {
             color: Colors.white54,
           ),
           const SizedBox(height: 15),
-
           Text(
             message,
             textAlign: TextAlign.center,
@@ -31,9 +30,7 @@ class ComingSoonWidget extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-
           const SizedBox(height: 10),
-
           Text(
             "Stay tuned for updates!",
             textAlign: TextAlign.center,

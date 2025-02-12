@@ -34,10 +34,10 @@ class BlurredBackdropImage extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: bannerUrl,
               fit: BoxFit.cover,
-              fadeInDuration:
-                  const Duration(milliseconds: 500), // ✅ Smooth fade-in effect
-              fadeOutDuration:
-                  Duration.zero, // ✅ Prevent abrupt transition from placeholder
+              fadeInDuration: const Duration(milliseconds: 500),
+              // ✅ Smooth fade-in effect
+              fadeOutDuration: Duration.zero,
+              // ✅ Prevent abrupt transition from placeholder
               placeholder: (context, url) => _defaultPlaceholder(),
               errorWidget: (context, url, error) => _defaultPlaceholder(),
               imageBuilder: (context, imageProvider) {

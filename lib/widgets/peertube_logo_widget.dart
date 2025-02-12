@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/text_utils.dart';
+
 class PeerTubeLogoWidget extends StatelessWidget {
   const PeerTubeLogoWidget({super.key});
 
@@ -27,20 +29,13 @@ class PeerTubeTextWidget extends StatelessWidget {
   final bool underlined; // 🔹 Controls underline visibility (default: false)
   final double fontSize;
 
-  const PeerTubeTextWidget({super.key, this.text, this.underlined = false, this.fontSize = 18.0});
-
-  /// Removes the "Default" prefix if present
-  String removeDefaultPrefix(String text) {
-    const prefix = "Default";
-    return text.startsWith(prefix)
-        ? text.substring(prefix.length).trim()
-        : text;
-  }
+  const PeerTubeTextWidget(
+      {super.key, this.text, this.underlined = false, this.fontSize = 18.0});
 
   /// Capitalizes only the first letter of the string
   String capitalizeFirstLetter(String text) {
     if (text.isEmpty) return text;
-    final removedPrefix = removeDefaultPrefix(text);
+    final removedPrefix = TextUtils.removeDefaultPrefix(text);
     return removedPrefix[0].toUpperCase() + removedPrefix.substring(1);
   }
 

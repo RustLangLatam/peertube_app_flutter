@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 
 import '../widgets/coming_soon_widget.dart';
 import '../widgets/peertube_logo_widget.dart';

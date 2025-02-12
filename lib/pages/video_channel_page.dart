@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:uuid/uuid.dart';
 
 import '../utils/avatar_utils.dart';
 import '../utils/buttons_utils.dart';
@@ -69,11 +68,11 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
       flexibleSpace: FlexibleSpaceBar(
         background: bannerUrl != null
             ? CachedNetworkImage(
-          imageUrl: bannerUrl,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => _defaultBanner(),
-          errorWidget: (context, url, error) => _defaultBanner(),
-        )
+                imageUrl: bannerUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => _defaultBanner(),
+                errorWidget: (context, url, error) => _defaultBanner(),
+              )
             : _defaultBanner(),
       ),
     );
@@ -147,7 +146,8 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      ChannelsUtils.extractVideoChannelDisplayName(widget.channel),
+                      ChannelsUtils.extractVideoChannelDisplayName(
+                          widget.channel),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -164,7 +164,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
                         children: [
                           TextSpan(
                             text:
-                            "${widget.channel.followersCount ?? 0} followers  ",
+                                "${widget.channel.followersCount ?? 0} followers  ",
                           ),
                           TextSpan(
                             text: "•",

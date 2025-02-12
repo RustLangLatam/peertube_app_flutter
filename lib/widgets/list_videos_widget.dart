@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/utils/export.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../pages/video_page.dart';
 import '../providers/api_provider.dart';
@@ -45,7 +45,6 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
 
   @override
   void initState() {
-
     super.initState();
     pageSize = defaultPageSize;
 
@@ -210,7 +209,8 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             displacement: 30,
             strokeWidth: 1.5,
             elevation: 2,
-            onRefresh: _refreshVideos, // Refresh without clearing UI
+            onRefresh: _refreshVideos,
+            // Refresh without clearing UI
             child: !widget.gridView
                 ? PagedListView<int, Video>(
                     pagingController: _pagingController,
@@ -218,7 +218,8 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                       itemBuilder: (context, video, index) =>
                           _buildVideoListViewCard(video),
                       firstPageProgressIndicatorBuilder: (_) =>
-                          _buildShimmerEffect(), // Show skeleton while loading first page
+                          _buildShimmerEffect(),
+                      // Show skeleton while loading first page
                       newPageProgressIndicatorBuilder: (_) =>
                           UIUtils.progressIndicatorPlaceholder(), // Pagination
                     ),
@@ -235,8 +236,9 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                     builderDelegate: PagedChildBuilderDelegate<Video>(
                       itemBuilder: (context, video, index) =>
                           _buildVideoGridViewCard(video),
-                      firstPageProgressIndicatorBuilder: (_) => VideoUtils
-                          .buildMinimalVideoBlurEffect(), // Show skeleton while loading first page
+                      firstPageProgressIndicatorBuilder: (_) =>
+                          VideoUtils.buildMinimalVideoBlurEffect(),
+                      // Show skeleton while loading first page
                       newPageProgressIndicatorBuilder: (_) =>
                           UIUtils.progressIndicatorPlaceholder(), // Pagination
                     ),
@@ -365,7 +367,8 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    VideoUtils.extractNameOrDisplayName(video, node: widget.node),
+                    VideoUtils.extractNameOrDisplayName(video,
+                        node: widget.node),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,

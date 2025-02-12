@@ -176,11 +176,12 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
         background: bannerUrl != null
             ? CachedNetworkImage(
                 imageUrl: bannerUrl,
-                fit: BoxFit.contain, // ✅ Makes the image fit well
-                fadeInDuration:
-                    const Duration(milliseconds: 500), // ✅ Smooth fade-in
-                fadeOutDuration:
-                    Duration.zero, // ✅ Prevents abrupt placeholder removal
+                fit: BoxFit.contain,
+                // ✅ Makes the image fit well
+                fadeInDuration: const Duration(milliseconds: 500),
+                // ✅ Smooth fade-in
+                fadeOutDuration: Duration.zero,
+                // ✅ Prevents abrupt placeholder removal
                 placeholder: (context, url) => _defaultBanner(),
                 errorWidget: (context, url, error) => _defaultBanner(),
               )
@@ -210,11 +211,13 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PeerTubeTextWidget(
-                      text: ChannelsUtils.extractChannelDisplayName(widget.channel),
+                      text: ChannelsUtils.extractChannelDisplayName(
+                          widget.channel),
                       fontSize: 17.5,
                     ),
                     Text(
-                      ChannelsUtils.extractChannelDisplayName(widget.channel, prioritizeChannel: true),
+                      ChannelsUtils.extractChannelDisplayName(widget.channel,
+                          prioritizeChannel: true),
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
@@ -224,20 +227,25 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
                     ),
                     const SizedBox(height: 6),
                     SingleChildScrollView(
-                      scrollDirection: Axis.horizontal, // ✅ Allows scrolling if needed
+                      scrollDirection: Axis.horizontal,
+                      // ✅ Allows scrolling if needed
                       child: Row(
                         mainAxisSize: MainAxisSize.min, // ✅ Keeps it compact
                         children: [
                           Text(
-                            "${videoChannel?.followersCount ?? 0} ${ (videoChannel?.followersCount ?? 0) == 1 ? 'follower' : 'followers'}",
-                            style: const TextStyle(fontSize: 13, color: Colors.white70),
+                            "${videoChannel?.followersCount ?? 0} ${(videoChannel?.followersCount ?? 0) == 1 ? 'follower' : 'followers'}",
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.white70),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.circle, color: Colors.orange, size: 4), // 🔹 Dot Icon
+                          const Icon(Icons.circle,
+                              color: Colors.orange, size: 4),
+                          // 🔹 Dot Icon
                           const SizedBox(width: 6),
                           Text(
                             "$_videoCount ${_videoCount == 1 ? 'video' : 'videos'}",
-                            style: const TextStyle(fontSize: 13, color: Colors.white70),
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.white70),
                           ),
                         ],
                       ),
@@ -401,7 +409,10 @@ class _SliverFixedHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double maxExtentHeight;
   final double minExtentHeight;
 
-  _SliverFixedHeaderDelegate({required this.child, this.maxExtentHeight = 48.0, this.minExtentHeight = 48.0});
+  _SliverFixedHeaderDelegate(
+      {required this.child,
+      this.maxExtentHeight = 48.0,
+      this.minExtentHeight = 48.0});
 
   @override
   Widget build(
@@ -416,8 +427,10 @@ class _SliverFixedHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   double get maxExtent => maxExtentHeight;
+
   @override
   double get minExtent => minExtentHeight;
+
   @override
   bool shouldRebuild(covariant _SliverFixedHeaderDelegate oldDelegate) => true;
 }
