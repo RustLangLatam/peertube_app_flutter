@@ -1,7 +1,3 @@
-Here’s your **README.md** file with the **"Screenshots"** section added, showcasing the app's interface.
-
----
-
 # **PeerTube Flutter App** 🎬📱
 
 This is a **modern, fully-featured Flutter application** for browsing and playing videos from **PeerTube**, the decentralized video platform. The app is built using **Flutter & Dart**, integrating the **PeerTube API** to provide a smooth and native experience.
@@ -11,7 +7,7 @@ This is a **modern, fully-featured Flutter application** for browsing and playin
 ## **📌 Features** 🚀
 
 ✅ **Browse Videos** – Discover trending, latest, and local videos from PeerTube instances.  
-✅ **Watch Videos** – Play videos with HLS streaming, including live streams.  
+✅ **Watch Videos** – Play all videos, including live streams.  
 ✅ **Interactive UI** – Modern and sleek design inspired by the original PeerTube interface.  
 ✅ **Comments Section** – View and interact with video comments.  
 ✅ **Channel & User Profiles** – Access detailed information about channels and creators.  
@@ -47,7 +43,7 @@ This is a **modern, fully-featured Flutter application** for browsing and playin
 
 ## **📌 Why This App?** 🤔
 
-This project is **for educational purposes only**, showcasing how **Flutter can seamlessly integrate with PeerTube**. It serves as a proof-of-concept to demonstrate the potential of a **PeerTube + Flutter** stack, highlighting its efficiency and ease of implementation.
+This project is **currently in active development**, showcasing how **Flutter can seamlessly integrate with PeerTube**. It serves as a **proof-of-concept** to demonstrate the potential of a **PeerTube + Flutter stack**, highlighting its efficiency and ease of implementation. New features and improvements are being added regularly. 🚀
 
 ---
 
