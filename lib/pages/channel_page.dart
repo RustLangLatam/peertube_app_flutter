@@ -389,15 +389,9 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
   /// 🔹 **Default Banner**
   Widget _defaultBanner() {
     return Container(
+      color: Colors.transparent,
       height: 180,
       width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF282828), Color(0xFF1A1A1A)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
       alignment: Alignment.center,
       child: const Icon(Icons.video_library, size: 50, color: Colors.white54),
     );
