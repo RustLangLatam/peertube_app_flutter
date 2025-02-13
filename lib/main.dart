@@ -9,7 +9,7 @@ import 'package:peertube_app_flutter/pages/lives_page.dart';
 import 'package:peertube_app_flutter/providers/api_provider.dart';
 import 'package:system_theme/system_theme.dart';
 
-String node = 'https://peertube.orderi.co';
+String node = 'https://peertube.tv';
 
 void main() async {
   HttpOverrides.global = MyHttpOverrides();

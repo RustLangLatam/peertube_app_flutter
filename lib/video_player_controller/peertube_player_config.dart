@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:river_player/river_player.dart';
 
 import 'peerTube_player_controls_config.dart';
@@ -35,10 +36,22 @@ class PeerTubePlayerConfig {
       autoDetectFullscreenDeviceOrientation: true,
       autoDetectFullscreenAspectRatio: true,
       handleLifecycle: handleLifecycle,
+      expandToFill: true,
       showPlaceholderUntilPlay: showPlaceholderUntilPlay,
+      systemOverlaysAfterFullScreen: [SystemUiOverlay.top],
       placeholder: thumbnailURL != null
           ? CachedNetworkImage(imageUrl: thumbnailURL, fit: BoxFit.contain)
           : null,
+      deviceOrientationsAfterFullScreen: [
+        DeviceOrientation.portraitUp,
+        // DeviceOrientation.portraitDown,
+        // DeviceOrientation.landscapeLeft,
+        // DeviceOrientation.landscapeRight,
+      ],
+      // deviceOrientationsOnFullScreen : const [
+      //   DeviceOrientation.landscapeLeft,
+        // DeviceOrientation.landscapeRight,
+      // ],
     );
   }
 
