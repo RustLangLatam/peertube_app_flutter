@@ -47,28 +47,37 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded,
-              () {
+              onTap: () {
             setState(() {
               recentlyAdded = true;
               isTrending = false;
               sortBy = '-publishedAt';
+              isLive = false;
             });
-            // // TODO: Implement recently added videos
-            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-          }),
+          }, iconColor: recentlyAdded ? Colors.orange : null),
           const SizedBox(width: 5),
           UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending,
-              () {
+              onTap: () {
             setState(() {
               recentlyAdded = false;
               isTrending = true;
               sortBy = '-trending';
+              isLive = false;
             });
-            // // TODO: Implement trending videos
-            // UIUtils.showTemporaryBottomDialog(context, "Feature coming soon!");
-          }),
+          }, iconColor: isTrending ? Colors.orange : null),
+          const SizedBox(width: 5),
+          UIUtils.filterToggleButton("Live", Icons.podcasts_rounded, isLive,
+              onTap: () {
+            setState(() {
+              recentlyAdded = false;
+              isTrending = false;
+              sortBy = '-publishedAt';
+              isLive = true;
+            });
+          }, iconColor: isLive ? Colors.redAccent : null),
         ],
       ),
     );

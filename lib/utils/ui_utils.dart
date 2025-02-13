@@ -5,9 +5,9 @@ import 'package:peertube_app_flutter/utils/text_utils.dart';
 class UIUtils {
   /// 📌 Creates a filter button similar to PeerTube's UI.
   static Widget filterToggleButton(String label, IconData icon, bool isSelected,
-      [VoidCallback? onPressed]) {
+  {Color? iconColor,  VoidCallback? onTap}) {
     return ElevatedButton.icon(
-      onPressed: onPressed,
+      onPressed: onTap,
       style: ElevatedButton.styleFrom(
         backgroundColor:
             isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917),
@@ -15,7 +15,7 @@ class UIUtils {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         elevation: 0,
       ),
-      icon: Icon(icon, size: 10, color: Colors.white70),
+      icon: Icon(icon, size: 10, color: iconColor ?? Colors.white70),
       label: Text(
         label,
         style: const TextStyle(

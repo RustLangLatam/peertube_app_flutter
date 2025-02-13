@@ -332,7 +332,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
               "Recently Added",
               Icons.new_releases_outlined,
               recentlyAdded,
-              () {
+              onTap: () {
                 setState(() {
                   recentlyAdded = true;
                   isTrending = false;
@@ -345,7 +345,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
               "Trending",
               Icons.trending_up,
               isTrending,
-              () {
+              onTap: () {
                 setState(() {
                   recentlyAdded = false;
                   isTrending = true;

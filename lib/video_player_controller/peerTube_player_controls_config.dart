@@ -22,7 +22,7 @@ class PeerTubePlayerControlsConfig {
     Color bufferedColor = const Color(0xFF28A745),
     Color backgroundColor = const Color(0xFF13100E),
     Color loadingIndicatorColor = Colors.orange,
-    Duration autoHideControlsDuration = const Duration(milliseconds: 300),
+    Duration autoHideControlsDuration = const Duration(milliseconds: 200),
   }) {
     return BetterPlayerControlsConfiguration(
       showControlsOnInitialize: showControlsOnInitialize,
@@ -126,49 +126,7 @@ class PeerTubePlayerControlsConfig {
       controlBarHeight: 45,
       overflowMenuIcon: Icons.more_vert,
       liveTextColor: Colors.redAccent,
-      controlsHideTime: const Duration(seconds: 2),
+      controlsHideTime: const Duration(milliseconds: 200),
     );
   }
 }
-
-// /// Configuration for the video player controls
-// BetterPlayerControlsConfiguration peerTubeControls =
-//     BetterPlayerControlsConfiguration(
-//   showControlsOnInitialize: false,
-//
-//   controlBarColor: Colors.black54, // Semi-transparent black
-//   textColor: Colors.white, // White text
-//   iconsColor: Colors.white, // White icons
-//   progressBarPlayedColor: Colors.deepOrange, // YouTube-style progress bar
-//   progressBarHandleColor: Colors.white, // White handle
-//   progressBarBufferedColor: Color(0xFF28A745), // Buffered video color
-//   progressBarBackgroundColor: Colors.white30, // Background of progress bar
-//   loadingColor: Colors.orange, // Red loading indicator
-//   // loadingWidget: UIUtils.networkImageShimmerPlaceholder(),
-//   liveTextColor: Colors.redAccent,
-//   backgroundColor: Color(0xFF13100E), // Clean black background
-//   overflowModalColor: Colors.black87, // Dark modal background
-//   overflowModalTextColor: Colors.white, // White text in modal
-//   overflowMenuIconsColor: Colors.white, // White icons in menu
-//   enableFullscreen: true,
-//   enablePip: true, // Picture-in-Picture mode
-//   enableProgressText: true, // Show playback time
-//   enableProgressBar: true,
-//   enableProgressBarDrag: true, // Allow dragging the progress bar
-//   enablePlayPause: true,
-//   enableSkips: true,
-//   enableSubtitles: true, // Enable subtitles
-//   enableQualities: true, // Enable quality selection
-//   enablePlaybackSpeed: true, // Enable speed adjustment
-//   enableRetry: true,
-//   enableAudioTracks: true,
-//   controlBarHeight: 50, // Increased for better usability
-//   overflowMenuIcon: Icons.settings, // Use a settings icon
-//   subtitlesIcon: Icons.closed_caption, // Subtitle icon
-//   playbackSpeedIcon: Icons.speed, // Playback speed icon
-//   qualitiesIcon: Icons.high_quality, // Quality icon
-//   // pipMenuIcon: Icons.picture_as_pdf_sharp, // Picture-in-Picture icon
-//   forwardSkipTimeInMilliseconds: 10000, // Skip forward 10 sec
-//   backwardSkipTimeInMilliseconds: 10000, // Skip backward 10 sec
-//   controlsHideTime: Duration(milliseconds: 200), // Auto-hide controls after 3s
-// );

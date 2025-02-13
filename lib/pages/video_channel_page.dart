@@ -104,7 +104,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
           child: Row(
             children: [
               UIUtils.filterToggleButton(
-                  "Recently Added", Icons.add, recentlyAdded, () {
+                  "Recently Added", Icons.add, recentlyAdded, onTap: () {
                 setState(() {
                   recentlyAdded = true;
                   isTrending = false;
@@ -115,7 +115,7 @@ class _VideoChannelScreenState extends State<VideoChannelScreen> {
               }),
               const SizedBox(width: 5),
               UIUtils.filterToggleButton(
-                  "Trending", Icons.trending_up, isTrending, () {
+                  "Trending", Icons.trending_up, isTrending, onTap: () {
                 setState(() {
                   recentlyAdded = false;
                   isTrending = true;

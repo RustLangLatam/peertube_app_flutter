@@ -28,11 +28,11 @@ class VideoPlayerScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
+  ConsumerState<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
 }
 
 class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
-  GlobalKey _videoPlayerKey = GlobalKey();
+  final GlobalKey _videoPlayerKey = GlobalKey();
 
   final PeerTubePlayer _videoPlayer = PeerTubePlayer();
   VideoDetails? _videoDetails;
@@ -340,8 +340,9 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
             },
           ),
         ),
-        UIUtils.buildDetailRow(
-            "Duration", VideoDateUtils.formatSecondsToMinSec(video.duration)),
+        if (video.isLive != null && !video.isLive!)
+          UIUtils.buildDetailRow(
+              "Duration", VideoDateUtils.formatSecondsToMinSec(video.duration)),
       ],
     );
   }

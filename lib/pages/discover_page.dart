@@ -54,7 +54,7 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
         scrollDirection: Axis.horizontal, // 🔹 Enables horizontal scrolling
         child: Row(
           children: [
-            UIUtils.filterToggleButton("All", Icons.grid_view, all, () {
+            UIUtils.filterToggleButton("All", Icons.grid_view, all, onTap: () {
               setState(() {
                 all = true;
                 channels = false;
@@ -64,7 +64,7 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
             }),
             const SizedBox(width: 5),
             UIUtils.filterToggleButton(
-                "Channels", Icons.subscriptions, channels, () {
+                "Channels", Icons.subscriptions, channels, onTap: () {
               setState(() {
                 all = false;
                 channels = true;
@@ -74,7 +74,7 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
             }),
             const SizedBox(width: 5),
             UIUtils.filterToggleButton("Categories", Icons.category, category,
-                () {
+                onTap: () {
               setState(() {
                 all = false;
                 channels = false;
@@ -83,7 +83,8 @@ class _BrowserScreenState extends ConsumerState<DiscoverScreen> {
               });
             }),
             const SizedBox(width: 5),
-            UIUtils.filterToggleButton("Tags", Icons.label_outline, tags, () {
+            UIUtils.filterToggleButton("Tags", Icons.label_outline, tags,
+                onTap: () {
               setState(() {
                 all = false;
                 channels = false;

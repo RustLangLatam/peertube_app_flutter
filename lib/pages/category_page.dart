@@ -120,7 +120,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
               "Recently Added",
               Icons.new_releases_outlined,
               recentlyAdded,
-              () {
+              onTap: () {
                 setState(() {
                   recentlyAdded = true;
                   isTrending = false;
@@ -133,7 +133,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
               "Trending",
               Icons.trending_up,
               isTrending,
-              () {
+              onTap: () {
                 setState(() {
                   recentlyAdded = false;
                   isTrending = true;

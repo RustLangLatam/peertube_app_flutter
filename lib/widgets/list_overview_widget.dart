@@ -244,27 +244,14 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
                   // 🎞️ Video Thumbnail
                   VideoUtils.buildMinimalVideoItem(
                       overview.videos[index], widget.node, onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    transitionDuration:
-                        const Duration(milliseconds: 300), // Smooth transition
-                    reverseTransitionDuration:
-                        const Duration(milliseconds: 150),
-                    pageBuilder: (context, animation, secondaryAnimation) =>
+                    Navigator.push(
+                      context,
+                      CustomPageRoute.fade(
                         VideoPlayerScreen(
-                      node: widget.node,
-                      video: overview.videos[index],
-                    ),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+                          node: widget.node,
+                          video: overview.videos[index],
+                        ),),
+                    );
               });
             },
           ),

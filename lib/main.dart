@@ -43,10 +43,10 @@ class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context, ) {
 
-    final accentcolor = SystemTheme.accentColor.accent;
-    int r = accentcolor.red;
-    int g = accentcolor.green;
-    int b = accentcolor.blue;
+    final accentColor = SystemTheme.accentColor.accent;
+    int r = accentColor.red;
+    int g = accentColor.green;
+    int b = accentColor.blue;
 
     return MaterialApp(
       theme: ThemeData(
@@ -70,7 +70,6 @@ class _HomeState extends ConsumerState<Home> {
           children: [
             BrowserScreen(node: node),
             DiscoverScreen(node: node),
-            LivesScreen(node: node),
             LibraryScreen(node: node),
           ],
         ),
@@ -99,11 +98,6 @@ class _HomeState extends ConsumerState<Home> {
               icon: Icon(Icons.explore_outlined, size: 24),
               activeIcon: Icon(Icons.explore, size: 26),
               label: "Discover",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.podcasts_rounded, size: 24),
-              activeIcon: Icon(Icons.podcasts_rounded, size: 26),
-              label: "Live",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.video_library_rounded, size: 24),
