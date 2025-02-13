@@ -89,7 +89,7 @@ class _VideoChannelScreenState extends ConsumerState<ChannelScreen> {
 
   Future<void> fetchVideoChannel() async {
     try {
-      final api = ref.read(videoChannelsApiProvider());
+      final api = ref.read(videoChannelsApiProvider);
 
       final channelHandle = getChannelHandle(widget.channel);
 

@@ -48,7 +48,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
   Future<void> _initializeVideo() async {
     try {
-      final api = ref.read(videoApiProvider());
+      final api = ref.read(videoApiProvider);
 
       final response = await api.getVideo(
         id: ApiV1VideosOwnershipIdAcceptPostIdParameter(

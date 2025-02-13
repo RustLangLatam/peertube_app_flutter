@@ -111,7 +111,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
       print('🔹 FetchingOverview page $pageKey');
     }
 
-    final api = ref.read(overviewVideosApiProvider());
+    final api = ref.read(overviewVideosApiProvider);
 
     Future.microtask(() async {
     try {
@@ -151,7 +151,7 @@ class _DiscoverScreenState extends ConsumerState<OverviewDataWidget> {
     }
 
     try {
-      final api = ref.read(overviewVideosApiProvider());
+      final api = ref.read(overviewVideosApiProvider);
       final response = await api.getOverviewVideos(page: 1);
 
       if (response.statusCode == 200 && response.data != null) {

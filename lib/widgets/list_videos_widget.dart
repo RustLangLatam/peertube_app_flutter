@@ -103,7 +103,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             (p) => p..oneOf = OneOf.fromValue1(value: widget.tagId!))
         : null;
 
-    final api = ref.read(videoApiProvider());
+    final api = ref.read(videoApiProvider);
 
     Future.microtask(() async {
       try {
@@ -148,7 +148,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
               (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
           : null;
 
-      final api = ref.read(videoApiProvider());
+      final api = ref.read(videoApiProvider);
 
       final response = await api.getVideos(
           categoryOneOf: categoryOneOf,

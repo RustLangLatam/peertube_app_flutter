@@ -89,7 +89,7 @@ class _ListChannelVideosWidgetState
       return;
     }
 
-    final api = ref.read(videoChannelsApiProvider());
+    final api = ref.read(videoChannelsApiProvider);
 
     Future.microtask(() async {
       try {
@@ -129,7 +129,7 @@ class _ListChannelVideosWidgetState
   /// **Refresh videos without clearing immediately**
   Future<void> _refreshVideos() async {
     try {
-      final api = ref.read(videoChannelsApiProvider());
+      final api = ref.read(videoChannelsApiProvider);
 
       final response = await api.getVideoChannelVideos(
           channelHandle: widget.channelName,

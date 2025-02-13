@@ -36,7 +36,7 @@ class VideoDetailsState extends _$VideoDetailsState {
     String? search,
   }) async {
     try {
-      final api = ref.read(videoApiProvider());
+      final api = ref.read(videoApiProvider);
 
       // 🟢 Generate a hash to detect changes in search parameters (excluding `start`)
       final queryHash = _generateQueryHash(

@@ -18,8 +18,16 @@ void main() async {
   //
   await SystemTheme.accentColor.load();
 
-  runApp(ProviderScope(
-      overrides: [peerTubeApiProvider(apiBaseUrl: node)], child: const Home()));
+  // Create a ProviderContainer to initialize providers before runApp
+  final container = ProviderContainer();
+  initializeApiProviders(container, baseUrl: node);
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const Home(),
+    ),
+  );
 }
 
 class Home extends ConsumerStatefulWidget {
@@ -33,7 +41,8 @@ class _HomeState extends ConsumerState<Home> {
   int _selectedIndex = 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ) {
+
     final accentcolor = SystemTheme.accentColor.accent;
     int r = accentcolor.red;
     int g = accentcolor.green;
@@ -55,7 +64,8 @@ class _HomeState extends ConsumerState<Home> {
       ),
       themeMode: ThemeMode.system,
       home: Scaffold(
-        body: IndexedStack( // ✅ Keeps the state of each tab
+        body: IndexedStack(
+          // ✅ Keeps the state of each tab
           index: _selectedIndex,
           children: [
             BrowserScreen(node: node),

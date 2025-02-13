@@ -6,7 +6,7 @@ part of 'video_state_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$videoDetailsStateHash() => r'26264f4acbc11d93fe02d50f3f44541a49261462';
+String _$videoDetailsStateHash() => r'27f999ff3e29b1e9bf1e1935647f8ee25856603e';
 
 /// See also [VideoDetailsState].
 @ProviderFor(VideoDetailsState)

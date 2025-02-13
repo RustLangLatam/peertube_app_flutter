@@ -30,7 +30,7 @@ class _DiscoverScreenState extends ConsumerState<CategoriesScreen> {
     setState(() => isLoading = true);
 
     try {
-      final api = ref.read(videoApiProvider());
+      final api = ref.read(videoApiProvider);
 
       final response = await api.getCategories();
 
