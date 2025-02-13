@@ -44,5 +44,4 @@ void initializeApiProviders(ProviderContainer container, {required String baseUr
   container.read(overviewVideosApiProvider);
 }
 
-
 // TODO: Add more providers for other APIs

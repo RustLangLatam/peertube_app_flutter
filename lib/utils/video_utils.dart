@@ -97,10 +97,10 @@ class VideoUtils {
   }
 
   /// Builds a minimal video item (thumbnail, title, metadata)
-  static Widget buildMinimalVideoItem(Video video, String node,
+  static Widget buildMinimalVideoItem(Video video, String nodeUrl,
       {required VoidCallback onTap}) {
-    final thumbnailURL =
-        video.previewPath != null ? '$node${video.previewPath}' : '';
+
+    final thumbnailURL = getVideoThumbnailUrl(video, nodeUrl);
 
     return GestureDetector(
       onTap: onTap, // 🔹 Executes callback on tap
@@ -114,7 +114,7 @@ class VideoUtils {
             Stack(
               children: [
                 UIUtils.buildHeroVideoOverViewThumbnail(
-                  thumbnailURL: thumbnailURL,
+                  thumbnailURL: thumbnailURL ?? "",
                 ),
                 // 🕒 Video Duration (Bottom Right)
                 Positioned(
@@ -184,5 +184,14 @@ class VideoUtils {
         color: Colors.grey[800], // ✅ Matches theme
       ),
     );
+  }
+
+  static String? getVideoThumbnailUrl(Video video, String nodeUrl) {
+    if (video.thumbnailPath != null && video.thumbnailPath!.isNotEmpty) {
+      return '$nodeUrl${video.thumbnailPath}';
+    } else if (video.previewPath != null && video.previewPath!.isNotEmpty) {
+      return '$nodeUrl${video.previewPath}';
+    }
+    return null; // No image available
   }
 }

@@ -24,12 +24,8 @@ class PeerTubePlayer {
     final source =
         PeerTubeVideoSourceInfo.extractBestVideoSource(videoDetails)!;
 
-    String? thumbnailURL;
-
-    // Determine the thumbnail URL
-    if (videoDetails!.previewPath != null) {
-      thumbnailURL = '$nodeUrl${videoDetails.previewPath}';
-    }
+    final thumbnailURL =
+        VideoUtils.getVideoThumbnailUrl(videoDetails!, nodeUrl!);
 
     // Determine if the video is a live stream
     final bool isLive = source.isLive;

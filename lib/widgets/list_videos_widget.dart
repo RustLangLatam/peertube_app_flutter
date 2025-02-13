@@ -281,8 +281,8 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
 
   /// Builds video list items
   Widget _buildVideoListViewCard(Video video) {
-    final thumbnailURL =
-        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
+
+    final thumbnailURL = VideoUtils.getVideoThumbnailUrl(video, widget.node);
 
     return InkWell(
       highlightColor: const Color(0xFF1A1A1A).withOpacity(0.7),
@@ -324,7 +324,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
               children: [
                 // Video Thumbnail
                 UIUtils.buildHeroVideoThumbnail(
-                  thumbnailURL: thumbnailURL,
+                  thumbnailURL: thumbnailURL ?? '',
                   useRoundedCorners: true,
                 ),
 

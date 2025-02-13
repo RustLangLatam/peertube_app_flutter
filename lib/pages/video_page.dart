@@ -130,8 +130,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
   Widget _buildVideoContent() {
     final video = widget.video;
 
-    final thumbnailURL =
-        video.previewPath != null ? '${widget.node}${video.previewPath}' : '';
+    final thumbnailURL = VideoUtils.getVideoThumbnailUrl(video, widget.node);
 
     return Column(
       children: [
@@ -144,7 +143,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
                     controller: _videoPlayer.controller!, key: _videoPlayerKey),
               )
             : UIUtils.buildHeroVideoThumbnail(
-                thumbnailURL: thumbnailURL,
+                thumbnailURL: thumbnailURL ?? '',
                 useRoundedCorners: false,
               ),
 
