@@ -48,7 +48,7 @@ This project is **currently in active development**, showcasing how **Flutter ca
 
 ### 1️⃣ Clone the repository:
 ```bash
-git clone https://github.com/proximax-storage/peertube_app_flutter
+git clone https://github.com/RustLangLatam/peertube_app_flutter
 cd peertube_app_flutter
 ```  
 

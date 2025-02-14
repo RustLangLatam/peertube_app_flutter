@@ -271,6 +271,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   /// Builds video list items
   Widget _buildVideoListViewCard(Video video) {
     final thumbnailURL = VideoUtils.getVideoThumbnailUrl(video, widget.node);
+    final isLive = (video.isLive != null && video.isLive!);
 
     return InkWell(
       highlightColor: const Color(0xFF1A1A1A).withOpacity(0.7),
@@ -312,14 +313,14 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                      color: widget.isLive ? Colors.redAccent : Colors.black45, // 🔴 "LIVE" uses red, duration uses black
+                      color: isLive ? Colors.redAccent : Colors.black45, // 🔴 "LIVE" uses red, duration uses black
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(4),
                         bottomRight: Radius.circular(6),
                       ),
                     ),
                     child: Text(
-                      widget.isLive
+                      isLive
                           ? "LIVE"  // ✅ Show "LIVE" badge if live
                           : VideoDateUtils.formatSecondsToTime(video.duration), // ✅ Show duration if not live
                       style: const TextStyle(
