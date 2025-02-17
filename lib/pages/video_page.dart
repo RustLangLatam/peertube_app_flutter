@@ -109,7 +109,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A1A),
         title: const PeerTubeTextWidget(),
-        leading: const PeerTubeLogoWidget(),
+        leading: PeerTubeLogoWidget(),
         actions: [
           Padding(
               padding: const EdgeInsets.only(left: 14.0, top: 10, bottom: 10),

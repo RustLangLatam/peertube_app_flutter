@@ -19,11 +19,7 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
   bool recentlyAdded = true;
   String sortBy = '-publishedAt';
   bool isLive = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  bool isLoading = false; // 🔹 Track if videos are loading
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +30,32 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
         children: [
           _buildFilters(), // 🟢 Ensures filters appear below the AppBar
           Expanded(
-            child: ListVideosWidget(
-                node: widget.node, isLive: isLive, sortBy: sortBy),
+            child: _buildVideoList(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVideoList() {
+    return Stack(
+      children: [
+        Opacity(
+          opacity: isLoading ? 0.0 : 1.0, // hide videos while loading.
+          child: ListVideosWidget(
+            node: widget.node,
+            isLive: isLive,
+            sortBy: sortBy,
+            onLoading: (loading) {
+              setState(() => isLoading = loading);
+            },
+          ),
+        ),
+        if (isLoading)
+          Positioned.fill(
+            child: Center(child: VideoUtils.buildShimmerEffect()),
+          ),
+      ],
     );
   }
 
@@ -49,35 +66,59 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          UIUtils.filterToggleButton("Recently Added", Icons.add, recentlyAdded,
-              onTap: () {
-            setState(() {
-              recentlyAdded = true;
-              isTrending = false;
-              sortBy = '-publishedAt';
-              isLive = false;
-            });
-          }, iconColor: recentlyAdded ? Colors.orange : null),
+          UIUtils.filterToggleButton(
+            "Recently Added",
+            Icons.add,
+            recentlyAdded,
+            onTap: (isLoading ||
+                    recentlyAdded) // Prevent re-selecting active button
+                ? null
+                : () {
+                    setState(() {
+                      isLoading = true;
+                      recentlyAdded = true;
+                      isTrending = false;
+                      isLive = false;
+                      sortBy = '-publishedAt';
+                    });
+                  },
+          ),
           const SizedBox(width: 5),
-          UIUtils.filterToggleButton("Trending", Icons.trending_up, isTrending,
-              onTap: () {
-            setState(() {
-              recentlyAdded = false;
-              isTrending = true;
-              sortBy = '-trending';
-              isLive = false;
-            });
-          }, iconColor: isTrending ? Colors.orange : null),
+          UIUtils.filterToggleButton(
+            "Trending",
+            Icons.trending_up,
+            isTrending,
+            onTap:
+                (isLoading || isTrending) // Prevent re-selecting active button
+                    ? null
+                    : () {
+                        setState(() {
+                          isLoading = true;
+                          isTrending = true;
+                          recentlyAdded = false;
+                          isLive = false;
+                          sortBy = '-trending';
+                        });
+                      },
+          ),
           const SizedBox(width: 5),
-          UIUtils.filterToggleButton("Live", Icons.podcasts_rounded, isLive,
-              onTap: () {
-            setState(() {
-              recentlyAdded = false;
-              isTrending = false;
-              sortBy = '-publishedAt';
-              isLive = true;
-            });
-          }, iconColor: isLive ? Colors.redAccent : null),
+          UIUtils.filterToggleButton(
+            "Live",
+            Icons.podcasts_rounded,
+            isLive,
+            activeIconColor: Colors.redAccent,
+            onTap: (isLoading || isLive) // Prevent re-selecting active button
+                ? null
+                : () {
+                    setState(() {
+                      isLoading = true;
+                      isTrending = false;
+                      recentlyAdded = false;
+                      isLive = true;
+                      sortBy = '-publishedAt';
+                    });
+                  },
+          ),
         ],
       ),
     );
@@ -88,26 +129,24 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
     return AppBar(
       backgroundColor: const Color(0xFF1A1A1A),
       title: const PeerTubeTextWidget(),
-      leading: const PeerTubeLogoWidget(),
+      leading:
+          PeerTubeLogoWidget(isLoading: isLoading), // 🔹 Pass isLoading state
       actions: [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.white),
           onPressed: () {
-            // TODO: Implement search
             UIUtils.showTemporaryBottomDialog(context, "Search coming soon!");
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings_outlined, color: Colors.white),
           onPressed: () {
-            // TODO: Implement settings
             UIUtils.showTemporaryBottomDialog(context, "Settings coming soon!");
           },
         ),
         IconButton(
           icon: const Icon(Icons.account_circle_outlined, color: Colors.white),
           onPressed: () {
-            // TODO: Implement account
             UIUtils.showTemporaryBottomDialog(context, "Account coming soon!");
           },
         ),

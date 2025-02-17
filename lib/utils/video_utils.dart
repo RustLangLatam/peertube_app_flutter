@@ -194,4 +194,97 @@ class VideoUtils {
     }
     return null; // No image available
   }
+
+  /// Wraps the entire list in a Shimmer effect
+  static  Widget buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[700]!,
+      child: Column(
+        children: List.generate(6, (index) => buildShimmerRow()),
+      ),
+    );
+  }
+
+  /// **Single Shimmer Row (Skeleton of Video List Item)**
+  static Widget buildShimmerRow() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // **Thumbnail Placeholder**
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  width: double.infinity,
+                  height: 180, // Same as video thumbnail
+                  color: Colors.grey[900],
+                ),
+              ),
+
+              // **Channel Avatar Placeholder (Overlapping Bottom Left)**
+              Positioned(
+                bottom: -19,
+                left: 12,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 6),
+
+          // **Row for Avatar and Video Info**
+          Padding(
+            padding: const EdgeInsets.only(left: 50, right: 10, top: 1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // **Channel Name Placeholder**
+                Container(
+                  width: 100,
+                  height: 12,
+                  color: Colors.grey[900],
+                ),
+                const SizedBox(height: 8),
+
+                // **Video Title Placeholder**
+                Container(
+                  width: double.infinity,
+                  height: 10,
+                  color: Colors.grey[900],
+                ),
+              ],
+            ),
+          ),
+
+          // **Video Metadata Placeholder (Upload Time & Views)**
+          Padding(
+            padding:
+            const EdgeInsets.only(left: 50, right: 10, top: 13, bottom: 1),
+            child: Container(
+              width: 150,
+              height: 12,
+              color: Colors.grey[900],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

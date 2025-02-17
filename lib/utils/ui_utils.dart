@@ -1,25 +1,40 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peertube_app_flutter/utils/text_utils.dart';
+import 'package:shimmer/shimmer.dart';
 
 class UIUtils {
   /// 📌 Creates a filter button similar to PeerTube's UI.
-  static Widget filterToggleButton(String label, IconData icon, bool isSelected,
-  {Color? iconColor,  VoidCallback? onTap}) {
+  static Widget filterToggleButton(
+      String label,
+      IconData icon,
+      bool isSelected, {
+        Color? activeIconColor,   // 🟠 Active icon color (Default: Orange)
+        Color? inactiveIconColor, // ⚪️ Inactive icon color (Default: Gray)
+        VoidCallback? onTap,
+      }) {
     return ElevatedButton.icon(
-      onPressed: onTap,
+      onPressed: onTap ?? () {},
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917),
+        backgroundColor: isSelected ? const Color(0xFF3A2E2A) : const Color(0xFF1F1917),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         elevation: 0,
       ),
-      icon: Icon(icon, size: 10, color: iconColor ?? Colors.white70),
+      icon: Icon(
+        icon,
+        size: 16,
+        color: isSelected
+            ? (activeIconColor ?? Colors.orange)
+            : (inactiveIconColor ?? Colors.white70),
+      ),
       label: Text(
         label,
         style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white70,
+        ),
       ),
     );
   }

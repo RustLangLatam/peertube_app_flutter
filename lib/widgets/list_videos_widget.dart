@@ -21,6 +21,7 @@ class ListVideosWidget extends ConsumerStatefulWidget {
   final bool gridView;
   final bool skipCount;
   final void Function(int count)? videoCountCallback;
+  final void Function(bool loading)? onLoading;
   final List<Video> initialVideos;
 
   const ListVideosWidget({
@@ -33,6 +34,7 @@ class ListVideosWidget extends ConsumerStatefulWidget {
     this.gridView = false,
     this.skipCount = true,
     this.videoCountCallback,
+    this.onLoading,
     this.initialVideos = const [],
   });
 
@@ -126,6 +128,10 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             widget.videoCountCallback!(response.data?.total ?? 0);
           }
 
+          if (widget.onLoading != null) {
+            widget.onLoading!(false);
+          }
+
           isLastPage
               ? _pagingController.appendLastPage(videosList)
               : _pagingController.appendPage(videosList, pageKey + pageSize);
@@ -168,6 +174,10 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             (_pagingController.itemList ?? []).take(pageSize).toList(),
             newVideos)) {
           _replaceVideoList(newVideos);
+        }
+
+        if (widget.onLoading != null) {
+          widget.onLoading!(false);
         }
       }
     } catch (error) {
@@ -221,7 +231,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                       itemBuilder: (context, video, index) =>
                           _buildVideoListViewCard(video),
                       firstPageProgressIndicatorBuilder: (_) =>
-                          _buildShimmerEffect(),
+                          VideoUtils.buildShimmerEffect(),
                       // Show skeleton while loading first page
                       newPageProgressIndicatorBuilder: (_) =>
                           UIUtils.progressIndicatorPlaceholder(), // Pagination
@@ -311,9 +321,13 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                   right: 0,
                   bottom: -1,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                      color: isLive ? Colors.redAccent : Colors.black45, // 🔴 "LIVE" uses red, duration uses black
+                      color: isLive
+                          ? Colors.redAccent
+                          : Colors
+                              .black45, // 🔴 "LIVE" uses red, duration uses black
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(4),
                         bottomRight: Radius.circular(6),
@@ -321,8 +335,9 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                     ),
                     child: Text(
                       isLive
-                          ? "LIVE"  // ✅ Show "LIVE" badge if live
-                          : VideoDateUtils.formatSecondsToTime(video.duration), // ✅ Show duration if not live
+                          ? "LIVE" // ✅ Show "LIVE" badge if live
+                          : VideoDateUtils.formatSecondsToTime(
+                              video.duration), // ✅ Show duration if not live
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -398,100 +413,6 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// **Main Shimmer Effect Function**
-  /// Wraps the entire list in a Shimmer effect
-  Widget _buildShimmerEffect() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[700]!,
-      child: Column(
-        children: List.generate(6, (index) => _buildShimmerRow()),
-      ),
-    );
-  }
-
-  /// **Single Shimmer Row (Skeleton of Video List Item)**
-  Widget _buildShimmerRow() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // **Thumbnail Placeholder**
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  width: double.infinity,
-                  height: 180, // Same as video thumbnail
-                  color: Colors.grey[900],
-                ),
-              ),
-
-              // **Channel Avatar Placeholder (Overlapping Bottom Left)**
-              Positioned(
-                bottom: -19,
-                left: 12,
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 6),
-
-          // **Row for Avatar and Video Info**
-          Padding(
-            padding: const EdgeInsets.only(left: 50, right: 10, top: 1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // **Channel Name Placeholder**
-                Container(
-                  width: 100,
-                  height: 12,
-                  color: Colors.grey[900],
-                ),
-                const SizedBox(height: 8),
-
-                // **Video Title Placeholder**
-                Container(
-                  width: double.infinity,
-                  height: 10,
-                  color: Colors.grey[900],
-                ),
-              ],
-            ),
-          ),
-
-          // **Video Metadata Placeholder (Upload Time & Views)**
-          Padding(
-            padding:
-                const EdgeInsets.only(left: 50, right: 10, top: 13, bottom: 1),
-            child: Container(
-              width: 150,
-              height: 12,
-              color: Colors.grey[900],
-            ),
-          ),
-        ],
       ),
     );
   }
