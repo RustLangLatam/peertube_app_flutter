@@ -39,7 +39,7 @@ dependencies:
   infinite_scroll_pagination: ^4.1.0
 #  settings_ui: ^2.0.2
   peer_tube_api_sdk: ^1.0.8
-#              git: https://github.com/RustLangLatam/peertube_api_sdk.git
+#              git: https://github.com/RustLangLatam/peertube_api_sdk_dart.git
 
   peertube_toolkit:
                git: https://github.com/RustLangLatam/peertube_toolkit.git
