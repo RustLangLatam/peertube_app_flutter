@@ -6,16 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/pages/video_page.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../pages/category_page.dart';
 import '../pages/channel_page.dart';
 import '../pages/tag_page.dart';
 import '../providers/api_provider.dart';
-import '../transitions/custom_page_route.dart';
-import '../utils/avatar_utils.dart';
-import '../utils/ui_utils.dart';
-import '../utils/video_utils.dart';
 
 /// Enum for section types
 enum SectionType { all, tags, categories, channels }

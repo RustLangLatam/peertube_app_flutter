@@ -4,13 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 import '../providers/api_provider.dart';
-import '../utils/avatar_utils.dart';
-import '../utils/buttons_utils.dart';
-import '../utils/channels_utils.dart';
-import '../utils/ui_utils.dart';
-import '../utils/video_date_utils.dart';
 import '../widgets/blurred_backdrop_image.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/list_channel_videos_widget.dart';

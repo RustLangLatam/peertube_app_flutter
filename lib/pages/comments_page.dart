@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-
-import '../utils/video_date_utils.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 class CommentsPage extends StatefulWidget {
   final int videoId;

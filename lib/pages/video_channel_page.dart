@@ -1,11 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
-import '../utils/avatar_utils.dart';
-import '../utils/buttons_utils.dart';
-import '../utils/channels_utils.dart';
-import '../utils/ui_utils.dart';
 import '../widgets/list_channel_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 

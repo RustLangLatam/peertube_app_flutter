@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
-import '../utils/export.dart';
 import '../widgets/list_videos_widget.dart';
 import '../widgets/peertube_logo_widget.dart';
 

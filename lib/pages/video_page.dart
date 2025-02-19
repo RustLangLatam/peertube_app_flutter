@@ -1,15 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_app_flutter/pages/tag_page.dart';
-import 'package:peertube_app_flutter/utils/export.dart';
-import 'package:river_player/river_player.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../providers/api_provider.dart';
-import '../transitions/custom_page_route.dart';
-import '../video_player_controller/peertube_player.dart';
 import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
 import '../widgets/peertube_logo_widget.dart';
@@ -61,7 +57,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
         // Run video initialization in the background
         Future.microtask(() async {
-          await _videoPlayer.initializePlayer(_videoPlayerKey, _videoDetails,
+          await _videoPlayer.initializePlayerFromVideoDetails(_videoPlayerKey, _videoDetails,
               nodeUrl: widget.node);
         });
 

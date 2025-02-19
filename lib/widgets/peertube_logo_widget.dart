@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../utils/text_utils.dart';
-
 import 'package:flutter/material.dart';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter/material.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 class PeerTubeLogoWidget extends StatefulWidget {
   final bool? isLoading;

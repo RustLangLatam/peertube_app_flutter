@@ -2,13 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 import '../pages/video_page.dart';
 import '../providers/api_provider.dart';
-import '../transitions/custom_page_route.dart';
-import '../utils/ui_utils.dart';
-import '../utils/video_utils.dart';
 
 const int defaultPageSize = 10;
 

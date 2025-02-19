@@ -3,18 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
-import 'package:peertube_app_flutter/utils/export.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 import '../pages/video_page.dart';
 import '../providers/api_provider.dart';
-import '../transitions/custom_page_route.dart';
 
 const int defaultPageSize = 10;
 
 class ListVideosWidget extends ConsumerStatefulWidget {
-  final int? categoryId; // If null, fetch all videos
-  final String? tagId;
+  final GetAccountVideosCategoryOneOfParameter? categoryId; // If null, fetch all videos
+  final GetAccountVideosTagsOneOfParameter? tagId;
   final String node;
   final String? sortBy;
   final bool isLive;
@@ -96,23 +94,13 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
       return;
     }
 
-    final categoryOneOf = widget.categoryId != null
-        ? GetAccountVideosCategoryOneOfParameter(
-            (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
-        : null;
-
-    final tagsOneOf = widget.tagId != null
-        ? GetAccountVideosTagsOneOfParameter(
-            (p) => p..oneOf = OneOf.fromValue1(value: widget.tagId!))
-        : null;
-
     final api = ref.read(videoApiProvider);
 
     Future.microtask(() async {
       try {
         final response = await api.getVideos(
-            categoryOneOf: categoryOneOf,
-            tagsOneOf: tagsOneOf,
+            categoryOneOf: widget.categoryId,
+            tagsOneOf: widget.tagId,
             start: pageKey,
             count: pageSize,
             isLive: widget.isLive,
@@ -150,15 +138,11 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   /// **Refresh videos without clearing immediately**
   Future<void> _refreshVideos() async {
     try {
-      final categoryOneOf = widget.categoryId != null
-          ? GetAccountVideosCategoryOneOfParameter(
-              (p) => p..oneOf = OneOf.fromValue1(value: widget.categoryId!))
-          : null;
-
       final api = ref.read(videoApiProvider);
 
       final response = await api.getVideos(
-          categoryOneOf: categoryOneOf,
+          categoryOneOf: widget.categoryId,
+          tagsOneOf: widget.tagId,
           start: 0,
           count: pageSize,
           isLive: widget.isLive,

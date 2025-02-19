@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
+import 'package:peertube_app_flutter/extentions/video_ext.dart';
 import 'package:peertube_app_flutter/widgets/list_videos_widget.dart';
+import 'package:peertube_toolkit/peertube_toolkit.dart';
 
-import '../utils/ui_utils.dart';
-import '../utils/video_utils.dart';
 import '../widgets/peertube_logo_widget.dart';
 
 class CategoryVideosScreen extends ConsumerStatefulWidget {
@@ -51,7 +51,7 @@ class _CategoryVideosScreenState extends ConsumerState<CategoryVideosScreen> {
             Divider(color: Colors.grey[700]),
             Expanded(
               child: ListVideosWidget(
-                  categoryId: widget.category.id,
+                  categoryId: widget.category.oneOfParameter,
                   // Fetch all videos
                   node: widget.node,
                   gridView: true,
