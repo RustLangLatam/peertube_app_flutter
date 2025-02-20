@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peertube_app_flutter/pages/peertube_videoplayer.dart';
 import 'package:peertube_app_flutter/pages/tag_page.dart';
 import 'package:peertube_toolkit/peertube_toolkit.dart';
 import 'package:shimmer/shimmer.dart';
@@ -57,8 +58,10 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
         // Run video initialization in the background
         Future.microtask(() async {
-          await _videoPlayer.initializePlayerFromVideoDetails(_videoPlayerKey, _videoDetails,
-              nodeUrl: widget.node);
+          // temporary disable this to use embeded, it will casue double video play
+          // await _videoPlayer.initializePlayerFromVideoDetails(
+          //     _videoPlayerKey, _videoDetails,
+          //     nodeUrl: widget.node);
         });
 
         int elapsedTime = 0;
@@ -131,12 +134,27 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
     return Column(
       children: [
         // 🎬 Video Player
-
+        // change to iframe here
         _isInitialized
             ? AspectRatio(
                 aspectRatio: 16 / 9,
-                child: BetterPlayer(
-                    controller: _videoPlayer.controller!, key: _videoPlayerKey),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      height: constraints.maxHeight,
+                      width: constraints.maxWidth,
+                      child: PeerTubeVideoPlayer(
+                        videoId: video.uuid ?? "",
+                        embedUrl: video.embedPath ?? '',
+                        videoController: PeertubeVideoController(autoplay: '1'),
+                        height: constraints.maxHeight,
+                      ),
+                    );
+                  },
+                ),
+
+                // child: BetterPlayer(
+                //     controller: _videoPlayer.controller!, key: _videoPlayerKey),
               )
             : UIUtils.buildHeroVideoThumbnail(
                 thumbnailURL: thumbnailURL ?? '',
