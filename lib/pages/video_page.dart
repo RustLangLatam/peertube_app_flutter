@@ -10,6 +10,7 @@ import '../widgets/expandable_text_widget.dart';
 import '../widgets/license_badge.dart';
 import '../widgets/peertube_logo_widget.dart';
 import '../widgets/unsupported_format_widget.dart';
+import '../widgets/bouncing_loading_bar.dart';
 import 'category_page.dart';
 import 'channel_page.dart';
 
@@ -57,7 +58,8 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
         // Run video initialization in the background
         Future.microtask(() async {
-          await _videoPlayer.initializePlayerFromVideoDetails(_videoPlayerKey, _videoDetails,
+          await _videoPlayer.initializePlayerFromVideoDetails(
+              _videoPlayerKey, _videoDetails,
               nodeUrl: widget.node);
         });
 
@@ -128,162 +130,177 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 
     final thumbnailURL = VideoUtils.getVideoThumbnailUrl(video, widget.node);
 
-    return Column(
-      children: [
-        // 🎬 Video Player
+    return Stack(children: [
+      Column(
+        children: [
+          // 🎬 Video Player
 
-        _isInitialized
-            ? AspectRatio(
-                aspectRatio: 16 / 9,
-                child: BetterPlayer(
-                    controller: _videoPlayer.controller!, key: _videoPlayerKey),
-              )
-            : UIUtils.buildHeroVideoThumbnail(
-                thumbnailURL: thumbnailURL ?? '',
-                useRoundedCorners: false,
-              ),
-
-        // 📌 Video Details Section
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF2D2A27),
-                  Color(0xFF22201E),
-                  Color(0xFF1A1A1A),
-                ],
-                stops: [0.0, 0.3, 0.8],
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListView(
-              children: [
-                // 🎥 Video Title
-                VideoUtils.buildVideoTitle(video.name),
-                const SizedBox(height: 4),
-
-                // 📅 Video Metadata (Published Date & Views)
-                Row(
+          _isInitialized
+              ? AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: BetterPlayer(
+                      controller: _videoPlayer.controller!,
+                      key: _videoPlayerKey),
+                )
+              : Stack(
+                  alignment: Alignment.bottomCenter,
                   children: [
-                    Text(
-                      "Published ${VideoDateUtils.formatRelativeDate(video.publishedAt)}",
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    UIUtils.buildHeroVideoThumbnail(
+                      thumbnailURL: thumbnailURL ?? '',
+                      useRoundedCorners: false,
                     ),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.circle,
-                        size: 4, color: Colors.orange), // Bullet
-                    const SizedBox(width: 6),
-                    VideoUtils.buildViewCount(video.views),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.circle,
-                        size: 4, color: Colors.orange), // Bullet
-                    const SizedBox(width: 4),
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0.0,
+                      child: BouncingLoadingBar(color: Colors.orange),
+                    ),
+                  ],
+                ),
 
-                    if (video.licence != null)
-                      // License Badge with overflow ellipsis
-                      Flexible(
-                        child: LicenseBadge(licenseLabel: video.licence!),
+          // 📌 Video Details Section
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF2D2A27),
+                    Color(0xFF22201E),
+                    Color(0xFF1A1A1A),
+                  ],
+                  stops: [0.0, 0.3, 0.8],
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListView(
+                children: [
+                  // 🎥 Video Title
+                  VideoUtils.buildVideoTitle(video.name),
+                  const SizedBox(height: 4),
+
+                  // 📅 Video Metadata (Published Date & Views)
+                  Row(
+                    children: [
+                      Text(
+                        "Published ${VideoDateUtils.formatRelativeDate(video.publishedAt)}",
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 15),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.circle,
+                          size: 4, color: Colors.orange), // Bullet
+                      const SizedBox(width: 6),
+                      VideoUtils.buildViewCount(video.views),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.circle,
+                          size: 4, color: Colors.orange), // Bullet
+                      const SizedBox(width: 4),
 
-                // 🎯 Action Buttons (Like, Dislike, Share, Download)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Spacer(),
-                    ButtonsUtils.likeButton(likes: video.likes),
-                    ButtonsUtils.dislikeButton(dislikes: video.dislikes),
-                    ButtonsUtils.shareButton(onPressed: () {
-                      // TODO: Share video
-                      UIUtils.showTemporaryBottomDialog(
-                          context, "Share video no implemented yet...");
-                    }),
-                    ButtonsUtils.downloadButton(onPressed: () {
-                      // TODO: Download video
-                      UIUtils.showTemporaryBottomDialog(
-                          context, "Download video no implemented yet...");
-                    }),
-                  ],
-                ),
-                const Divider(height: 20, color: Colors.grey),
+                      if (video.licence != null)
+                        // License Badge with overflow ellipsis
+                        Flexible(
+                          child: LicenseBadge(licenseLabel: video.licence!),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
 
-                // 👤 Uploader Info
-                Row(
-                  children: [
-                    // Channel Avatar
-                    GestureDetector(
-                      onTap: () {
-                        if (_videoPlayer.isVideoActive) {
-                          _videoPlayer.controller!.pause();
-                          Navigator.push(
-                            context,
-                            CustomPageRoute.slide(ChannelScreen(
-                                channel: video.channel!, node: widget.node)),
-                          ).whenComplete(() {
-                            _videoPlayer.controller!.play();
-                          });
-                        }
-                      }, // ✅ Clickable Avatar
-                      child: AvatarUtils.buildAvatarFromVideoDetails(
-                          video, widget.node),
-                    ),
-                    const SizedBox(width: 8),
+                  // 🎯 Action Buttons (Like, Dislike, Share, Download)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Spacer(),
+                      ButtonsUtils.likeButton(likes: video.likes),
+                      ButtonsUtils.dislikeButton(dislikes: video.dislikes),
+                      ButtonsUtils.shareButton(onPressed: () {
+                        // TODO: Share video
+                        UIUtils.showTemporaryBottomDialog(
+                            context, "Share video no implemented yet...");
+                      }),
+                      ButtonsUtils.downloadButton(onPressed: () {
+                        // TODO: Download video
+                        UIUtils.showTemporaryBottomDialog(
+                            context, "Download video no implemented yet...");
+                      }),
+                    ],
+                  ),
+                  const Divider(height: 20, color: Colors.grey),
 
-                    // Channel Name & "By" Section
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            VideoUtils.extractNameOrDisplayName(video,
-                                node: widget.node),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              // fontWeight: FontWeight.bold,
+                  // 👤 Uploader Info
+                  Row(
+                    children: [
+                      // Channel Avatar
+                      GestureDetector(
+                        onTap: () {
+                          if (_videoPlayer.isVideoActive) {
+                            _videoPlayer.controller!.pause();
+                            Navigator.push(
+                              context,
+                              CustomPageRoute.slide(ChannelScreen(
+                                  channel: video.channel!, node: widget.node)),
+                            ).whenComplete(() {
+                              _videoPlayer.controller!.play();
+                            });
+                          }
+                        }, // ✅ Clickable Avatar
+                        child: AvatarUtils.buildAvatarFromVideoDetails(
+                            video, widget.node),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Channel Name & "By" Section
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              VideoUtils.extractNameOrDisplayName(video,
+                                  node: widget.node),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                // fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(
-                            "By ${VideoUtils.extractNameOrDisplayName(video, prioritizeChannel: false)}",
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 12),
-                          ),
-                        ],
+                            Text(
+                              "By ${VideoUtils.extractNameOrDisplayName(video, prioritizeChannel: false)}",
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
+                      const SizedBox(width: 8),
 
-                    // 📌 Subscribe Button
-                    ButtonsUtils.subscribeButton(onPressed: () {
-                      // TODO: Subscribe to channel
-                      UIUtils.showTemporaryBottomDialog(context,
-                          "Subscribe to channel no implemented yet...");
-                    }),
-                  ],
-                ),
-                const SizedBox(height: 10),
+                      // 📌 Subscribe Button
+                      ButtonsUtils.subscribeButton(onPressed: () {
+                        // TODO: Subscribe to channel
+                        UIUtils.showTemporaryBottomDialog(context,
+                            "Subscribe to channel no implemented yet...");
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
 
-                // 📜 Video Description (Expandable)
-                buildExpandableText(
-                  text: video.truncatedDescription ?? "No description",
-                ),
-                const SizedBox(height: 15),
+                  // 📜 Video Description (Expandable)
+                  buildExpandableText(
+                    text: video.truncatedDescription ?? "No description",
+                  ),
+                  const SizedBox(height: 15),
 
-                // 🔍 Additional Video Details
-                _buildVideoDetailsSection(),
-              ],
+                  // 🔍 Additional Video Details
+                  _buildVideoDetailsSection(),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      )
+    ]);
   }
 
   /// 📌 Builds extra video details (Category, License, Language, Tags, Duration)

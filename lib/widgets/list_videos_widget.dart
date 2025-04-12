@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:peer_tube_api_sdk/peer_tube_api_sdk.dart';
 import 'package:peertube_toolkit/peertube_toolkit.dart';
 
 import '../pages/video_page.dart';
@@ -125,7 +124,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
               : _pagingController.appendPage(videosList, pageKey + pageSize);
         } else {
           _pagingController.error =
-              'Failed to load videos: ${response.statusCode}';
+          'Failed to load videos: ${response.statusCode}';
         }
       } catch (error) {
         if (kDebugMode) print('🔹 FetchingVideos error $error');
@@ -210,36 +209,37 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
             // Refresh without clearing UI
             child: !widget.gridView
                 ? PagedListView<int, Video>(
-                    pagingController: _pagingController,
-                    builderDelegate: PagedChildBuilderDelegate<Video>(
-                      itemBuilder: (context, video, index) =>
-                          _buildVideoListViewCard(video),
-                      firstPageProgressIndicatorBuilder: (_) =>
-                          VideoUtils.buildShimmerEffect(),
-                      // Show skeleton while loading first page
-                      newPageProgressIndicatorBuilder: (_) =>
-                          UIUtils.progressIndicatorPlaceholder(), // Pagination
-                    ),
-                  )
+              pagingController: _pagingController,
+              scrollDirection: Axis.vertical,
+              builderDelegate: PagedChildBuilderDelegate<Video>(
+                itemBuilder: (context, video, index) =>
+                    _buildVideoListViewCard(video),
+                firstPageProgressIndicatorBuilder: (_) =>
+                    VideoUtils.buildShimmerEffect(),
+                // Show skeleton while loading first page
+                newPageProgressIndicatorBuilder: (_) =>
+                    UIUtils.progressIndicatorPlaceholder(), // Pagination
+              ),
+            )
                 : PagedGridView<int, Video>(
-                    pagingController: _pagingController,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Show 2 videos per row
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 16 / 14, // More compact
-                    ),
-                    builderDelegate: PagedChildBuilderDelegate<Video>(
-                      itemBuilder: (context, video, index) =>
-                          _buildVideoGridViewCard(video),
-                      firstPageProgressIndicatorBuilder: (_) =>
-                          VideoUtils.buildMinimalVideoBlurEffect(),
-                      // Show skeleton while loading first page
-                      newPageProgressIndicatorBuilder: (_) =>
-                          UIUtils.progressIndicatorPlaceholder(), // Pagination
-                    ),
-                  )),
+              pagingController: _pagingController,
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Show 2 videos per row
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 16 / 14, // More compact
+              ),
+              builderDelegate: PagedChildBuilderDelegate<Video>(
+                itemBuilder: (context, video, index) =>
+                    _buildVideoGridViewCard(video),
+                firstPageProgressIndicatorBuilder: (_) =>
+                    VideoUtils.buildMinimalVideoBlurEffect(),
+                // Show skeleton while loading first page
+                newPageProgressIndicatorBuilder: (_) =>
+                    UIUtils.progressIndicatorPlaceholder(), // Pagination
+              ),
+            )),
 
         // Blur Effect at the Bottom
         UIUtils.blurEffectAtTheBottom()
@@ -250,16 +250,16 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
   /// Builds a compact video card with essential details
   Widget _buildVideoGridViewCard(Video video) {
     return
-        // 🎞️ Video Thumbnail
-        VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
-      Navigator.push(
-        context,
-        CustomPageRoute.fade(VideoPlayerScreen(
-          node: widget.node,
-          video: video,
-        )),
-      );
-    });
+      // 🎞️ Video Thumbnail
+      VideoUtils.buildMinimalVideoItem(video, widget.node, onTap: () {
+        Navigator.push(
+          context,
+          CustomPageRoute.fade(VideoPlayerScreen(
+            node: widget.node,
+            video: video,
+          )),
+        );
+      });
   }
 
   /// Builds video list items
@@ -306,12 +306,12 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                   bottom: -1,
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
                       color: isLive
                           ? Colors.redAccent
                           : Colors
-                              .black45, // 🔴 "LIVE" uses red, duration uses black
+                          .black45, // 🔴 "LIVE" uses red, duration uses black
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(4),
                         bottomRight: Radius.circular(6),
@@ -321,7 +321,7 @@ class _ListVideosWidgetState extends ConsumerState<ListVideosWidget> {
                       isLive
                           ? "LIVE" // ✅ Show "LIVE" badge if live
                           : VideoDateUtils.formatSecondsToTime(
-                              video.duration), // ✅ Show duration if not live
+                          video.duration), // ✅ Show duration if not live
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,

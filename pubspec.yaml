@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.6.1
@@ -38,7 +38,7 @@ dependencies:
   system_theme: ^3.1.2
   infinite_scroll_pagination: ^4.1.0
 #  settings_ui: ^2.0.2
-  peer_tube_api_sdk: ^1.0.8
+  peer_tube_api_sdk: ^1.0.10
 #              git: https://github.com/RustLangLatam/peertube_api_sdk_dart.git
 
   peertube_toolkit:
@@ -56,7 +56,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: any
-  riverpod_generator: ^2.6.4
+  riverpod_generator: ^2.6.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -184,7 +184,7 @@ class _ListChannelVideosWidgetState
       pagingController: _pagingController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Show 2 videos per row
-        crossAxisSpacing: 8,
+        crossAxisSpacing: 10,
         mainAxisSpacing: 14,
         childAspectRatio: 16 / 14, // More compact
       ),
